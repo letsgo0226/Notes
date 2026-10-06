@@ -1,0 +1,1305 @@
+質數公式：由對數乘積、排列組合、Wilson 定理、質數計數與 Gödel 編碼導出的精確有限公式
+Prime Formula: An Exact Finite Derivation from Log-Products, Combinatorics, Wilson's Theorem, Prime Counting, and Gödel Encoding
+
+版本 / Version: 1.0
+語言 / Languages: 繁體中文 + English
+編碼 / Encoding: UTF-8
+
+======================================================================
+0. 目的與數學範圍
+0. Purpose and Mathematical Scope
+======================================================================
+
+【中文】
+本文建立一套「精確可計算」的質數公式框架。核心目標不是宣稱存在一個只由有限次
++, -, ×, ÷, exp, log 等標準初等函數構成、且直接輸出第 n 個質數 p_n 的已知閉式；
+目前並無已知的這種純初等標量閉式。
+
+本文改採幾個彼此等價或互補的精確結構：
+(1) 對數乘積：log(ab)=log(a)+log(b)；
+(2) 質數作為 log-space 中的不可分解元素；
+(3) Wilson 定理與排列數 (n-1)!；
+(4) 二項式係數的質數整除性；
+(5) 單位根濾波器作為精確整除投影；
+(6) 質數指示函數 χ_P(n)；
+(7) 質數計數函數 π(N)；
+(8) 第 r 個質數 p_r；
+(9) 對 prime-index pair (p_r,r) 進行 Gödel 編碼。
+
+所有有限公式均是精確等式，不依賴 Stirling、PNT 或浮點近似。
+
+【English】
+This document constructs an exactly computable framework for prime formulas. The goal is
+not to claim a known scalar closed form built only from finitely many standard elementary
+operations such as +, -, ×, ÷, exp, and log that directly outputs the nth prime p_n.
+No such purely elementary scalar closed form is currently known.
+
+Instead, we use several exact and mutually compatible structures:
+(1) the log-product identity log(ab)=log(a)+log(b);
+(2) primes as indecomposable elements in log-space;
+(3) Wilson's theorem and the permutation count (n-1)!;
+(4) divisibility of binomial coefficients for prime rows;
+(5) a roots-of-unity filter as an exact divisibility projector;
+(6) an exact prime indicator χ_P(n);
+(7) the prime-counting function π(N);
+(8) the r-th prime p_r;
+(9) Gödel encoding of the prime-index pair (p_r,r).
+
+All finite formulas below are exact identities and do not depend on Stirling approximation,
+the Prime Number Theorem, or floating-point approximation.
+
+
+======================================================================
+1. 對數乘積與質數的不可分解性
+1. Log-Products and the Indecomposability of Primes
+======================================================================
+
+【中文】
+對任意 a,b>0：
+
+    log(ab)=log(a)+log(b).
+
+若 n∈N, n>=2，且 n=ab，其中 a,b∈N_{>0}，令
+
+    x=log(a),  y=log(b).
+
+則
+
+    x+y=log(n).
+
+質數的定義：
+
+    p 為質數
+    <=> 對所有自然數 a,b，若 ab=p，則 a=1 或 b=1.
+
+由於
+
+    log(1)=0,
+
+所以完全等價於：
+
+    p 為質數
+    <=> 對所有 x,y∈log(N_{>0})，
+        若 x+y=log(p)，則 x=0 或 y=0.
+
+也可寫成：
+
+    p∈P
+    <=> 對所有 x,y∈log(N_{>0}),
+        x+y=log(p) => xy=0.
+
+注意：「存在一個 x=0 或 y=0 的分解」不足以判定質數，因為所有 n>1 都有
+n=1·n。真正需要的是「所有分解都必然有一端等於 1」。
+
+因此：
+
+    log(P)
+    =
+    log(N_{>=2})
+    \
+    (log(N_{>=2}) + log(N_{>=2})).
+
+換言之，log(p) 是加法半群 log(N_{>0}) 中的不可分解元素（atom）。
+
+【English】
+For any a,b>0,
+
+    log(ab)=log(a)+log(b).
+
+Let n∈N, n>=2, and suppose n=ab with a,b∈N_{>0}. Define
+
+    x=log(a),  y=log(b).
+
+Then
+
+    x+y=log(n).
+
+The definition of primality is
+
+    p is prime
+    <=> for every a,b∈N_{>0}, ab=p implies a=1 or b=1.
+
+Since
+
+    log(1)=0,
+
+this is exactly equivalent to
+
+    p is prime
+    <=> for every x,y∈log(N_{>0}),
+        x+y=log(p) implies x=0 or y=0.
+
+Equivalently,
+
+    p∈P
+    <=> for every x,y∈log(N_{>0}),
+        x+y=log(p) => xy=0.
+
+The phrase "there exists a factorization with x=0 or y=0" is not sufficient, because
+every n>1 has the trivial factorization n=1·n. The correct condition is that every
+factorization must have a factor equal to 1.
+
+Hence,
+
+    log(P)
+    =
+    log(N_{>=2})
+    \
+    (log(N_{>=2}) + log(N_{>=2})).
+
+Thus log(p) is an atom, i.e. an indecomposable element, of the additive monoid
+log(N_{>0}).
+
+
+======================================================================
+2. 對數分解缺陷量 Δ(n)
+2. The Log-Factorization Defect Δ(n)
+======================================================================
+
+【中文】
+定義：
+
+    Δ(n)
+    =
+    Σ_{ab=n} log(a)log(b)
+    =
+    Σ_{a|n} log(a)log(n/a).
+
+由於 a,b>=1，因此每一項皆 >=0。
+
+若 p 為質數，只有：
+
+    p=1·p=p·1,
+
+所以：
+
+    Δ(p)=0.
+
+若 n 為合數，則存在 a,b>1 且 ab=n，因此
+
+    log(a)>0, log(b)>0,
+
+至少有一個正項，故：
+
+    Δ(n)>0.
+
+因此得到精確判準：
+
+    n∈P
+    <=> Δ(n)=0,  n>=2.
+
+這個公式不使用 floor，也不依賴近似。
+
+若 n=p^k，則：
+
+    Δ(p^k)
+    =
+    Σ_{j=0}^k (j log p)((k-j)log p)
+
+    =
+    (log p)^2 Σ_{j=0}^k j(k-j)
+
+    =
+    [k(k^2-1)/6](log p)^2.
+
+因此：
+
+    k=1 => Δ(p)=0,
+    k>=2 => Δ(p^k)>0.
+
+【English】
+Define
+
+    Δ(n)
+    =
+    Σ_{ab=n} log(a)log(b)
+    =
+    Σ_{a|n} log(a)log(n/a).
+
+Since a,b>=1, every summand is nonnegative.
+
+If p is prime, the only factorizations are
+
+    p=1·p=p·1,
+
+so
+
+    Δ(p)=0.
+
+If n is composite, then some a,b>1 satisfy ab=n. Hence
+
+    log(a)>0, log(b)>0,
+
+so at least one summand is positive, and therefore
+
+    Δ(n)>0.
+
+Thus we obtain the exact criterion
+
+    n∈P
+    <=> Δ(n)=0,  n>=2.
+
+This formula uses no floor function and no approximation.
+
+For n=p^k,
+
+    Δ(p^k)
+    =
+    Σ_{j=0}^k (j log p)((k-j)log p)
+
+    =
+    (log p)^2 Σ_{j=0}^k j(k-j)
+
+    =
+    [k(k^2-1)/6](log p)^2.
+
+Therefore,
+
+    k=1 => Δ(p)=0,
+    k>=2 => Δ(p^k)>0.
+
+
+======================================================================
+3. 與 ζ'(s)^2 的 Dirichlet 級數關係
+3. Dirichlet-Series Relation with ζ'(s)^2
+======================================================================
+
+【中文】
+令 ℓ(n)=log n。Dirichlet convolution 定義：
+
+    (f*g)(n)=Σ_{ab=n} f(a)g(b).
+
+所以：
+
+    Δ = ℓ*ℓ.
+
+對 Re(s)>1：
+
+    -ζ'(s)
+    =
+    Σ_{n>=1} (log n)/n^s.
+
+Dirichlet 級數的乘法對應 Dirichlet convolution，因此：
+
+    ζ'(s)^2
+    =
+    Σ_{n>=1} Δ(n)/n^s.
+
+故：
+
+    n 為質數
+    <=> ζ'(s)^2 的 n^{-s} Dirichlet 係數為 0.
+
+必須注意：這不是說 ζ'(n)=0；這裡談的是 Dirichlet 係數。
+
+【English】
+Let ℓ(n)=log n. The Dirichlet convolution is
+
+    (f*g)(n)=Σ_{ab=n} f(a)g(b).
+
+Hence
+
+    Δ = ℓ*ℓ.
+
+For Re(s)>1,
+
+    -ζ'(s)
+    =
+    Σ_{n>=1} (log n)/n^s.
+
+Multiplication of Dirichlet series corresponds to Dirichlet convolution, so
+
+    ζ'(s)^2
+    =
+    Σ_{n>=1} Δ(n)/n^s.
+
+Therefore,
+
+    n is prime
+    <=> the coefficient of n^{-s} in the Dirichlet series ζ'(s)^2 is 0.
+
+Important: this does not mean ζ'(n)=0. It is a statement about a Dirichlet coefficient.
+
+
+======================================================================
+4. 單位根整除投影器
+4. Roots-of-Unity Divisibility Projector
+======================================================================
+
+【中文】
+對 q>=1，定義：
+
+    δ_q(m)
+    =
+    (1/q) Σ_{j=0}^{q-1} exp(2π i j m/q).
+
+利用有限幾何級數：
+
+若 q|m，則每一項皆為 1，因此：
+
+    δ_q(m)=1.
+
+若 q∤m，則比值 r=exp(2π i m/q) 不等於 1，而 r^q=1，因此：
+
+    Σ_{j=0}^{q-1} r^j = (1-r^q)/(1-r)=0,
+
+故：
+
+    δ_q(m)=0.
+
+所以：
+
+    δ_q(m)
+    =
+    1, 若 q|m;
+    0, 若 q∤m.
+
+這是一個精確的 0/1 整除投影器。
+
+【English】
+For q>=1, define
+
+    δ_q(m)
+    =
+    (1/q) Σ_{j=0}^{q-1} exp(2π i j m/q).
+
+By the finite geometric-series identity:
+
+If q|m, every term equals 1, so
+
+    δ_q(m)=1.
+
+If q∤m, then r=exp(2π i m/q) is not 1 while r^q=1, hence
+
+    Σ_{j=0}^{q-1} r^j = (1-r^q)/(1-r)=0,
+
+so
+
+    δ_q(m)=0.
+
+Therefore,
+
+    δ_q(m)
+    =
+    1 if q|m,
+    0 if q∤m.
+
+This is an exact binary divisibility projector.
+
+
+======================================================================
+5. Wilson 定理：排列公式的質數指示函數
+5. Wilson's Theorem: A Permutation-Based Prime Indicator
+======================================================================
+
+【中文】
+Wilson 定理：
+
+    n>=2 為質數
+    <=> (n-1)! ≡ -1 (mod n)
+
+等價於：
+
+    n | ((n-1)!+1).
+
+而 (n-1)! 正是 n-1 個元素的全排列數：
+
+    P(n-1,n-1)=(n-1)!.
+
+因此定義：
+
+    χ_P(n)
+    =
+    δ_n((n-1)!+1).
+
+展開：
+
+    χ_P(n)
+    =
+    (1/n)
+    Σ_{j=0}^{n-1}
+    exp[
+        2π i j ((n-1)!+1)/n
+    ].
+
+所以：
+
+    χ_P(n)=1, 若 n 為質數;
+    χ_P(n)=0, 若 n 為合數.
+
+這是一個有限且精確的質數指示公式。
+
+【English】
+Wilson's theorem states
+
+    n>=2 is prime
+    <=> (n-1)! ≡ -1 (mod n),
+
+equivalently,
+
+    n | ((n-1)!+1).
+
+The factorial (n-1)! is also the number of permutations of n-1 objects:
+
+    P(n-1,n-1)=(n-1)!.
+
+Define
+
+    χ_P(n)
+    =
+    δ_n((n-1)!+1).
+
+Expanding the projector gives
+
+    χ_P(n)
+    =
+    (1/n)
+    Σ_{j=0}^{n-1}
+    exp[
+        2π i j ((n-1)!+1)/n
+    ].
+
+Hence
+
+    χ_P(n)=1 if n is prime,
+    χ_P(n)=0 if n is composite.
+
+This is a finite and exact prime-indicator formula.
+
+
+======================================================================
+6. 組合公式：二項式係數版本
+6. Combination Formula: Binomial-Coefficient Version
+======================================================================
+
+【中文】
+另一個精確特徵：
+
+    n 為質數
+    <=> n | C(n,k), 對所有 1<=k<=n-1.
+
+因此定義：
+
+    B(n)
+    =
+    Π_{k=1}^{n-1}
+    δ_n(C(n,k)).
+
+則：
+
+    B(n)=1, 若 n 為質數;
+    B(n)=0, 若 n 為合數.
+
+展開：
+
+    B(n)
+    =
+    Π_{k=1}^{n-1}
+    [
+      (1/n)
+      Σ_{j=0}^{n-1}
+      exp(2π i j C(n,k)/n)
+    ].
+
+所以 Wilson/排列版本與二項式/組合版本都能形成精確 prime bit。
+
+【English】
+Another exact characterization is
+
+    n is prime
+    <=> n | C(n,k) for every 1<=k<=n-1.
+
+Therefore define
+
+    B(n)
+    =
+    Π_{k=1}^{n-1}
+    δ_n(C(n,k)).
+
+Then
+
+    B(n)=1 if n is prime,
+    B(n)=0 if n is composite.
+
+Expanding,
+
+    B(n)
+    =
+    Π_{k=1}^{n-1}
+    [
+      (1/n)
+      Σ_{j=0}^{n-1}
+      exp(2π i j C(n,k)/n)
+    ].
+
+Thus both the Wilson/permutation formulation and the binomial/combination formulation
+produce an exact prime bit.
+
+
+======================================================================
+7. 精確質數計數函數 π(N)
+7. The Exact Prime-Counting Function π(N)
+======================================================================
+
+【中文】
+由質數指示函數：
+
+    π(N)
+    =
+    Σ_{n=2}^N χ_P(n).
+
+代入 Wilson/單位根公式：
+
+    π(N)
+    =
+    Σ_{n=2}^N
+    (1/n)
+    Σ_{j=0}^{n-1}
+    exp[
+      2π i j ((n-1)!+1)/n
+    ].
+
+這是一個有限精確公式。
+
+同樣可以使用二項式版本：
+
+    π(N)
+    =
+    Σ_{n=2}^N
+    Π_{k=1}^{n-1}
+    [
+      (1/n)
+      Σ_{j=0}^{n-1}
+      exp(2π i j C(n,k)/n)
+    ].
+
+【English】
+From the prime indicator,
+
+    π(N)
+    =
+    Σ_{n=2}^N χ_P(n).
+
+Substituting the Wilson/roots-of-unity formula gives
+
+    π(N)
+    =
+    Σ_{n=2}^N
+    (1/n)
+    Σ_{j=0}^{n-1}
+    exp[
+      2π i j ((n-1)!+1)/n
+    ].
+
+This is a finite exact formula.
+
+Likewise, the binomial version is
+
+    π(N)
+    =
+    Σ_{n=2}^N
+    Π_{k=1}^{n-1}
+    [
+      (1/n)
+      Σ_{j=0}^{n-1}
+      exp(2π i j C(n,k)/n)
+    ].
+
+
+======================================================================
+8. 質數 n 與其序數 π(n)
+8. A Prime n and Its Ordinal π(n)
+======================================================================
+
+【中文】
+若 p 為質數，則其質數序數為：
+
+    r=π(p).
+
+因此：
+
+    p=p_r
+    <=> π(p)=r.
+
+代入前述精確公式：
+
+    r
+    =
+    Σ_{n=2}^{p}
+    (1/n)
+    Σ_{j=0}^{n-1}
+    exp[
+      2π i j ((n-1)!+1)/n
+    ].
+
+這將「質數本身」與「它是第幾個質數」放在同一個有限精確系統中。
+
+【English】
+If p is prime, its prime ordinal is
+
+    r=π(p).
+
+Thus
+
+    p=p_r
+    <=> π(p)=r.
+
+Using the exact formula above,
+
+    r
+    =
+    Σ_{n=2}^{p}
+    (1/n)
+    Σ_{j=0}^{n-1}
+    exp[
+      2π i j ((n-1)!+1)/n
+    ].
+
+This places the prime itself and its ordinal position inside one exact finite system.
+
+
+======================================================================
+9. 第 r 個質數 p_r
+9. The r-th Prime p_r
+======================================================================
+
+【中文】
+質數計數函數單調不減，且每遇到質數增加 1。因此：
+
+    p_r
+    =
+    min{N>=2 : π(N)=r}.
+
+代入 Wilson 公式：
+
+    p_r
+    =
+    min{
+      N>=2 :
+      Σ_{n=2}^{N}
+      (1/n)
+      Σ_{j=0}^{n-1}
+      exp[
+        2π i j ((n-1)!+1)/n
+      ]
+      = r
+    }.
+
+這是一個精確可計算的 nth-prime 定義。
+
+它仍包含 min，因此不是通常意義下只由固定有限次初等函數構成的 scalar closed form；
+但其內部的 prime test 與 prime count 都是有限精確的。
+
+【English】
+The prime-counting function is nondecreasing and increases by one exactly at primes. Thus
+
+    p_r
+    =
+    min{N>=2 : π(N)=r}.
+
+Substituting the Wilson formula,
+
+    p_r
+    =
+    min{
+      N>=2 :
+      Σ_{n=2}^{N}
+      (1/n)
+      Σ_{j=0}^{n-1}
+      exp[
+        2π i j ((n-1)!+1)/n
+      ]
+      = r
+    }.
+
+This is an exactly computable definition of the r-th prime.
+
+It still contains a minimization operator, so it is not a conventional scalar closed form
+built from a fixed finite composition of elementary functions. Nevertheless, its internal
+prime test and prime count are both finite and exact.
+
+
+======================================================================
+10. 對數乘積、Wilson、組合公式的統一
+10. Unification of Log-Products, Wilson, and Combinatorics
+======================================================================
+
+【中文】
+我們現在有三個不同但一致的 prime characterizations：
+
+(A) 對數不可分解：
+    n 為質數
+    <=> 對所有 ab=n，有 log(a)log(b)=0.
+
+(B) Wilson：
+    n 為質數
+    <=> n | ((n-1)!+1).
+
+(C) 二項式：
+    n 為質數
+    <=> n | C(n,k), 對所有 1<=k<=n-1.
+
+因此：
+
+    log-atom condition
+    <=> Wilson permutation condition
+    <=> binomial-row condition.
+
+三者可以視為同一個 prime bit χ_P(n) 的不同座標表示。
+
+【English】
+We now have three distinct but consistent characterizations of primality:
+
+(A) Logarithmic indecomposability:
+    n is prime
+    <=> for every ab=n, log(a)log(b)=0.
+
+(B) Wilson:
+    n is prime
+    <=> n | ((n-1)!+1).
+
+(C) Binomial:
+    n is prime
+    <=> n | C(n,k) for every 1<=k<=n-1.
+
+Hence,
+
+    log-atom condition
+    <=> Wilson permutation condition
+    <=> binomial-row condition.
+
+These can be viewed as different coordinate representations of the same prime bit χ_P(n).
+
+
+======================================================================
+11. 質因數譜與 log-space
+11. Prime-Factor Spectrum and Log-Space
+======================================================================
+
+【中文】
+唯一質因數分解：
+
+    n=Π_p p^{k_p},
+
+其中只有有限多個 k_p 非零。
+
+取 log：
+
+    log n = Σ_p k_p log p.
+
+因此：
+
+    log(N_{>0})
+    =
+    ⊕_{p∈P} N_0 log p.
+
+若加入分母，則：
+
+    log(Q_{>0})
+    =
+    ⊕_{p∈P} Z log p.
+
+質數 p_j 對應 occupation vector：
+
+    (0,...,0,1,0,...),
+
+所以：
+
+    Σ_p k_p = 1
+
+恰好描述 prime basis state。
+
+合數則滿足：
+
+    Σ_p k_p >= 2.
+
+【English】
+Unique factorization gives
+
+    n=Π_p p^{k_p},
+
+with only finitely many nonzero exponents k_p.
+
+Taking logarithms,
+
+    log n = Σ_p k_p log p.
+
+Therefore,
+
+    log(N_{>0})
+    =
+    ⊕_{p∈P} N_0 log p.
+
+Allowing denominators gives
+
+    log(Q_{>0})
+    =
+    ⊕_{p∈P} Z log p.
+
+A prime p_j corresponds to the occupation vector
+
+    (0,...,0,1,0,...),
+
+so the condition
+
+    Σ_p k_p = 1
+
+exactly describes a prime basis state.
+
+Composite numbers satisfy
+
+    Σ_p k_p >= 2.
+
+
+======================================================================
+12. Prime-index pair 的 Gödel 編碼
+12. Gödel Encoding of a Prime-Index Pair
+======================================================================
+
+【中文】
+若 p_r 為第 r 個質數，可定義：
+
+    G_r = 2^{p_r+1} 3^{r+1}.
+
+由質數分解唯一性：
+
+    p_r = v_2(G_r)-1,
+    r   = v_3(G_r)-1.
+
+因此：
+
+    (p_r,r)
+    <=> G_r
+
+是完全可逆的。
+
+若要加入更多資料，例如 prime indicator、tick、模型版本等，可繼續使用其它 coding primes：
+
+    G
+    =
+    2^{p+1}
+    3^{r+1}
+    5^{b+1}
+    7^{t+1}
+    ...
+
+其中每個指數皆可由 p-adic valuation 精確反解。
+
+【English】
+If p_r is the r-th prime, define
+
+    G_r = 2^{p_r+1} 3^{r+1}.
+
+By uniqueness of prime factorization,
+
+    p_r = v_2(G_r)-1,
+    r   = v_3(G_r)-1.
+
+Hence
+
+    (p_r,r)
+    <=> G_r
+
+is perfectly reversible.
+
+Additional data, such as a prime indicator, tick counter, or model version, can be encoded
+using further coding primes:
+
+    G
+    =
+    2^{p+1}
+    3^{r+1}
+    5^{b+1}
+    7^{t+1}
+    ...
+
+Each exponent can be recovered exactly by a p-adic valuation.
+
+
+======================================================================
+13. 與 Riemann ζ 函數的連接
+13. Connection with the Riemann Zeta Function
+======================================================================
+
+【中文】
+Euler product：
+
+    ζ(s)=Π_p (1-p^{-s})^{-1},  Re(s)>1.
+
+取對數：
+
+    log ζ(s)
+    =
+    Σ_p Σ_{m>=1} 1/(m p^{ms}).
+
+微分：
+
+    -ζ'(s)/ζ(s)
+    =
+    Σ_p Σ_{m>=1} (log p)/p^{ms}
+
+    =
+    Σ_{n>=1} Λ(n)/n^s.
+
+這顯示：
+
+    Euler product
+    -> logarithmic prime spectrum
+    -> von Mangoldt spectrum.
+
+但需強調：
+上述 Wilson/組合公式本身不需要 ζ 函數；
+ζ 函數提供的是另一種全域質數譜描述。
+
+【English】
+Euler's product is
+
+    ζ(s)=Π_p (1-p^{-s})^{-1},  Re(s)>1.
+
+Taking logarithms,
+
+    log ζ(s)
+    =
+    Σ_p Σ_{m>=1} 1/(m p^{ms}).
+
+Differentiating,
+
+    -ζ'(s)/ζ(s)
+    =
+    Σ_p Σ_{m>=1} (log p)/p^{ms}
+
+    =
+    Σ_{n>=1} Λ(n)/n^s.
+
+Thus,
+
+    Euler product
+    -> logarithmic prime spectrum
+    -> von Mangoldt spectrum.
+
+However, the Wilson/combinatorial formulas above do not require ζ. The zeta function
+provides a complementary global spectral description of the primes.
+
+
+======================================================================
+14. 精確性層級
+14. Levels of Exactness
+======================================================================
+
+【中文】
+本文應區分：
+
+(1) 精確有限判定：
+    Wilson、二項式整除、單位根投影、Δ(n)=0。
+
+(2) 精確有限計數：
+    π(N)=Σ χ_P(n)。
+
+(3) 精確序數反演：
+    p_r=min{N:π(N)=r}。
+
+(4) 精確結構表示：
+    log(P)=log(N>=2)\(log(N>=2)+log(N>=2))。
+
+(5) 漸近公式：
+    p_n ~ n log n，
+    π(x) ~ x/log x。
+    這些是極限/漸近資訊，不等同於每個有限 n 的 exact closed form。
+
+【English】
+We should distinguish:
+
+(1) Exact finite tests:
+    Wilson, binomial divisibility, roots-of-unity projectors, and Δ(n)=0.
+
+(2) Exact finite counting:
+    π(N)=Σ χ_P(n).
+
+(3) Exact ordinal inversion:
+    p_r=min{N:π(N)=r}.
+
+(4) Exact structural representation:
+    log(P)=log(N>=2)\(log(N>=2)+log(N>=2)).
+
+(5) Asymptotic formulas:
+    p_n ~ n log n,
+    π(x) ~ x/log x.
+    These describe limiting behavior and are not the same as an exact finite closed form
+    for every n.
+
+
+======================================================================
+15. 建議的核心「質數公式」
+15. Recommended Core Prime Formula
+======================================================================
+
+【中文】
+若要選一個最直接、完全有限、完全精確、且能同時導出 π(N) 與 p_r 的核心公式，
+可使用：
+
+    χ_P(n)
+    =
+    (1/n)
+    Σ_{j=0}^{n-1}
+    exp[
+      2π i j ((n-1)!+1)/n
+    ].
+
+然後：
+
+    π(N)
+    =
+    Σ_{n=2}^N χ_P(n),
+
+以及：
+
+    p_r
+    =
+    min{N>=2 : π(N)=r}.
+
+與此平行的 log-space 結構式為：
+
+    p∈P
+    <=>
+    對所有 x,y∈log(N_{>0}),
+    x+y=log p => xy=0.
+
+因此可以把整個系統壓縮成：
+
+    multiplicative factorization
+        ↓ log
+    additive decomposition
+        ↓ prime atom condition
+    exact prime bit
+        ↓ finite sum
+    π(N)
+        ↓ minimization
+    p_r
+        ↓ Gödel encoding
+    G_r.
+
+【English】
+If one wishes to select a single direct, finite, exact formula that also leads naturally
+to π(N) and p_r, use
+
+    χ_P(n)
+    =
+    (1/n)
+    Σ_{j=0}^{n-1}
+    exp[
+      2π i j ((n-1)!+1)/n
+    ].
+
+Then
+
+    π(N)
+    =
+    Σ_{n=2}^N χ_P(n),
+
+and
+
+    p_r
+    =
+    min{N>=2 : π(N)=r}.
+
+The parallel log-space structural statement is
+
+    p∈P
+    <=>
+    for every x,y∈log(N_{>0}),
+    x+y=log p => xy=0.
+
+Thus the whole framework can be summarized as
+
+    multiplicative factorization
+        ↓ log
+    additive decomposition
+        ↓ prime atom condition
+    exact prime bit
+        ↓ finite sum
+    π(N)
+        ↓ minimization
+    p_r
+        ↓ Gödel encoding
+    G_r.
+
+
+======================================================================
+16. 小型例子
+16. Small Examples
+======================================================================
+
+【中文】
+
+例 1：n=5
+
+Wilson：
+    (5-1)!+1 = 24+1 = 25,
+    5|25,
+所以 χ_P(5)=1。
+
+對數分解：
+    5=1·5=5·1,
+只有：
+    log 5 = 0 + log 5,
+    log 5 = log 5 + 0,
+所以 Δ(5)=0。
+
+因此 5 為質數。
+
+例 2：n=6
+
+Wilson：
+    5!+1 = 121,
+    6∤121,
+所以 χ_P(6)=0。
+
+對數分解：
+    6=2·3,
+    log 6=log 2+log 3,
+且兩項都 >0，所以 Δ(6)>0。
+
+因此 6 為合數。
+
+前 5 個質數：
+    2,3,5,7,11.
+
+因此：
+    π(11)=5,
+    p_5=11.
+
+對應 Gödel code：
+    G_5=2^{12}3^6.
+
+解碼：
+    v_2(G_5)-1=11,
+    v_3(G_5)-1=5.
+
+【English】
+
+Example 1: n=5
+
+Wilson:
+    (5-1)!+1 = 24+1 = 25,
+    5|25,
+so χ_P(5)=1.
+
+Log factorization:
+    5=1·5=5·1,
+hence only
+    log 5 = 0 + log 5,
+    log 5 = log 5 + 0,
+so Δ(5)=0.
+
+Therefore 5 is prime.
+
+Example 2: n=6
+
+Wilson:
+    5!+1 = 121,
+    6∤121,
+so χ_P(6)=0.
+
+Log factorization:
+    6=2·3,
+    log 6=log 2+log 3,
+and both terms are positive, so Δ(6)>0.
+
+Therefore 6 is composite.
+
+The first five primes are
+    2,3,5,7,11.
+
+Hence
+    π(11)=5,
+    p_5=11.
+
+The corresponding Gödel code is
+    G_5=2^{12}3^6.
+
+Decoding:
+    v_2(G_5)-1=11,
+    v_3(G_5)-1=5.
+
+
+======================================================================
+17. 結論
+17. Conclusion
+======================================================================
+
+【中文】
+本框架給出一條完全精確的有限計算鏈：
+
+    log(ab)=log(a)+log(b)
+        ↓
+    質數 = log-space 不可分解元素
+        ↓
+    Wilson / 組合整除條件
+        ↓
+    單位根精確 0/1 投影
+        ↓
+    χ_P(n)
+        ↓
+    π(N)
+        ↓
+    p_r
+        ↓
+    Gödel code.
+
+其中最核心的有限公式為：
+
+    χ_P(n)
+    =
+    (1/n)
+    Σ_{j=0}^{n-1}
+    exp[
+      2π i j ((n-1)!+1)/n
+    ],
+
+    π(N)=Σ_{n=2}^N χ_P(n),
+
+    p_r=min{N>=2:π(N)=r}.
+
+這些式子是精確的；但「含有有限和、階乘、min 或集合選擇算子」與「純初等標量閉式」
+是不同概念。本文前者成立，後者不作宣稱。
+
+【English】
+This framework gives a fully exact finite computational chain:
+
+    log(ab)=log(a)+log(b)
+        ↓
+    primes = indecomposable elements in log-space
+        ↓
+    Wilson / combinatorial divisibility criteria
+        ↓
+    exact 0/1 roots-of-unity projection
+        ↓
+    χ_P(n)
+        ↓
+    π(N)
+        ↓
+    p_r
+        ↓
+    Gödel code.
+
+The central exact finite formulas are
+
+    χ_P(n)
+    =
+    (1/n)
+    Σ_{j=0}^{n-1}
+    exp[
+      2π i j ((n-1)!+1)/n
+    ],
+
+    π(N)=Σ_{n=2}^N χ_P(n),
+
+    p_r=min{N>=2:π(N)=r}.
+
+These are exact. However, a formula involving finite sums, factorials, minimization, or set
+selection is conceptually different from a purely elementary scalar closed form. The former
+is established here; the latter is not claimed.
+
+======================================================================
+END / 結束
+======================================================================
