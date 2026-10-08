@@ -9,30 +9,120 @@ HSI-OPEN-CORPUS/1.0
 HSI-PLEIADIAN-BLUE-CARE/1.0
 ```
 
-## One-line launch
+## Cross-platform launch
 
-iSH:
+The same HSI Open-Corpus + HSI-SEARCH semantics are available through platform-native launchers.
+
+### iPhone / iPad — iSH
 
 ```sh
 wget -qO- https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
 ```
 
-macOS:
+### macOS
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
 ```
 
-Direct runtime input:
+### Android — Termux
 
 ```sh
-# iSH
-wget -qO- https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh -s -- "Blue Pleiadian Stars"
+pkg install -y python curl && curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
 ```
 
+After Python is installed once, the shorter form is:
+
 ```sh
-# macOS
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
+```
+
+### Windows — PowerShell
+
+```powershell
+$p = Join-Path $env:TEMP "hsi-corpus.ps1"; Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.ps1" -OutFile $p; & $p
+```
+
+The native Windows launcher downloads the same `hsi_open_corpus.py` and `hsi_search.py` used by Unix-like systems. It accepts Python through the Windows `py -3` launcher, `python3`, or `python`.
+
+If Python is missing:
+
+```powershell
+winget install Python.Python.3.13
+```
+
+### Windows — WSL
+
+Inside Ubuntu/Debian WSL:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
+```
+
+If Python is missing:
+
+```sh
+sudo apt-get update && sudo apt-get install -y python3 curl
+```
+
+### Linux
+
+For Linux distributions with Python 3 already installed:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
+```
+
+or:
+
+```sh
+wget -qO- https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
+```
+
+On Alpine, the launcher can install Python using `apk`. On Termux it can use `pkg`. Other Linux distributions should install Python 3 with their own package manager first.
+
+### ChromeOS — Linux development environment (Crostini)
+
+Inside the Linux terminal:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
+```
+
+If needed:
+
+```sh
+sudo apt-get update && sudo apt-get install -y python3 curl
+```
+
+### Raspberry Pi OS
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
+```
+
+### FreeBSD / other POSIX-like systems
+
+When Python 3 plus either `curl` or `wget` are already installed:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
+```
+
+## Direct runtime input
+
+Unix-like systems:
+
+```sh
 curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh -s -- "Blue Pleiadian Stars"
+```
+
+iSH may substitute `wget -qO-` for `curl -fsSL`.
+
+Windows PowerShell after downloading the launcher:
+
+```powershell
+& $p "Blue Pleiadian Stars"
 ```
 
 ## No AI
