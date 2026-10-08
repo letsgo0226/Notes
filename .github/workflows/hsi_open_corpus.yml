@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "hsi-corpus.sh"
+      - "hsi-corpus.ps1"
       - "hsi_open_corpus.py"
       - "hsi_search.py"
       - "HSI_OPEN_CORPUS.md"
@@ -140,3 +141,28 @@ jobs:
           assert a["audio_sha256"]==b["audio_sha256"]
           assert b["technical_closed"]==1
           PY
+
+  windows-launcher:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify native PowerShell launcher syntax
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Join-Path $PWD "hsi-corpus.ps1"),
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -ne 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+          $text = Get-Content -Raw "hsi-corpus.ps1"
+          if ($text -notmatch "hsi_open_corpus.py") { throw "missing corpus client" }
+          if ($text -notmatch "hsi_search.py") { throw "missing HSI SEARCH client" }
+          if ($text -match "ACE-Step|torch|tensorflow|transformers|diffusion|Suno|Runway|fal.ai") {
+            throw "AI/neural dependency found in Windows launcher"
+          }
