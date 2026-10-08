@@ -47,6 +47,7 @@ TARGETS={
         "label":"TRADER_42",
         "repo":"letsgo0226/Trader_42.sh",
         "ref":"hsi-three-system-v1",
+        "auth_required":True,
         "files":{
             "hsi_common/core.py":"core.py",
             "hsi_blue_native.py":"hsi_blue_native.py"
@@ -71,8 +72,15 @@ ALIASES={
     "all":"all"
 }
 
+def _github_token():
+    return (os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN") or "").strip()
+
 def _http_bytes(url,timeout=30):
-    req=urllib.request.Request(url,headers={"User-Agent":USER_AGENT,"Accept":"application/vnd.github+json,*/*"})
+    headers={"User-Agent":USER_AGENT,"Accept":"application/vnd.github+json,*/*"}
+    token=_github_token()
+    if token and (url.startswith("https://api.github.com/") or url.startswith("https://raw.githubusercontent.com/")):
+        headers["Authorization"]="Bearer "+token
+    req=urllib.request.Request(url,headers=headers)
     try:
         with urllib.request.urlopen(req,timeout=timeout) as r:
             data=r.read(MAX_FILE_BYTES+1)
@@ -204,7 +212,8 @@ def observe_environment(root,targets):
         "install_parent_writable":bool(writable),
         "targets":targets,
         "live_trading_authorized":False,
-        "autonomous_domain_action_authorized":False
+        "autonomous_domain_action_authorized":False,
+        "github_auth_available":bool(_github_token())
     }
 
 def solve_plan(root,targets):
@@ -220,6 +229,13 @@ def solve_plan(root,targets):
     if status=="DEPLOYABLE":
         for name in targets:
             spec=TARGETS[name]
+            if spec.get("auth_required") and not _github_token():
+                observations.append({
+                    "target":name,"repo":spec["repo"],"ref":spec["ref"],
+                    "status":"AUTH_REQUIRED",
+                    "reason":"private_repository_requires_GITHUB_TOKEN_or_GH_TOKEN"
+                })
+                status="UNRESOLVED";reason="private_source_auth_required";break
             try:
                 commit,url,method=resolve_commit(spec["repo"],spec["ref"])
                 sources[name]={"repo":spec["repo"],"ref":spec["ref"],"commit":commit,"resolver_url":url,"resolver_method":method,"files":spec["files"]}
@@ -252,6 +268,8 @@ def solve_plan(root,targets):
         "invariants":{
             "immutable_commit_resolution_required":True,
             "partial_source_resolution_never_commits":True,
+            "private_source_without_auth_never_commits":True,
+            "credentials_are_never_written_to_certificates":True,
             "verification_failure_never_commits":True,
             "deployment_does_not_imply_domain_execution":True,
             "trader_live_authority":False,
