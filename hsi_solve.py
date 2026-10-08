@@ -203,7 +203,7 @@ def solve_self(out_root):
         "search_version_present":bool(HSI_SEARCH_VERSION),
         "all_domains_verified":all(x.get("verified") for x in deployments),
         "domain_count":len(deployments)==3,
-        "universal_solution_claim":False,
+        "no_universal_solution_claim":True,
         "finite_verification_only":True
     }
     closed=all(checks.values())
