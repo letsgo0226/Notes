@@ -64,11 +64,15 @@ The completed certificate receives a second E257 identifier over the actual retu
 
 ## Current source adapter
 
-Version 1 ships with:
+Version 1.4 ships with:
 
 ```text
 openverse_audio
+wikimedia_commons_audio
+network_audio
 ```
+
+`network_audio` is the finite union of the two external adapters.
 
 It searches the Openverse audio API. The operator itself supports a local admission policy, so the calling system may say, for example:
 
@@ -179,3 +183,10 @@ curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-search.sh
 ```
 
 When a record's primary file is not WAV, HSI SEARCH may select a WAV listed in Openverse `alt_files`; the selected variant is recorded as `selected_media_variant=alt_file`.
+
+
+## Wikimedia Commons adapter
+
+The Commons adapter uses the public MediaWiki Action API to search the File namespace for WAV audio and reads machine-readable `imageinfo` / `extmetadata` fields for provenance and license admission.
+
+It remains subject to the same local HSI policy: CC0/PDM only, music/sound_effect only, and pronunciation/Lingua Libre lexical clips rejected.
