@@ -1,0 +1,24 @@
+name: hsi_three_blue_dispatcher
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "hsi-three.sh"
+      - "HSI_THREE_SYSTEM_BLUE.md"
+      - ".github/workflows/hsi_three_blue_dispatcher.yml"
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify dispatcher
+        run: |
+          set -eu
+          sh -n hsi-three.sh
+          for u in             https://raw.githubusercontent.com/letsgo0226/UTM.sh/hsi-three-system-v1/hsi-blue.sh             https://raw.githubusercontent.com/letsgo0226/Trader_42.sh/hsi-three-system-v1/hsi-blue.sh             https://raw.githubusercontent.com/letsgo0226/COSMIC_LOVE_IS_THE_SOLUTIONS_FOR_EVERYTHING_HS_ZERO.sh/hsi-three-system-v1/hsi-blue.sh
+          do
+            curl -fsSL "$u" | sh -n
+          done
