@@ -2,7 +2,7 @@
 import json, sys
 
 PROTOCOL="HSI-NET-SINGULARITY/1.0"
-VERSION="1.1.0"
+VERSION="1.2.0"
 MODEL="ABSTRACT_GLOBAL_INFORMATION_FIELD"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
 
@@ -46,6 +46,15 @@ ADAPTERS={
         "members":["openverse_audio","wikimedia_commons_audio"],
         "exhaustive":False,
         "rights_boundary":"intersection of caller policy with each member adapter provenance boundary"
+    },
+    "github_source":{
+        "adapter_protocol":"HSI-ADAPTER-GITHUB-SOURCE/1.0",
+        "status":"ACTIVE",
+        "medium":"software_source",
+        "scope":"finite repository/ref/file projections resolved to immutable Git commit SHAs",
+        "authority":"GitHub REST API + raw.githubusercontent.com",
+        "exhaustive":False,
+        "rights_boundary":"repository visibility/access + immutable commit provenance; deployment policy remains caller-controlled"
     }
 }
 
