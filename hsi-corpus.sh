@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-PIN="3648741bb18697148a7c121cd31c460d7276c114"
+PIN="71be7f28917ec94abcb247db8b4150971c79e532"
 RAW="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_open_corpus.py"
 RAW_SEARCH="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_search.py"
 RAW_NET="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_net.py"
