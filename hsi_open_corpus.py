@@ -6,7 +6,7 @@ from hsi_search import run_search, VERSION as HSI_SEARCH_VERSION
 
 PROTOCOL="HSI-OPEN-CORPUS/1.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
-VERSION="1.6.0"
+VERSION="1.7.0"
 MIN_HSI_SEARCH_VERSION=(1,4,0)
 
 def _semver_tuple(v):
@@ -157,20 +157,53 @@ def discover(text):
 
 def cache_path(item):
     safe="".join(c if c.isalnum() or c in "-_" else "_" for c in item["openverse_id"])
-    return CACHE/(safe+".wav")
+    # The byte budget is part of cache identity because large WAV sources may
+    # intentionally be cached as a finite prefix rather than as the full file.
+    return CACHE/(safe+"-"+str(MAX_BYTES)+".wav")
+
+def _source_total_bytes(item,response=None):
+    reported=item.get("filesize")
+    try:
+        if reported is not None and int(reported)>0:return int(reported)
+    except Exception:
+        pass
+    if response is not None:
+        cr=response.headers.get("Content-Range")
+        if cr and "/" in cr:
+            try:return int(cr.rsplit("/",1)[1])
+            except Exception:pass
+        cl=response.headers.get("Content-Length")
+        try:
+            if cl:return int(cl)
+        except Exception:pass
+    return None
 
 def download(item):
     CACHE.mkdir(parents=True,exist_ok=True)
     p=cache_path(item)
+    total=_source_total_bytes(item)
     if p.exists() and p.stat().st_size>44:
         raw=p.read_bytes()
         item["cache_hit"]=True
+        item["download_mode"]="cache_prefix" if total and total>len(raw) else "cache_full"
     else:
-        req=urllib.request.Request(item["media_url"],headers={"User-Agent":"HSI-Open-Corpus/1.0"})
+        headers={
+            "User-Agent":"HSI-Open-Corpus/1.7",
+            "Range":"bytes=0-%d"%(MAX_BYTES-1)
+        }
+        req=urllib.request.Request(item["media_url"],headers=headers)
         with urllib.request.urlopen(req,timeout=60) as r:
-            raw=r.read(MAX_BYTES+1)
-        if len(raw)>MAX_BYTES:raise ValueError("source exceeds HSI_CORPUS_MAX_BYTES")
+            raw=r.read(MAX_BYTES)
+            total=_source_total_bytes(item,r) or total
+            status=getattr(r,"status",None)
+        if len(raw)<=44:raise ValueError("source prefix is too small to contain WAV audio")
         p.write_bytes(raw);item["cache_hit"]=False
+        item["download_http_status"]=status
+        item["download_mode"]="prefix_range" if total and total>len(raw) else "full"
+    item["source_total_bytes"]=total
+    item["downloaded_bytes"]=len(raw)
+    item["partial_source"]=bool(total and total>len(raw))
+    item["raw_scope"]="downloaded_prefix" if item["partial_source"] else "full_source"
     item["raw_sha256"]=hashlib.sha256(raw).hexdigest()
     item["raw_bytes"]=len(raw)
     return p
@@ -393,6 +426,11 @@ def main():
         "primary_media_url":x.get("primary_media_url"),
         "primary_filetype":x.get("primary_filetype"),
         "category":x.get("category"),"genres":x.get("genres") or [],"tags":x.get("tags") or [],
+        "source_total_bytes":x.get("source_total_bytes") or x.get("filesize"),
+        "downloaded_bytes":x.get("downloaded_bytes") or x.get("raw_bytes"),
+        "partial_source":bool(x.get("partial_source")),
+        "download_mode":x.get("download_mode"),
+        "raw_scope":x.get("raw_scope"),
         "raw_sha256":x.get("raw_sha256"),"raw_bytes":x.get("raw_bytes"),
         "license_basis":x.get("license_basis") or "ADAPTER_METADATA",
         "license_independently_verified":bool(RIGHTS_ATTESTED)
@@ -415,8 +453,10 @@ def main():
         "search_status":search_cert.get("status"),
         "search_epistemic_rule":search_cert.get("epistemic_rule"),
         "license_filter":["cc0","pdm"],"format_filter":["wav"],
-        "wav_selection":"primary_or_openverse_alt_files",
-        "source_preference":["freesound"],
+        "wav_selection":"primary_or_openverse_alt_files_or_commons_wav",
+        "large_wav_policy":"finite_prefix_up_to_HSI_CORPUS_MAX_BYTES",
+        "max_download_bytes_per_source":MAX_BYTES,
+        "source_preference":["openverse:freesound","wikimedia_commons_audio"],
         "category_filter":["music","sound_effect"],
         "speech_policy":"EXCLUDE_PRONUNCIATION_AUDIOBOOK_PODCAST_NEWS_AND_LINGUALIBRE_LEXICAL_CLIPS",
         "license_assurance":"USER_ATTESTED" if RIGHTS_ATTESTED else "OPENVERSE_INDEX_ASSERTED_NOT_INDEPENDENTLY_VERIFIED",
