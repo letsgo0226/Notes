@@ -56,6 +56,8 @@ The protocol does not claim that a GitHub repository or branch is exhaustive of 
 
 ```text
 partial source resolution never commits
+private source without auth never commits
+credentials are never written to certificates
 verification failure never commits
 deployment does not imply domain execution
 Trader live authority = false
@@ -121,7 +123,33 @@ iSH may use:
 wget -qO- https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-deploy.sh | sh
 ```
 
-Default behavior deploys all four targets.
+Default behavior attempts all four targets.
+
+`Trader_42.sh` is currently private. Therefore an all-target deployment requires GitHub authentication that can read that repository. If no such credential is available, HSI returns `HOLD / AUTH_REQUIRED`; it does not reinterpret GitHub's unauthenticated 404 as proof that the branch does not exist.
+
+The bootstrap checks, in order:
+
+```text
+GITHUB_TOKEN
+GH_TOKEN
+gh auth token   (only when GitHub CLI is already installed and authenticated)
+```
+
+A token obtained from `gh auth token` is exported only to the current deployment process. The deployment certificate never records the credential.
+
+To authenticate with GitHub CLI beforehand:
+
+```sh
+gh auth login
+```
+
+Or explicitly provide a token with access to the private Trader repository:
+
+```sh
+GITHUB_TOKEN="..." curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-deploy.sh | sh
+```
+
+Do not paste that token into logs or commit it to a repository.
 
 Plan only:
 
