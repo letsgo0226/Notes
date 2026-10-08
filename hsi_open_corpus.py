@@ -6,8 +6,8 @@ from hsi_search import run_search, VERSION as HSI_SEARCH_VERSION
 
 PROTOCOL="HSI-OPEN-CORPUS/1.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
-VERSION="1.3.0"
-MIN_HSI_SEARCH_VERSION=(1,1,0)
+VERSION="1.4.0"
+MIN_HSI_SEARCH_VERSION=(1,2,0)
 
 def _semver_tuple(v):
     try:
@@ -17,7 +17,7 @@ def _semver_tuple(v):
 
 if _semver_tuple(HSI_SEARCH_VERSION) < MIN_HSI_SEARCH_VERSION:
     raise SystemExit(
-        "HSI version mismatch: Open-Corpus %s requires HSI-SEARCH >= 1.1.0; got %s. "
+        "HSI version mismatch: Open-Corpus %s requires HSI-SEARCH >= 1.2.0; got %s. "
         "Rerun the public launcher so both components are refreshed together."
         % (VERSION, HSI_SEARCH_VERSION)
     )
@@ -99,7 +99,9 @@ def discover(text):
         "license_allow":["cc0","pdm"],
         "extension_allow":["wav"],
         "category_allow":["music","sound_effect"],
-        "category_deny":["pronunciation","audiobook","podcast","news"]
+        "category_deny":["pronunciation","audiobook","podcast","news"],
+        "source_prefer":["freesound"],
+        "source_exclude":[]
     }
     budget={
         "max_results":MAX_ITEMS,
@@ -126,6 +128,10 @@ def discover(text):
             "duration_ms":x.get("duration_ms"),
             "filesize":x.get("filesize"),
             "sample_rate":x.get("sample_rate"),
+            "selected_media_variant":x.get("selected_media_variant"),
+            "primary_media_url":x.get("primary_media_url"),
+            "primary_filetype":x.get("primary_filetype"),
+            "alt_files":x.get("alt_files") or [],
             "category":x.get("category"),
             "genres":x.get("genres") or [],
             "tags":x.get("tags") or [],
@@ -136,7 +142,7 @@ def discover(text):
         })
     items,renderer_rejected=renderer_admit_sources(items)
     cert["renderer_admission"]={
-        "required_search_version":">=1.1.0",
+        "required_search_version":">=1.2.0",
         "actual_search_version":HSI_SEARCH_VERSION,
         "admitted_after_renderer_gate":len(items),
         "rejected_after_renderer_gate":len(renderer_rejected),
@@ -337,6 +343,8 @@ def main():
         "sources":used,
         "license_filter":["cc0","pdm"],
         "format_filter":["wav"],
+        "wav_selection":"primary_or_openverse_alt_files",
+        "source_preference":["freesound"],
         "category_filter":["music","sound_effect"],
         "speech_policy":"EXCLUDE_PRONUNCIATION_AUDIOBOOK_PODCAST_NEWS_AND_LINGUALIBRE_LEXICAL_CLIPS",
         "youtube_audio_used":False,
@@ -377,6 +385,9 @@ def main():
         "license":x.get("license"),"license_version":x.get("license_version"),
         "media_url":x.get("media_url"),"landing_url":x.get("landing_url"),
         "provider":x.get("provider"),"source":x.get("source"),
+        "selected_media_variant":x.get("selected_media_variant"),
+        "primary_media_url":x.get("primary_media_url"),
+        "primary_filetype":x.get("primary_filetype"),
         "category":x.get("category"),"genres":x.get("genres") or [],"tags":x.get("tags") or [],
         "raw_sha256":x.get("raw_sha256"),"raw_bytes":x.get("raw_bytes"),
         "license_basis":"OPENVERSE_INDEX_METADATA",
@@ -388,7 +399,7 @@ def main():
         "generation_basis_e257":basis,
         "renderer":"open-corpus-retrieval-dsp",
         "hsi_search_version":HSI_SEARCH_VERSION,
-        "minimum_hsi_search_version":"1.1.0",
+        "minimum_hsi_search_version":"1.2.0",
         "ai_model":False,"neural_renderer":False,"machine_learning":False,
         "youtube_audio_used":False,
         "corpus_provider":"Openverse API",
@@ -397,6 +408,8 @@ def main():
         "search_status":search_cert.get("status"),
         "search_epistemic_rule":search_cert.get("epistemic_rule"),
         "license_filter":["cc0","pdm"],"format_filter":["wav"],
+        "wav_selection":"primary_or_openverse_alt_files",
+        "source_preference":["freesound"],
         "category_filter":["music","sound_effect"],
         "speech_policy":"EXCLUDE_PRONUNCIATION_AUDIOBOOK_PODCAST_NEWS_AND_LINGUALIBRE_LEXICAL_CLIPS",
         "license_assurance":"USER_ATTESTED" if RIGHTS_ATTESTED else "OPENVERSE_INDEX_ASSERTED_NOT_INDEPENDENTLY_VERIFIED",
