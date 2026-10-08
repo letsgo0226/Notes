@@ -2,7 +2,7 @@
 import json, sys
 
 PROTOCOL="HSI-NET-SINGULARITY/1.0"
-VERSION="1.0.0"
+VERSION="1.1.0"
 MODEL="ABSTRACT_GLOBAL_INFORMATION_FIELD"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
 
@@ -27,6 +27,25 @@ ADAPTERS={
         "authority":"Openverse API",
         "exhaustive":False,
         "rights_boundary":"caller policy + source provenance + independent rights review where needed"
+    },
+    "wikimedia_commons_audio":{
+        "adapter_protocol":"HSI-ADAPTER-WIKIMEDIA-COMMONS-AUDIO/1.0",
+        "status":"ACTIVE",
+        "medium":"audio",
+        "scope":"audio files and machine-readable rights metadata exposed by Wikimedia Commons",
+        "authority":"Wikimedia Commons Action API",
+        "exhaustive":False,
+        "rights_boundary":"Commons extmetadata + caller policy + independent rights review where needed"
+    },
+    "network_audio":{
+        "adapter_protocol":"HSI-ADAPTER-NETWORK-AUDIO-UNION/1.0",
+        "status":"ACTIVE",
+        "medium":"audio",
+        "scope":"finite union projection over registered public audio adapters",
+        "authority":"HSI NET adapter union",
+        "members":["openverse_audio","wikimedia_commons_audio"],
+        "exhaustive":False,
+        "rights_boundary":"intersection of caller policy with each member adapter provenance boundary"
     }
 }
 
@@ -102,7 +121,7 @@ def main():
         query=input("projection> ").strip()
     if not query:
         raise SystemExit("projection query required")
-    adapters=a.adapter or ["openverse_audio"]
+    adapters=a.adapter or ["network_audio"]
     unknown=[x for x in adapters if x not in ADAPTERS]
     status="UNRESOLVED" if unknown else "PROJECTABLE"
     req=projection_request(query,adapters,{},{"max_calls":a.max_calls,"max_results":a.max_results})
