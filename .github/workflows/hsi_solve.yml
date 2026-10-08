@@ -1,0 +1,117 @@
+name: hsi_solve
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "hsi-solve.sh"
+      - "hsi-solve.ps1"
+      - "hsi_solve.py"
+      - "hsi_net.py"
+      - "hsi_search.py"
+      - "HSI_SOLVE.md"
+      - "HSI_SOLVE_PLATFORMS.txt"
+      - ".github/workflows/hsi_solve.yml"
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Syntax and protocol invariants
+        run: |
+          set -eu
+          sh -n hsi-solve.sh
+          python3 -m py_compile hsi_net.py hsi_search.py hsi_solve.py
+          grep -q 'PROTOCOL="HSI-SOLVE/1.0"' hsi_solve.py
+          grep -q '"universal_solver":False' hsi_solve.py
+          grep -q '"problem_totality_claim":False' hsi_solve.py
+          grep -q '"no_universal_solution_claim":True' hsi_solve.py
+          grep -q 'may_authorize_trade' hsi_solve.py
+          grep -q 'may_decide_nonhalting' hsi_solve.py
+          grep -q 'may_force_commit' hsi_solve.py
+
+      - name: Verify SELF deployment closure
+        run: |
+          set -eu
+          rm -rf /tmp/hsi-solve-self
+          HSI_SOLVE_OUT=/tmp/hsi-solve-self \
+          python3 hsi_solve.py --system SELF "verify HSI deployment"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("/tmp/hsi-solve-self")
+          c=json.loads((p/"solve.hsicert").read_text())
+          d=json.loads((p/"deployment.lock.json").read_text())
+          assert c["protocol"]=="HSI-SOLVE/1.0"
+          assert c["version"]=="1.0.0"
+          assert c["verification_closed"] is True
+          assert c["problem_totality_claim"] is False
+          assert c["universal_solver_claim"] is False
+          assert c["solution_status"]["SELF"]=="COMMITTED"
+          selfr=c["results"]["SELF"]
+          assert selfr["verification_closed"] is True
+          assert selfr["checks"]["all_domains_verified"] is True
+          assert selfr["checks"]["no_universal_solution_claim"] is True
+          assert set(d["domains"])=={"UTM","TRADER_42","OMEGA"}
+          assert d["domains"]["UTM"]["commit"]=="4a1741da98710d45cc8bc517424154e41689abeb"
+          assert d["domains"]["TRADER_42"]["commit"]=="0cd4a105fb5b560e85a7335a276565c70ac72fe2"
+          assert d["domains"]["OMEGA"]["commit"]=="42a881aef8195ee715ab976855d5ab71bed97d47"
+          PY
+
+      - name: Execute all three finite domain adapters
+        run: |
+          set -eu
+          rm -rf /tmp/hsi-solve-all
+          HSI_SOLVE_OUT=/tmp/hsi-solve-all \
+          python3 hsi_solve.py --system ALL "finite solver integration test"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.loads(Path("/tmp/hsi-solve-all/solve.hsicert").read_text())
+          assert c["verification_closed"] is True
+          assert c["solution_status"]["SELF"]=="COMMITTED"
+          assert c["solution_status"]["UTM"]=="UNRESOLVED"
+          assert c["solution_status"]["TRADER_42"]=="HOLD"
+          assert c["solution_status"]["OMEGA"]=="UNRESOLVED"
+
+          u=c["results"]["UTM"]
+          assert u["checks"]["no_nonhalting_oracle"] is True
+          assert u["domain_result"]["certificate"]["claims"]["halting_decider"]==0
+
+          t=c["results"]["TRADER_42"]
+          assert t["checks"]["hold"] is True
+          assert t["checks"]["no_trade_authorization"] is True
+          assert t["checks"]["paper"] is True
+          assert t["checks"]["dry_run"] is True
+          assert t["checks"]["unarmed"] is True
+          assert t["checks"]["no_order_submission"] is True
+          ts=t["domain_result"]["blue_care"]["trading_safety"]
+          assert ts["order_submission"] is False and ts["live_armed"] is False
+
+          o=c["results"]["OMEGA"]
+          assert o["checks"]["no_forced_commit"] is True
+          assert o["solver_status"]=="UNRESOLVED"
+          PY
+
+  windows-launcher:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify PowerShell launcher syntax
+        shell: pwsh
+        run: |
+          $tokens=$null;$errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Join-Path $PWD "hsi-solve.ps1"),[ref]$tokens,[ref]$errors
+          ) | Out-Null
+          if($errors.Count -ne 0){$errors|ForEach-Object{Write-Error $_.Message};exit 1}
+          $text=Get-Content -Raw "hsi-solve.ps1"
+          foreach($name in @("hsi_solve.py","hsi_net.py","hsi_search.py")){
+            if($text -notmatch [regex]::Escape($name)){throw "missing $name"}
+          }
+          if($text -match "ACE-Step|torch|tensorflow|transformers|diffusion|Suno|Runway|fal.ai"){
+            throw "unexpected AI/neural dependency in HSI SOLVE launcher"
+          }
