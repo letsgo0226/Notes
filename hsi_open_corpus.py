@@ -6,8 +6,8 @@ from hsi_search import run_search, VERSION as HSI_SEARCH_VERSION
 
 PROTOCOL="HSI-OPEN-CORPUS/1.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
-VERSION="1.4.0"
-MIN_HSI_SEARCH_VERSION=(1,2,0)
+VERSION="1.5.0"
+MIN_HSI_SEARCH_VERSION=(1,3,0)
 
 def _semver_tuple(v):
     try:
@@ -17,7 +17,7 @@ def _semver_tuple(v):
 
 if _semver_tuple(HSI_SEARCH_VERSION) < MIN_HSI_SEARCH_VERSION:
     raise SystemExit(
-        "HSI version mismatch: Open-Corpus %s requires HSI-SEARCH >= 1.2.0; got %s. "
+        "HSI version mismatch: Open-Corpus %s requires HSI-SEARCH >= 1.3.0; got %s. "
         "Rerun the public launcher so both components are refreshed together."
         % (VERSION, HSI_SEARCH_VERSION)
     )
@@ -142,7 +142,7 @@ def discover(text):
         })
     items,renderer_rejected=renderer_admit_sources(items)
     cert["renderer_admission"]={
-        "required_search_version":">=1.2.0",
+        "required_search_version":">=1.3.0",
         "actual_search_version":HSI_SEARCH_VERSION,
         "admitted_after_renderer_gate":len(items),
         "rejected_after_renderer_gate":len(renderer_rejected),
@@ -349,6 +349,8 @@ def main():
         "speech_policy":"EXCLUDE_PRONUNCIATION_AUDIOBOOK_PODCAST_NEWS_AND_LINGUALIBRE_LEXICAL_CLIPS",
         "youtube_audio_used":False,
         "search_protocol":"HSI-SEARCH/1.0",
+        "net_protocol":search_cert.get("net_protocol"),
+        "net_projection_uid":(search_cert.get("net_projection") or {}).get("projection_uid"),
         "search_uid":search_cert.get("search_uid"),
         "search_status":search_cert.get("status"),
         "search_certificate":search_cert
@@ -399,11 +401,14 @@ def main():
         "generation_basis_e257":basis,
         "renderer":"open-corpus-retrieval-dsp",
         "hsi_search_version":HSI_SEARCH_VERSION,
-        "minimum_hsi_search_version":"1.2.0",
+        "minimum_hsi_search_version":"1.3.0",
         "ai_model":False,"neural_renderer":False,"machine_learning":False,
         "youtube_audio_used":False,
         "corpus_provider":"Openverse API",
         "search_protocol":"HSI-SEARCH/1.0",
+        "net_protocol":search_cert.get("net_protocol"),
+        "net_projection_uid":(search_cert.get("net_projection") or {}).get("projection_uid"),
+        "net_model":(search_cert.get("net_projection") or {}).get("model"),
         "search_uid":search_cert.get("search_uid"),
         "search_status":search_cert.get("status"),
         "search_epistemic_rule":search_cert.get("epistemic_rule"),
