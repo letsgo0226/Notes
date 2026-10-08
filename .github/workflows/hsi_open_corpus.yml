@@ -8,6 +8,7 @@ on:
       - "hsi-corpus.ps1"
       - "hsi_open_corpus.py"
       - "hsi_search.py"
+      - "hsi_net.py"
       - "HSI_OPEN_CORPUS.md"
       - ".github/workflows/hsi_open_corpus.yml"
   workflow_dispatch:
@@ -21,13 +22,14 @@ jobs:
         run: |
           set -eu
           sh -n hsi-corpus.sh
-          python3 -m py_compile hsi_search.py hsi_open_corpus.py
+          python3 -m py_compile hsi_net.py hsi_search.py hsi_open_corpus.py
           grep -q 'ai_model":False' hsi_open_corpus.py
           grep -q 'neural_renderer":False' hsi_open_corpus.py
           grep -q 'machine_learning":False' hsi_open_corpus.py
           grep -q 'youtube_audio_used":False' hsi_open_corpus.py
           ! grep -Eiq 'torch|tensorflow|transformers|diffusion|openai|suno|runway|fal.ai' hsi_open_corpus.py
           grep -q 'from hsi_search import run_search' hsi_open_corpus.py
+          grep -q 'HSI-NET-SINGULARITY/1.0' hsi_search.py
           ! grep -q 'def search(' hsi_open_corpus.py
           ! grep -q 'def http_json(' hsi_open_corpus.py
       - name: Version mismatch fails closed
@@ -46,7 +48,7 @@ jobs:
           code=$?
           set -e
           test "$code" -ne 0
-          grep -q "requires HSI-SEARCH >= 1.1.0" /tmp/version.out
+          grep -q "requires HSI-SEARCH >= 1.3.0" /tmp/version.out
       - name: Launcher bundle pin
         run: |
           set -eu
@@ -54,6 +56,7 @@ jobs:
           grep -q '^\$Pin = "[0-9a-f]\{40\}"' hsi-corpus.ps1
           grep -q 'Notes/\$PIN/hsi_open_corpus.py' hsi-corpus.sh
           grep -q 'Notes/\$PIN/hsi_search.py' hsi-corpus.sh
+          grep -q 'Notes/\$PIN/hsi_net.py' hsi-corpus.sh
       - name: Start mock Openverse
         run: |
           cat >/tmp/mock_openverse.py <<'PY'
@@ -84,32 +87,35 @@ jobs:
                       q=urllib.parse.parse_qs(u.query)
                       assert q.get("q")
                       assert int(q.get("page_size",["0"])[0])<=20
+                      if "source" in q:
+                          assert q.get("source")==["freesound"]
                       if "license" in q:
                           assert q.get("license")==["cc0,pdm"]
-                          assert q.get("extension")==["wav"]
+                          assert "extension" not in q
+                          assert q.get("category")==["music,sound_effect"]
                       base="http://127.0.0.1:8765/audio/"
                       rows=[
-                        {"id":"cc0-a","title":"A","creator":"Alpha","license":"cc0","license_version":"1.0","url":base+"a.wav","foreign_landing_url":"https://example.test/a","provider":"mock","source":"mock","filetype":"wav","duration":5000,"sample_rate":16000,"category":"music"},
-                        {"id":"pdm-b","title":"B","creator":"Beta","license":"pdm","license_version":"1.0","url":base+"b.wav","foreign_landing_url":"https://example.test/b","provider":"mock","source":"mock","filetype":"wav","duration":5000,"sample_rate":16000,"category":"sound_effect"},
-                        {"id":"cc0-c","title":"C","creator":"Gamma","license":"cc0","license_version":"1.0","url":base+"c.wav","foreign_landing_url":"https://example.test/c","provider":"mock","source":"mock","filetype":"wav","duration":5000,"sample_rate":16000,"category":"music"},
-                        {"id":"reject-by","title":"Reject","creator":"Other","license":"by","license_version":"4.0","url":base+"a.wav","foreign_landing_url":"https://example.test/reject","provider":"mock","source":"mock","filetype":"wav","category":"music"},
+                        {"id":"cc0-a","title":"A","creator":"Alpha","license":"cc0","license_version":"1.0","url":base+"a.wav","foreign_landing_url":"https://example.test/a","provider":"freesound","source":"freesound","filetype":"wav","duration":5000,"sample_rate":16000,"category":"music"},
+                        {"id":"pdm-b","title":"B","creator":"Beta","license":"pdm","license_version":"1.0","url":base+"b.mp3","foreign_landing_url":"https://example.test/b","provider":"freesound","source":"freesound","filetype":"mp3","duration":5000,"sample_rate":16000,"category":"sound_effect","alt_files":[{"url":base+"b.wav","filetype":"wav","filesize":160044,"sample_rate":16000}]},
+                        {"id":"cc0-c","title":"C","creator":"Gamma","license":"cc0","license_version":"1.0","url":base+"c.wav","foreign_landing_url":"https://example.test/c","provider":"freesound","source":"freesound","filetype":"wav","duration":5000,"sample_rate":16000,"category":"music"},
+                        {"id":"reject-by","title":"Reject","creator":"Other","license":"by","license_version":"4.0","url":base+"a.wav","foreign_landing_url":"https://example.test/reject","provider":"freesound","source":"freesound","filetype":"wav","category":"music"},
                         {"id":"reject-pronunciation","title":"LL-Q1860-test-sky blue","creator":"Speaker","creator_url":"https://lingualibre.org/wiki/Q1","license":"cc0","license_version":"1.0","url":base+"a.wav","foreign_landing_url":"https://example.test/pronunciation","provider":"wikimedia_audio","source":"wikimedia_audio","filetype":"wav","category":"pronunciation"}
                       ]
                       return self.send({"result_count":len(rows),"results":rows})
                   if u.path.startswith("/audio/"):
                       k=u.path.rsplit("/",1)[-1].split(".")[0]
-                      return self.send(WAVS[k],"audio/wav")
+                      if k in WAVS:return self.send(WAVS[k],"audio/wav")
                   self.send({"detail":"not found"},code=404)
           HTTPServer(("127.0.0.1",8765),H).serve_forever()
           PY
           python3 /tmp/mock_openverse.py >/tmp/mock-openverse.log 2>&1 &
           echo $! >/tmp/mock-openverse.pid
           for i in $(seq 1 30); do
-            curl -fsS 'http://127.0.0.1:8765/v1/audio/?q=x&license=cc0%2Cpdm&extension=wav&page_size=20' >/dev/null && exit 0
+            curl -fsS 'http://127.0.0.1:8765/v1/audio/?q=x&page_size=20' >/dev/null && exit 0
             sleep 1
           done
           exit 1
-      - name: Online discovery render
+      - name: Online projection and render
         run: |
           set -eu
           rm -rf /tmp/hsi-corpus-a /tmp/hsi-corpus-cache
@@ -122,29 +128,27 @@ jobs:
           l=json.loads((p/"corpus.lock.json").read_text())
           sh=json.loads((p/"search.hsicert").read_text())
           assert c["protocol"]=="HSI-OPEN-CORPUS/1.0"
-          assert c["version"]=="1.3.0"
+          assert c["version"]=="1.5.0"
           assert c["closed"]==1 and c["technical_closed"]==1
           assert c["rights_closed"]==0
-          assert c["rights_review_recommended"] is True
           assert c["ai_model"] is False and c["neural_renderer"] is False and c["machine_learning"] is False
-          assert c["youtube_audio_used"] is False
           assert c["search_protocol"]=="HSI-SEARCH/1.0"
-          assert c["hsi_search_version"]=="1.1.0"
-          assert c["minimum_hsi_search_version"]=="1.1.0"
+          assert c["hsi_search_version"]=="1.3.0"
+          assert c["minimum_hsi_search_version"]=="1.3.0"
+          assert c["net_protocol"]=="HSI-NET-SINGULARITY/1.0"
+          assert c["net_model"]=="ABSTRACT_GLOBAL_INFORMATION_FIELD"
           assert c["search_status"]=="FOUND"
-          assert sh["protocol"]=="HSI-SEARCH/1.0" and sh["status"]=="FOUND"
-          assert sh["blue"]["search_expands_evidence_only"] is True
-          assert sh["epistemic_rule"]=="absence_of_retrieval_is_not_evidence_of_nonexistence"
+          assert sh["net_projection"]["finite_projection"] is True
+          assert sh["net_projection"]["global_exhaustion_claim"] is False
+          assert sh["net_projection"]["epistemic_invariants"]["adapter_scope_is_not_internet_totality"] is True
           assert c["source_count"]>=2 and c["event_count"]>=5
           assert all(x["license"] in ("cc0","pdm") for x in c["sources"])
           assert all(x["openverse_id"] not in ("reject-by","reject-pronunciation") for x in c["sources"])
           assert all(x["category"] in ("music","sound_effect") for x in c["sources"])
           assert c["checks"]["no_lexical_pronunciation_sources"] is True
           assert c["checks"]["all_music_or_sound_effect"] is True
-          assert l["youtube_audio_used"] is False
-          assert l["search_protocol"]=="HSI-SEARCH/1.0"
-          assert l["search_status"]=="FOUND"
-          assert l["search_certificate"]["search_uid"]==sh["search_uid"]
+          assert any(x.get("selected_media_variant")=="alt_file" for x in c["sources"])
+          assert l["search_certificate"]["net_projection"]["projection_uid"]==c["net_projection_uid"]
           with wave.open(str(p/"song.wav"),"rb") as w:
               assert w.getnchannels()==2 and w.getsampwidth()==2 and w.getframerate()==16000
           def d257(n):
@@ -179,20 +183,15 @@ jobs:
       - name: Verify native PowerShell launcher syntax
         shell: pwsh
         run: |
-          $tokens = $null
-          $errors = $null
+          $tokens=$null;$errors=$null
           [System.Management.Automation.Language.Parser]::ParseFile(
-            (Join-Path $PWD "hsi-corpus.ps1"),
-            [ref]$tokens,
-            [ref]$errors
+            (Join-Path $PWD "hsi-corpus.ps1"),[ref]$tokens,[ref]$errors
           ) | Out-Null
-          if ($errors.Count -ne 0) {
-            $errors | ForEach-Object { Write-Error $_.Message }
-            exit 1
-          }
-          $text = Get-Content -Raw "hsi-corpus.ps1"
-          if ($text -notmatch "hsi_open_corpus.py") { throw "missing corpus client" }
-          if ($text -notmatch "hsi_search.py") { throw "missing HSI SEARCH client" }
-          if ($text -match "ACE-Step|torch|tensorflow|transformers|diffusion|Suno|Runway|fal.ai") {
+          if($errors.Count -ne 0){$errors|ForEach-Object{Write-Error $_.Message};exit 1}
+          $text=Get-Content -Raw "hsi-corpus.ps1"
+          if($text -notmatch "hsi_open_corpus.py"){throw "missing corpus client"}
+          if($text -notmatch "hsi_search.py"){throw "missing HSI SEARCH client"}
+          if($text -notmatch "hsi_net.py"){throw "missing HSI NET client"}
+          if($text -match "ACE-Step|torch|tensorflow|transformers|diffusion|Suno|Runway|fal.ai"){
             throw "AI/neural dependency found in Windows launcher"
           }
