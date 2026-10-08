@@ -65,10 +65,11 @@ jobs:
                           assert q.get("extension")==["wav"]
                       base="http://127.0.0.1:8765/audio/"
                       rows=[
-                        {"id":"cc0-a","title":"A","creator":"Alpha","license":"cc0","license_version":"1.0","url":base+"a.wav","foreign_landing_url":"https://example.test/a","provider":"mock","source":"mock","filetype":"wav","duration":5000,"sample_rate":16000},
-                        {"id":"pdm-b","title":"B","creator":"Beta","license":"pdm","license_version":"1.0","url":base+"b.wav","foreign_landing_url":"https://example.test/b","provider":"mock","source":"mock","filetype":"wav","duration":5000,"sample_rate":16000},
-                        {"id":"cc0-c","title":"C","creator":"Gamma","license":"cc0","license_version":"1.0","url":base+"c.wav","foreign_landing_url":"https://example.test/c","provider":"mock","source":"mock","filetype":"wav","duration":5000,"sample_rate":16000},
-                        {"id":"reject-by","title":"Reject","creator":"Other","license":"by","license_version":"4.0","url":base+"a.wav","foreign_landing_url":"https://example.test/reject","provider":"mock","source":"mock","filetype":"wav"}
+                        {"id":"cc0-a","title":"A","creator":"Alpha","license":"cc0","license_version":"1.0","url":base+"a.wav","foreign_landing_url":"https://example.test/a","provider":"mock","source":"mock","filetype":"wav","duration":5000,"sample_rate":16000,"category":"music"},
+                        {"id":"pdm-b","title":"B","creator":"Beta","license":"pdm","license_version":"1.0","url":base+"b.wav","foreign_landing_url":"https://example.test/b","provider":"mock","source":"mock","filetype":"wav","duration":5000,"sample_rate":16000,"category":"sound_effect"},
+                        {"id":"cc0-c","title":"C","creator":"Gamma","license":"cc0","license_version":"1.0","url":base+"c.wav","foreign_landing_url":"https://example.test/c","provider":"mock","source":"mock","filetype":"wav","duration":5000,"sample_rate":16000,"category":"music"},
+                        {"id":"reject-by","title":"Reject","creator":"Other","license":"by","license_version":"4.0","url":base+"a.wav","foreign_landing_url":"https://example.test/reject","provider":"mock","source":"mock","filetype":"wav","category":"music"},
+                        {"id":"reject-pronunciation","title":"LL-Q1860-test-sky blue","creator":"Speaker","creator_url":"https://lingualibre.org/wiki/Q1","license":"cc0","license_version":"1.0","url":base+"a.wav","foreign_landing_url":"https://example.test/pronunciation","provider":"wikimedia_audio","source":"wikimedia_audio","filetype":"wav","category":"pronunciation"}
                       ]
                       return self.send({"result_count":len(rows),"results":rows})
                   if u.path.startswith("/audio/"):
@@ -97,7 +98,7 @@ jobs:
           l=json.loads((p/"corpus.lock.json").read_text())
           sh=json.loads((p/"search.hsicert").read_text())
           assert c["protocol"]=="HSI-OPEN-CORPUS/1.0"
-          assert c["version"]=="1.1.0"
+          assert c["version"]=="1.2.0"
           assert c["closed"]==1 and c["technical_closed"]==1
           assert c["rights_closed"]==0
           assert c["rights_review_recommended"] is True
@@ -110,7 +111,10 @@ jobs:
           assert sh["epistemic_rule"]=="absence_of_retrieval_is_not_evidence_of_nonexistence"
           assert c["source_count"]>=2 and c["event_count"]>=5
           assert all(x["license"] in ("cc0","pdm") for x in c["sources"])
-          assert all(x["openverse_id"]!="reject-by" for x in c["sources"])
+          assert all(x["openverse_id"] not in ("reject-by","reject-pronunciation") for x in c["sources"])
+          assert all(x["category"] in ("music","sound_effect") for x in c["sources"])
+          assert c["checks"]["no_lexical_pronunciation_sources"] is True
+          assert c["checks"]["all_music_or_sound_effect"] is True
           assert l["youtube_audio_used"] is False
           assert l["search_protocol"]=="HSI-SEARCH/1.0"
           assert l["search_status"]=="FOUND"
