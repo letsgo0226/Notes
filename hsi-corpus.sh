@@ -1,8 +1,10 @@
 #!/bin/sh
 set -eu
 RAW="https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi_open_corpus.py"
+RAW_SEARCH="https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi_search.py"
 DIR="${HSI_CORPUS_HOME:-$HOME/.hsi-corpus}"
 APP="$DIR/hsi_open_corpus.py"
+SEARCH="$DIR/hsi_search.py"
 mkdir -p "$DIR"
 
 if ! command -v python3 >/dev/null 2>&1; then
@@ -26,8 +28,9 @@ if ! command -v python3 >/dev/null 2>&1; then
   esac
 fi
 
-TMP="$APP.tmp.$$"
-trap 'rm -f "$TMP"' EXIT HUP INT TERM
+TMP="$APP.tmp.$"
+TMP_SEARCH="$SEARCH.tmp.$"
+trap 'rm -f "$TMP" "$TMP_SEARCH"' EXIT HUP INT TERM
 if command -v wget >/dev/null 2>&1; then
   wget -qO "$TMP" "$RAW"
 elif command -v curl >/dev/null 2>&1; then
@@ -37,9 +40,16 @@ else
   exit 127
 fi
 test -s "$TMP"
+if command -v wget >/dev/null 2>&1; then
+  wget -qO "$TMP_SEARCH" "$RAW_SEARCH"
+else
+  curl -fsSL "$RAW_SEARCH" -o "$TMP_SEARCH"
+fi
+test -s "$TMP_SEARCH"
 mv "$TMP" "$APP"
+mv "$TMP_SEARCH" "$SEARCH"
 trap - EXIT HUP INT TERM
-chmod 700 "$APP"
+chmod 700 "$APP" "$SEARCH"
 
 echo "HSI Open-Corpus Renderer: no AI / Openverse CC0+PDM WAV / deterministic DSP"
 echo "note> YouTube audio is not downloaded or sampled."
