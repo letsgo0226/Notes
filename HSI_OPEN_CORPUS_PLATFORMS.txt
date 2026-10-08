@@ -2,6 +2,7 @@ HSI OPEN-CORPUS / CROSS-PLATFORM LAUNCHERS
 ==========================================
 
 Protocols:
+  HSI-NET-SINGULARITY/1.0
   HSI-SEARCH/1.0
   HSI-OPEN-CORPUS/1.0
   HSI-PLEIADIAN-BLUE-CARE/1.0
@@ -166,3 +167,34 @@ No retrieval         != nonexistence
 SOURCE_UNAVAILABLE   != false
 EXHAUSTED_BUDGET     != exhaustive knowledge
 UNRESOLVED           != false
+
+
+--------------------------------------------------
+HSI NET — standalone
+--------------------------------------------------
+
+Model:
+  ABSTRACT_GLOBAL_INFORMATION_FIELD
+
+This is a formal information model, not a physical-singularity claim.
+
+iSH:
+
+wget -qO- https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-net.sh | sh
+
+macOS / Linux / Termux:
+
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-net.sh | sh
+
+List adapters:
+
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-net.sh | sh -s -- --list-adapters
+
+Windows PowerShell:
+
+$p = Join-Path $env:TEMP "hsi-net.ps1"; Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-net.ps1" -OutFile $p; & $p "Blue Pleiadian Stars"
+
+Semantic invariants:
+  finite_projection = true
+  global_exhaustion_claim = false
+  adapter_scope_is_not_internet_totality = true
