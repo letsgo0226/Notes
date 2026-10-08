@@ -172,7 +172,7 @@ def main():
         "e257_chunks":chunks,
         "checks":checks
     }
-    cert["closed"]=int(all(checks.values()))
+    checks["blue_not_creative_conditioning"]=care["role"]=="normative-control-not-creative-conditioning" and cert["blue_conditioning"] is False\n    checks["explicit_human_invocation"]=care["explicit_human_invocation"]\n    cert["closed"]=int(all(checks.values()))
     (out/"song.hsicert").write_text(canon(cert)+"\n",encoding="utf-8")
     files=["keywords.txt","request.json","result.json","song.wav","song.hsicert"]
     if lyrics:files.append("lyrics.txt")
