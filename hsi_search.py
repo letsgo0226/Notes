@@ -3,7 +3,7 @@ import argparse, hashlib, json, os, socket, sys, time, urllib.error, urllib.pars
 from pathlib import Path
 
 PROTOCOL="HSI-SEARCH/1.0"
-VERSION="1.1.0"
+VERSION="1.2.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
 DEFAULT_SOURCE="openverse_audio"
 
@@ -101,10 +101,40 @@ def _normalize_openverse(row,query,url):
         "category":str(row.get("category") or "").lower(),
         "genres":row.get("genres") or [],
         "tags":[(t.get("name") if isinstance(t,dict) else str(t)) for t in (row.get("tags") or [])],
+        "alt_files":[
+            {
+                "url":a.get("url"),
+                "filetype":str(a.get("filetype") or "").lower().lstrip("."),
+                "filesize":a.get("filesize"),
+                "bit_rate":a.get("bit_rate"),
+                "sample_rate":a.get("sample_rate")
+            }
+            for a in (row.get("alt_files") or []) if isinstance(a,dict)
+        ],
         "matched_query":query,
         "search_url":url,
         "assertion_basis":"OPENVERSE_INDEX_METADATA"
     }
+
+def _select_media_variant(record,extensions):
+    primary_type=str(record.get("filetype") or "").lower().lstrip(".")
+    primary_url=record.get("media_url")
+    if (not extensions or primary_type in extensions) and isinstance(primary_url,str) and primary_url.startswith(("http://","https://")):
+        record["selected_media_variant"]="primary"
+        return
+    for alt in record.get("alt_files") or []:
+        ft=str(alt.get("filetype") or "").lower().lstrip(".")
+        u=alt.get("url")
+        if (not extensions or ft in extensions) and isinstance(u,str) and u.startswith(("http://","https://")):
+            record["primary_media_url"]=primary_url
+            record["primary_filetype"]=primary_type
+            record["media_url"]=u
+            record["filetype"]=ft
+            record["filesize"]=alt.get("filesize")
+            record["sample_rate"]=alt.get("sample_rate")
+            record["selected_media_variant"]="alt_file"
+            return
+    record["selected_media_variant"]="none"
 
 def _admit(record,policy):
     reasons=[]
@@ -112,6 +142,7 @@ def _admit(record,policy):
     extensions={str(x).lower().lstrip(".") for x in policy.get("extension_allow",[]) if str(x).strip()}
     categories={str(x).lower() for x in policy.get("category_allow",[]) if str(x).strip()}
     category_deny={str(x).lower() for x in policy.get("category_deny",[]) if str(x).strip()}
+    _select_media_variant(record,extensions)
     if licenses and record.get("license") not in licenses:
         reasons.append("license_not_allowed")
     if extensions and record.get("filetype") not in extensions:
@@ -154,16 +185,28 @@ def run_search(query,source=DEFAULT_SOURCE,policy=None,budget=None,base_url=None
             "blue":{"protocol":BLUE_PROTOCOL,"semantic_non_coercion":True,"search_expands_evidence_only":True}
         }
     api=(base_url or os.getenv("HSI_OPENVERSE_BASE","https://api.openverse.org/v1/audio/")).rstrip("/")+"/"
+    preferred=[str(x).strip() for x in policy.get("source_prefer",[]) if str(x).strip()]
+    excluded=[str(x).strip() for x in policy.get("source_exclude",[]) if str(x).strip()]
     for q in _query_plan(query):
-        for filtered in (False,True):
+        stages=[]
+        for src in preferred:
+            stages.append({"filtered":True,"source":src})
+        stages.append({"filtered":True,"source":None})
+        stages.append({"filtered":False,"source":None})
+        for stage in stages:
             if len(accepted)>=max_results or budget_state["exhausted"]:
                 break
             params={"q":q,"page_size":page_size}
-            if filtered:
+            if stage["source"]:
+                params["source"]=stage["source"]
+            if excluded:
+                params["excluded_source"]=",".join(excluded)
+            if stage["filtered"]:
                 if policy.get("license_allow"):
                     params["license"]=",".join(policy["license_allow"])
-                if policy.get("extension_allow"):
-                    params["extension"]=",".join(policy["extension_allow"])
+                # Do not server-filter by extension here: an Openverse item may
+                # expose an admissible WAV through alt_files while its primary
+                # file is MP3/other.
                 if policy.get("category_allow"):
                     params["category"]=",".join(policy["category_allow"])
             url=api+"?"+urllib.parse.urlencode(params)
