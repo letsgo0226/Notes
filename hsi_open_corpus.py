@@ -6,8 +6,8 @@ from hsi_search import run_search, VERSION as HSI_SEARCH_VERSION
 
 PROTOCOL="HSI-OPEN-CORPUS/1.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
-VERSION="1.5.0"
-MIN_HSI_SEARCH_VERSION=(1,3,0)
+VERSION="1.6.0"
+MIN_HSI_SEARCH_VERSION=(1,4,0)
 
 def _semver_tuple(v):
     try:
@@ -17,7 +17,7 @@ def _semver_tuple(v):
 
 if _semver_tuple(HSI_SEARCH_VERSION) < MIN_HSI_SEARCH_VERSION:
     raise SystemExit(
-        "HSI version mismatch: Open-Corpus %s requires HSI-SEARCH >= 1.3.0; got %s. "
+        "HSI version mismatch: Open-Corpus %s requires HSI-SEARCH >= 1.4.0; got %s. "
         "Rerun the public launcher so both components are refreshed together."
         % (VERSION, HSI_SEARCH_VERSION)
     )
@@ -110,11 +110,13 @@ def discover(text):
         "retries":SEARCH_RETRIES,
         "max_calls":max(8,min(40,SEARCH_RETRIES*8))
     }
-    cert=run_search(text,source="openverse_audio",policy=policy,budget=budget,base_url=API)
+    cert=run_search(text,source="network_audio",policy=policy,budget=budget,base_url=API)
     items=[]
     for x in cert.get("results") or []:
         items.append({
+            "source_id":x.get("record_uid"),
             "openverse_id":x.get("record_uid"),
+            "source_adapter":x.get("source"),
             "title":x.get("title"),
             "creator":x.get("creator"),
             "creator_url":x.get("creator_url"),
@@ -142,7 +144,7 @@ def discover(text):
         })
     items,renderer_rejected=renderer_admit_sources(items)
     cert["renderer_admission"]={
-        "required_search_version":">=1.3.0",
+        "required_search_version":">=1.4.0",
         "actual_search_version":HSI_SEARCH_VERSION,
         "admitted_after_renderer_gate":len(items),
         "rejected_after_renderer_gate":len(renderer_rejected),
@@ -331,7 +333,7 @@ def main():
     (out/"search.hsicert").write_text(canon(search_cert)+"\n",encoding="utf-8")
     if not items:
         status=search_cert.get("status","UNRESOLVED")
-        raise SystemExit("HSI SEARCH "+status+": no admitted Openverse CC0/PDM WAV evidence within finite search budget")
+        raise SystemExit("HSI SEARCH "+status+": no admitted network CC0/PDM WAV evidence within finite search budget")
 
     wav,basis,seconds,events,decoded=render(items,text,out)
     used_ids={e["source_id"] for e in events}
@@ -344,7 +346,7 @@ def main():
         "license_filter":["cc0","pdm"],
         "format_filter":["wav"],
         "wav_selection":"primary_or_openverse_alt_files",
-        "source_preference":["freesound"],
+        "source_preference":["openverse:freesound","wikimedia_commons_audio"],
         "category_filter":["music","sound_effect"],
         "speech_policy":"EXCLUDE_PRONUNCIATION_AUDIOBOOK_PODCAST_NEWS_AND_LINGUALIBRE_LEXICAL_CLIPS",
         "youtube_audio_used":False,
@@ -392,7 +394,7 @@ def main():
         "primary_filetype":x.get("primary_filetype"),
         "category":x.get("category"),"genres":x.get("genres") or [],"tags":x.get("tags") or [],
         "raw_sha256":x.get("raw_sha256"),"raw_bytes":x.get("raw_bytes"),
-        "license_basis":"OPENVERSE_INDEX_METADATA",
+        "license_basis":x.get("license_basis") or "ADAPTER_METADATA",
         "license_independently_verified":bool(RIGHTS_ATTESTED)
     } for x in used]
     cert={
@@ -401,10 +403,10 @@ def main():
         "generation_basis_e257":basis,
         "renderer":"open-corpus-retrieval-dsp",
         "hsi_search_version":HSI_SEARCH_VERSION,
-        "minimum_hsi_search_version":"1.3.0",
+        "minimum_hsi_search_version":"1.4.0",
         "ai_model":False,"neural_renderer":False,"machine_learning":False,
         "youtube_audio_used":False,
-        "corpus_provider":"Openverse API",
+        "corpus_provider":"HSI NET public audio adapters",
         "search_protocol":"HSI-SEARCH/1.0",
         "net_protocol":search_cert.get("net_protocol"),
         "net_projection_uid":(search_cert.get("net_projection") or {}).get("projection_uid"),
@@ -443,7 +445,7 @@ def main():
     print("audio>",wav);print("sources>",len(provenance));print("events>",len(events))
     print("technical_closed>",technical_closed);print("rights_closed>",rights_closed)
     if not RIGHTS_ATTESTED:
-        print("rights> Openverse-index metadata only; independently verify source landing pages before publication/commercial reuse")
+        print("rights> adapter metadata only; independently verify source landing pages before publication/commercial reuse")
     raise SystemExit(0 if technical_closed else 3)
 
 if __name__=="__main__":main()
