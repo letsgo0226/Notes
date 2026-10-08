@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-import argparse, hashlib, json, os, socket, sys, time, urllib.error, urllib.parse, urllib.request
+import argparse, hashlib, html, json, os, re, socket, sys, time, urllib.error, urllib.parse, urllib.request
 from pathlib import Path
 from hsi_net import projection_request, projection_certificate, VERSION as HSI_NET_VERSION
 
 PROTOCOL="HSI-SEARCH/1.0"
-VERSION="1.3.0"
+VERSION="1.4.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
-DEFAULT_SOURCE="openverse_audio"
+DEFAULT_SOURCE="network_audio"
 
 if hasattr(sys,"set_int_max_str_digits"):
     sys.set_int_max_str_digits(0)
@@ -35,8 +35,7 @@ def search_uid(query,source,policy,budget):
     return str(e257(canon(request).encode("utf-8")))
 
 def _query_plan(text):
-    toks=[]
-    seen=set()
+    toks=[];seen=set()
     for raw in text.replace(","," ").split():
         t=raw.strip()
         if t and t.casefold() not in seen:
@@ -45,11 +44,15 @@ def _query_plan(text):
         toks.append(text)
     return toks
 
-def _http_json(url,timeout,retries,call_log,budget_state):
-    headers={"User-Agent":"HSI-SEARCH/1.0","Accept":"application/json"}
-    token=os.getenv("OPENVERSE_TOKEN","").strip()
-    if token:
-        headers["Authorization"]="Bearer "+token
+def _http_json(url,timeout,retries,call_log,budget_state,adapter):
+    headers={
+        "User-Agent":"HSI-SEARCH/1.4 (https://github.com/letsgo0226/Notes)",
+        "Accept":"application/json"
+    }
+    if adapter=="openverse_audio":
+        token=os.getenv("OPENVERSE_TOKEN","").strip()
+        if token:
+            headers["Authorization"]="Bearer "+token
     last=None
     for attempt in range(1,retries+1):
         if budget_state["calls"]>=budget_state["max_calls"]:
@@ -57,7 +60,7 @@ def _http_json(url,timeout,retries,call_log,budget_state):
             raise RuntimeError("HSI_SEARCH_BUDGET_EXHAUSTED")
         budget_state["calls"]+=1
         started=time.time()
-        entry={"url":url,"attempt":attempt,"call_index":budget_state["calls"]}
+        entry={"adapter":adapter,"url":url,"attempt":attempt,"call_index":budget_state["calls"]}
         try:
             req=urllib.request.Request(url,headers=headers)
             with urllib.request.urlopen(req,timeout=timeout) as r:
@@ -80,17 +83,22 @@ def _http_json(url,timeout,retries,call_log,budget_state):
             time.sleep(min(8,2**(attempt-1)))
     raise RuntimeError("SOURCE_UNAVAILABLE: %s"%last)
 
+def _strip_html(x):
+    if not x:return ""
+    return re.sub(r"\s+"," ",html.unescape(re.sub(r"<[^>]+>"," ",str(x)))).strip()
+
 def _normalize_openverse(row,query,url):
     media=row.get("url")
     oid=str(row.get("id") or row.get("identifier") or hashlib.sha256(str(media).encode()).hexdigest()[:32])
     return {
-        "record_uid":oid,
+        "record_uid":"openverse:"+oid,
         "source":"openverse_audio",
         "title":row.get("title"),
         "creator":row.get("creator"),
         "creator_url":row.get("creator_url"),
         "license":str(row.get("license") or "").lower(),
         "license_version":row.get("license_version"),
+        "license_url":row.get("license_url"),
         "filetype":str(row.get("filetype") or "").lower().lstrip("."),
         "media_url":media,
         "landing_url":row.get("foreign_landing_url"),
@@ -117,12 +125,73 @@ def _normalize_openverse(row,query,url):
         "assertion_basis":"OPENVERSE_INDEX_METADATA"
     }
 
+def _commons_meta(ext,key):
+    v=(ext or {}).get(key)
+    if isinstance(v,dict):v=v.get("value")
+    return _strip_html(v)
+
+def _commons_license(x):
+    t=_strip_html(x).lower()
+    if "cc0" in t:return "cc0"
+    if "public domain" in t or t in {"pd","pdm"}:return "pdm"
+    if "cc by-sa" in t:return "by-sa"
+    if "cc by" in t:return "by"
+    return t.replace("creative commons","").strip().replace(" ","-")
+
+def _commons_category(title,description,categories):
+    text=(" ".join([title or "",description or "",categories or ""])).lower()
+    if "lingua libre" in text or (title or "").startswith("LL-") or "pronunciation" in text:
+        return "pronunciation"
+    music_terms=("music","musical","song","symphony","orchestra","piano","violin","guitar","instrumental","melody","composition","choir","hymn","concerto","sonata")
+    sound_terms=("sound effect","field recording","ambient sound","environmental sound","sound of ","audio files of sounds")
+    if any(x in text for x in music_terms):return "music"
+    if any(x in text for x in sound_terms):return "sound_effect"
+    return ""
+
+def _normalize_commons(page,query,url):
+    ii=((page or {}).get("imageinfo") or [{}])[0]
+    ext=ii.get("extmetadata") or {}
+    media=ii.get("url")
+    mime=str(ii.get("mime") or "").lower()
+    title=str(page.get("title") or "")
+    short=title[5:] if title.startswith("File:") else title
+    description=_commons_meta(ext,"ImageDescription")
+    categories=_commons_meta(ext,"Categories")
+    license_short=_commons_meta(ext,"LicenseShortName")
+    landing=ii.get("descriptionurl") or ("https://commons.wikimedia.org/wiki/"+urllib.parse.quote(title.replace(" ","_")))
+    filetype="wav" if mime in ("audio/wav","audio/x-wav","audio/wave") or str(media).lower().endswith(".wav") else mime.split("/")[-1]
+    return {
+        "record_uid":"commons:"+str(page.get("pageid") or hashlib.sha256((title+str(media)).encode()).hexdigest()[:32]),
+        "source":"wikimedia_commons_audio",
+        "title":short,
+        "creator":_commons_meta(ext,"Artist"),
+        "creator_url":None,
+        "license":_commons_license(license_short),
+        "license_version":None,
+        "license_url":_commons_meta(ext,"LicenseUrl"),
+        "filetype":filetype,
+        "media_url":media,
+        "landing_url":landing,
+        "provider":"wikimedia_commons",
+        "upstream_source":"wikimedia_commons",
+        "duration_ms":None,
+        "filesize":ii.get("size"),
+        "sample_rate":None,
+        "category":_commons_category(short,description,categories),
+        "genres":[],
+        "tags":[x.strip() for x in categories.split("|") if x.strip()],
+        "alt_files":[],
+        "matched_query":query,
+        "search_url":url,
+        "description":description,
+        "assertion_basis":"WIKIMEDIA_COMMONS_EXTMETADATA"
+    }
+
 def _select_media_variant(record,extensions):
     primary_type=str(record.get("filetype") or "").lower().lstrip(".")
     primary_url=record.get("media_url")
     if (not extensions or primary_type in extensions) and isinstance(primary_url,str) and primary_url.startswith(("http://","https://")):
-        record["selected_media_variant"]="primary"
-        return
+        record["selected_media_variant"]="primary";return
     for alt in record.get("alt_files") or []:
         ft=str(alt.get("filetype") or "").lower().lstrip(".")
         u=alt.get("url")
@@ -133,8 +202,7 @@ def _select_media_variant(record,extensions):
             record["filetype"]=ft
             record["filesize"]=alt.get("filesize")
             record["sample_rate"]=alt.get("sample_rate")
-            record["selected_media_variant"]="alt_file"
-            return
+            record["selected_media_variant"]="alt_file";return
     record["selected_media_variant"]="none"
 
 def _admit(record,policy):
@@ -144,137 +212,140 @@ def _admit(record,policy):
     categories={str(x).lower() for x in policy.get("category_allow",[]) if str(x).strip()}
     category_deny={str(x).lower() for x in policy.get("category_deny",[]) if str(x).strip()}
     _select_media_variant(record,extensions)
-    if licenses and record.get("license") not in licenses:
-        reasons.append("license_not_allowed")
-    if extensions and record.get("filetype") not in extensions:
-        reasons.append("extension_not_allowed")
+    if licenses and record.get("license") not in licenses:reasons.append("license_not_allowed")
+    if extensions and record.get("filetype") not in extensions:reasons.append("extension_not_allowed")
     cat=record.get("category","")
-    if categories and cat not in categories:
-        reasons.append("category_not_allowed")
-    if category_deny and cat in category_deny:
-        reasons.append("category_denied")
+    if categories and cat not in categories:reasons.append("category_not_allowed")
+    if category_deny and cat in category_deny:reasons.append("category_denied")
     text=(" ".join([
-        str(record.get("title") or ""),
-        str(record.get("creator") or ""),
-        str(record.get("creator_url") or ""),
-        " ".join(str(x) for x in (record.get("tags") or []))
+        str(record.get("title") or ""),str(record.get("creator") or ""),
+        str(record.get("creator_url") or "")," ".join(str(x) for x in (record.get("tags") or []))
     ])).lower()
-    if "lingualibre" in text or str(record.get("title") or "").startswith("LL-"):
+    if "lingualibre" in text or "lingua libre" in text or str(record.get("title") or "").startswith("LL-"):
         reasons.append("lexical_pronunciation_source")
     u=record.get("media_url")
-    if not isinstance(u,str) or not u.startswith(("http://","https://")):
-        reasons.append("missing_http_media_url")
+    if not isinstance(u,str) or not u.startswith(("http://","https://")):reasons.append("missing_http_media_url")
     return not reasons,reasons
 
+def _consume(rows,normalizer,query,url,policy,accepted,rejected,seen,max_results):
+    added=0
+    for row in rows:
+        rec=normalizer(row,query,url)
+        rid=rec["record_uid"]
+        if rid in seen:continue
+        seen.add(rid)
+        ok,reasons=_admit(rec,policy)
+        rec["admission_state"]="ADMITTED" if ok else "REJECTED"
+        rec["verification_state"]="INDEX_ASSERTED"
+        rec["rejection_reasons"]=reasons
+        if ok:
+            accepted.append(rec);added+=1
+            if len(accepted)>=max_results:break
+        else:
+            rejected.append(rec)
+    return added
+
+def _search_openverse(query,policy,budget,call_log,budget_state,accepted,rejected,seen,max_results,page_size,timeout,retries,base_url=None):
+    api=(base_url or os.getenv("HSI_OPENVERSE_BASE","https://api.openverse.org/v1/audio/")).rstrip("/")+"/"
+    successful=0
+    preferred=[str(x).strip() for x in policy.get("source_prefer",[]) if str(x).strip()]
+    excluded=[str(x).strip() for x in policy.get("source_exclude",[]) if str(x).strip()]
+    for q in _query_plan(query):
+        stages=[{"filtered":True,"source":x} for x in preferred]+[{"filtered":True,"source":None},{"filtered":False,"source":None}]
+        for stage in stages:
+            if len(accepted)>=max_results or budget_state["exhausted"]:break
+            params={"q":q,"page_size":page_size}
+            if stage["source"]:params["source"]=stage["source"]
+            if excluded:params["excluded_source"]=",".join(excluded)
+            if stage["filtered"]:
+                if policy.get("license_allow"):params["license"]=",".join(policy["license_allow"])
+                if policy.get("category_allow"):params["category"]=",".join(policy["category_allow"])
+            url=api+"?"+urllib.parse.urlencode(params)
+            try:
+                data=_http_json(url,timeout,retries,call_log,budget_state,"openverse_audio");successful+=1
+            except RuntimeError as e:
+                if str(e)=="HSI_SEARCH_BUDGET_EXHAUSTED":budget_state["exhausted"]=True;break
+                continue
+            rows=data.get("results") or []
+            added=_consume(rows,_normalize_openverse,q,url,policy,accepted,rejected,seen,max_results)
+            if added:break
+    return successful
+
+def _search_commons(query,policy,budget,call_log,budget_state,accepted,rejected,seen,max_results,page_size,timeout,retries):
+    api=os.getenv("HSI_WIKIMEDIA_COMMONS_BASE","https://commons.wikimedia.org/w/api.php")
+    successful=0
+    for q in _query_plan(query):
+        if len(accepted)>=max_results or budget_state["exhausted"]:break
+        # Commons search is constrained to File namespace and WAV audio. The
+        # local HSI gate still independently verifies rights/category metadata.
+        search=q+' filetype:audio filemime:"audio/wav"'
+        params={
+            "action":"query","format":"json","formatversion":"2",
+            "generator":"search","gsrsearch":search,"gsrnamespace":"6",
+            "gsrlimit":str(min(page_size,10)),
+            "prop":"imageinfo","iiprop":"url|mime|size|extmetadata",
+            "iiextmetadatafilter":"LicenseShortName|LicenseUrl|Artist|Credit|Categories|ImageDescription",
+            "iiextmetadatalanguage":"en"
+        }
+        url=api+"?"+urllib.parse.urlencode(params)
+        try:
+            data=_http_json(url,timeout,retries,call_log,budget_state,"wikimedia_commons_audio");successful+=1
+        except RuntimeError as e:
+            if str(e)=="HSI_SEARCH_BUDGET_EXHAUSTED":budget_state["exhausted"]=True;break
+            continue
+        rows=((data.get("query") or {}).get("pages") or [])
+        _consume(rows,_normalize_commons,q,url,policy,accepted,rejected,seen,max_results)
+    return successful
+
 def run_search(query,source=DEFAULT_SOURCE,policy=None,budget=None,base_url=None):
-    policy=dict(policy or {})
-    budget=dict(budget or {})
+    policy=dict(policy or {});budget=dict(budget or {})
     max_results=max(1,min(100,int(budget.get("max_results",5))))
     page_size=max(5,min(20,int(budget.get("page_size",10))))
     timeout=max(5,min(120,int(budget.get("timeout_seconds",24))))
     retries=max(1,min(5,int(budget.get("retries",3))))
     max_calls=max(1,min(100,int(budget.get("max_calls",12))))
     budget_norm={"max_results":max_results,"page_size":page_size,"timeout_seconds":timeout,"retries":retries,"max_calls":max_calls}
+    adapters={"network_audio":["openverse_audio","wikimedia_commons_audio"],"openverse_audio":["openverse_audio"],"wikimedia_commons_audio":["wikimedia_commons_audio"]}.get(source)
     uid=search_uid(query,source,policy,budget_norm)
-    net_request=projection_request(query,[source],policy,budget_norm)
-    call_log=[];accepted=[];rejected=[];seen=set();successful_responses=0
+    if not adapters:
+        req=projection_request(query,[source],policy,budget_norm)
+        result={"protocol":PROTOCOL,"version":VERSION,"search_uid":uid,"query":query,"source":source,"policy":policy,"budget":budget_norm,
+                "status":"UNRESOLVED","results":[],"rejected":[],"calls":[],"reason":"unsupported_source_adapter",
+                "budget_used":{"calls":0,"exhausted":False},"net_protocol":"HSI-NET-SINGULARITY/1.0","net_version":HSI_NET_VERSION,
+                "net_projection":projection_certificate(req,[{"adapter":source,"status":"UNREGISTERED_OR_UNSUPPORTED"}],"UNRESOLVED"),
+                "epistemic_rule":"absence_of_retrieval_is_not_evidence_of_nonexistence",
+                "blue":{"protocol":BLUE_PROTOCOL,"semantic_non_coercion":True,"search_expands_evidence_only":True,"unresolved_is_valid":True,"forced_totalization":False}}
+        result["search_certificate_uid"]=str(e257(canon(result).encode("utf-8")));return result
+    net_request=projection_request(query,adapters,policy,budget_norm)
+    call_log=[];accepted=[];rejected=[];seen=set()
     budget_state={"calls":0,"max_calls":max_calls,"exhausted":False}
-    if source!="openverse_audio":
-        return {
-            "protocol":PROTOCOL,"version":VERSION,"search_uid":uid,"query":query,"source":source,
-            "policy":policy,"budget":budget_norm,"status":"UNRESOLVED","results":[],
-            "rejected":[],"calls":[],"reason":"unsupported_source_adapter",
-            "blue":{"protocol":BLUE_PROTOCOL,"semantic_non_coercion":True,"search_expands_evidence_only":True}
-        }
-    api=(base_url or os.getenv("HSI_OPENVERSE_BASE","https://api.openverse.org/v1/audio/")).rstrip("/")+"/"
-    preferred=[str(x).strip() for x in policy.get("source_prefer",[]) if str(x).strip()]
-    excluded=[str(x).strip() for x in policy.get("source_exclude",[]) if str(x).strip()]
-    for q in _query_plan(query):
-        stages=[]
-        for src in preferred:
-            stages.append({"filtered":True,"source":src})
-        stages.append({"filtered":True,"source":None})
-        stages.append({"filtered":False,"source":None})
-        for stage in stages:
-            if len(accepted)>=max_results or budget_state["exhausted"]:
-                break
-            params={"q":q,"page_size":page_size}
-            if stage["source"]:
-                params["source"]=stage["source"]
-            if excluded:
-                params["excluded_source"]=",".join(excluded)
-            if stage["filtered"]:
-                if policy.get("license_allow"):
-                    params["license"]=",".join(policy["license_allow"])
-                # Do not server-filter by extension here: an Openverse item may
-                # expose an admissible WAV through alt_files while its primary
-                # file is MP3/other.
-                if policy.get("category_allow"):
-                    params["category"]=",".join(policy["category_allow"])
-            url=api+"?"+urllib.parse.urlencode(params)
-            try:
-                data=_http_json(url,timeout,retries,call_log,budget_state)
-                successful_responses+=1
-            except RuntimeError as e:
-                if str(e)=="HSI_SEARCH_BUDGET_EXHAUSTED":
-                    budget_state["exhausted"]=True
-                    break
-                continue
-            rows=data.get("results") or []
-            admitted_here=0
-            for row in rows:
-                rec=_normalize_openverse(row,q,url)
-                rid=rec["record_uid"]
-                if rid in seen:
-                    continue
-                seen.add(rid)
-                ok,reasons=_admit(rec,policy)
-                rec["admission_state"]="ADMITTED" if ok else "REJECTED"
-                rec["verification_state"]="INDEX_ASSERTED"
-                rec["rejection_reasons"]=reasons
-                if ok:
-                    accepted.append(rec);admitted_here+=1
-                    if len(accepted)>=max_results:
-                        break
-                else:
-                    rejected.append(rec)
-            if admitted_here:
-                break
-    if accepted:
-        status="FOUND"
-    elif budget_state["exhausted"]:
-        status="EXHAUSTED_BUDGET"
-    elif successful_responses==0:
-        status="SOURCE_UNAVAILABLE"
-    else:
-        status="UNRESOLVED"
+    success_by={x:0 for x in adapters}
+    if "openverse_audio" in adapters and len(accepted)<max_results:
+        success_by["openverse_audio"]=_search_openverse(query,policy,budget_norm,call_log,budget_state,accepted,rejected,seen,max_results,page_size,timeout,retries,base_url)
+    if "wikimedia_commons_audio" in adapters and len(accepted)<max_results and not budget_state["exhausted"]:
+        success_by["wikimedia_commons_audio"]=_search_commons(query,policy,budget_norm,call_log,budget_state,accepted,rejected,seen,max_results,page_size,timeout,retries)
+    successful=sum(success_by.values())
+    if accepted:status="FOUND"
+    elif budget_state["exhausted"]:status="EXHAUSTED_BUDGET"
+    elif successful==0:status="SOURCE_UNAVAILABLE"
+    else:status="UNRESOLVED"
+    observations=[]
+    for a in adapters:
+        observations.append({
+            "adapter":a,"successful_responses":success_by.get(a,0),
+            "calls":sum(1 for c in call_log if c.get("adapter")==a),
+            "accepted":sum(1 for x in accepted if x.get("source")==a),
+            "rejected":sum(1 for x in rejected if x.get("source")==a),
+            "budget_exhausted":budget_state["exhausted"]
+        })
     result={
         "protocol":PROTOCOL,"version":VERSION,"search_uid":uid,"query":query,"source":source,
-        "policy":policy,"budget":budget_norm,"status":status,"results":accepted,
-        "rejected":rejected,"calls":call_log,
+        "policy":policy,"budget":budget_norm,"status":status,"results":accepted,"rejected":rejected,"calls":call_log,
         "budget_used":{"calls":budget_state["calls"],"exhausted":budget_state["exhausted"]},
-        "net_protocol":"HSI-NET-SINGULARITY/1.0",
-        "net_version":HSI_NET_VERSION,
-        "net_projection":projection_certificate(
-            net_request,
-            [{
-                "adapter":source,
-                "successful_responses":successful_responses,
-                "calls":budget_state["calls"],
-                "accepted":len(accepted),
-                "rejected":len(rejected),
-                "budget_exhausted":budget_state["exhausted"]
-            }],
-            status
-        ),
+        "net_protocol":"HSI-NET-SINGULARITY/1.0","net_version":HSI_NET_VERSION,
+        "net_projection":projection_certificate(net_request,observations,status),
         "epistemic_rule":"absence_of_retrieval_is_not_evidence_of_nonexistence",
-        "blue":{
-            "protocol":BLUE_PROTOCOL,
-            "semantic_non_coercion":True,
-            "search_expands_evidence_only":True,
-            "unresolved_is_valid":True,
-            "forced_totalization":False
-        }
+        "blue":{"protocol":BLUE_PROTOCOL,"semantic_non_coercion":True,"search_expands_evidence_only":True,"unresolved_is_valid":True,"forced_totalization":False}
     }
     result["search_certificate_uid"]=str(e257(canon(result).encode("utf-8")))
     return result
@@ -296,14 +367,13 @@ def main():
     ap.add_argument("--exclude-source",action="append",default=[])
     a=ap.parse_args()
     query=" ".join(a.query).strip()
-    if not query:
-        query=input("search> ").strip()
-    if not query:
-        raise SystemExit("search query required")
+    if not query:query=input("search> ").strip()
+    if not query:raise SystemExit("search query required")
     policy={
         "license_allow":[x.strip().lower() for x in a.license.split(",") if x.strip()],
         "extension_allow":[x.strip().lower().lstrip(".") for x in a.extension.split(",") if x.strip()],
         "category_allow":[x.strip().lower() for x in a.category.split(",") if x.strip()],
+        "category_deny":["pronunciation","audiobook","podcast","news"],
         "source_prefer":[x.strip() for x in a.prefer_source if x.strip()],
         "source_exclude":[x.strip() for x in a.exclude_source if x.strip()]
     }
@@ -311,12 +381,8 @@ def main():
     r=run_search(query,a.source,policy,budget)
     if a.out:
         p=Path(a.out).expanduser();p.parent.mkdir(parents=True,exist_ok=True);p.write_text(canon(r)+"\n",encoding="utf-8")
-    print("protocol>",PROTOCOL)
-    print("search_uid>",r["search_uid"])
-    print("source>",a.source)
-    print("status>",r["status"])
-    print("results>",len(r["results"]))
-    print("calls>",r["budget_used"]["calls"])
+    print("protocol>",PROTOCOL);print("search_uid>",r["search_uid"]);print("source>",a.source)
+    print("status>",r["status"]);print("results>",len(r["results"]));print("calls>",r["budget_used"]["calls"])
     print(canon(r))
     raise SystemExit(0 if r["status"]=="FOUND" else 3)
 
