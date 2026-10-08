@@ -53,8 +53,11 @@ jobs:
                   u=urllib.parse.urlparse(self.path)
                   if u.path=="/v1/audio/":
                       q=urllib.parse.parse_qs(u.query)
-                      assert q.get("license")==["cc0,pdm"]
-                      assert q.get("extension")==["wav"]
+                      assert q.get("q")
+                      assert int(q.get("page_size",["0"])[0])<=20
+                      if "license" in q:
+                          assert q.get("license")==["cc0,pdm"]
+                          assert q.get("extension")==["wav"]
                       base="http://127.0.0.1:8765/audio/"
                       rows=[
                         {"id":"cc0-a","title":"A","creator":"Alpha","license":"cc0","license_version":"1.0","url":base+"a.wav","foreign_landing_url":"https://example.test/a","provider":"mock","source":"mock","filetype":"wav","duration":5000,"sample_rate":16000},
@@ -88,6 +91,7 @@ jobs:
           c=json.loads((p/"song.hsicert").read_text())
           l=json.loads((p/"corpus.lock.json").read_text())
           assert c["protocol"]=="HSI-OPEN-CORPUS/1.0"
+          assert c["version"]=="1.0.1"
           assert c["closed"]==1 and c["technical_closed"]==1
           assert c["rights_closed"]==0
           assert c["rights_review_recommended"] is True
