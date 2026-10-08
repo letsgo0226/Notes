@@ -140,3 +140,42 @@ search.hsicert
 The resulting `corpus.lock.json` embeds that search certificate so a locked offline rerender preserves the provenance and epistemic state of the original discovery event.
 
 Future adapters can use the same protocol for other explicitly permitted public corpora without changing the semantics of the caller.
+
+
+## HSI NET projection layer
+
+HSI SEARCH is now explicitly a finite projection over:
+
+```text
+HSI-NET-SINGULARITY/1.0
+model = ABSTRACT_GLOBAL_INFORMATION_FIELD
+```
+
+Every search certificate embeds `net_projection`, including:
+
+```text
+projection_uid
+finite_projection = true
+global_exhaustion_claim = false
+adapter_scope_is_not_internet_totality = true
+budget_exhaustion_is_not_global_exhaustion = true
+```
+
+The model is formal, not a claim that the Internet is a physical or cosmological singularity.
+
+### Source-aware projection
+
+The current Openverse adapter can prefer or exclude specific Openverse sources while preserving the same finite-projection semantics.
+
+Example:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-search.sh | sh -s -- \
+  --license cc0,pdm \
+  --extension wav \
+  --category music,sound_effect \
+  --prefer-source freesound \
+  "Blue Pleiadian Stars"
+```
+
+When a record's primary file is not WAV, HSI SEARCH may select a WAV listed in Openverse `alt_files`; the selected variant is recorded as `selected_media_variant=alt_file`.
