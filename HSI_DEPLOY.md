@@ -34,6 +34,7 @@ hsi_net.py
 hsi_search.py
 hsi_open_corpus.py
 hsi_native_renderer.py
+hsi_update.py
 hsi_deploy.py
 ```
 
@@ -190,6 +191,7 @@ python3 ~/.hsi/hsi.py net --list-adapters
 python3 ~/.hsi/hsi.py search "Blue Pleiadian Stars"
 python3 ~/.hsi/hsi.py corpus "Blue Pleiadian Stars"
 python3 ~/.hsi/hsi.py native "Blue Pleiadian Stars"
+python3 ~/.hsi/hsi.py update ~/Music/HSI-Corpus/<artifact-directory>
 python3 ~/.hsi/hsi.py utm "finite computation context"
 python3 ~/.hsi/hsi.py trader "market context"
 python3 ~/.hsi/hsi.py omega "finite continuation context"
