@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import argparse, hashlib, json, os, socket, sys, time, urllib.error, urllib.parse, urllib.request
 from pathlib import Path
+from hsi_net import projection_request, projection_certificate, VERSION as HSI_NET_VERSION
 
 PROTOCOL="HSI-SEARCH/1.0"
-VERSION="1.2.0"
+VERSION="1.3.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
 DEFAULT_SOURCE="openverse_audio"
 
@@ -175,6 +176,7 @@ def run_search(query,source=DEFAULT_SOURCE,policy=None,budget=None,base_url=None
     max_calls=max(1,min(100,int(budget.get("max_calls",12))))
     budget_norm={"max_results":max_results,"page_size":page_size,"timeout_seconds":timeout,"retries":retries,"max_calls":max_calls}
     uid=search_uid(query,source,policy,budget_norm)
+    net_request=projection_request(query,[source],policy,budget_norm)
     call_log=[];accepted=[];rejected=[];seen=set();successful_responses=0
     budget_state={"calls":0,"max_calls":max_calls,"exhausted":False}
     if source!="openverse_audio":
@@ -251,6 +253,20 @@ def run_search(query,source=DEFAULT_SOURCE,policy=None,budget=None,base_url=None
         "policy":policy,"budget":budget_norm,"status":status,"results":accepted,
         "rejected":rejected,"calls":call_log,
         "budget_used":{"calls":budget_state["calls"],"exhausted":budget_state["exhausted"]},
+        "net_protocol":"HSI-NET-SINGULARITY/1.0",
+        "net_version":HSI_NET_VERSION,
+        "net_projection":projection_certificate(
+            net_request,
+            [{
+                "adapter":source,
+                "successful_responses":successful_responses,
+                "calls":budget_state["calls"],
+                "accepted":len(accepted),
+                "rejected":len(rejected),
+                "budget_exhausted":budget_state["exhausted"]
+            }],
+            status
+        ),
         "epistemic_rule":"absence_of_retrieval_is_not_evidence_of_nonexistence",
         "blue":{
             "protocol":BLUE_PROTOCOL,
