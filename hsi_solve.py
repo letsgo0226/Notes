@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import argparse, hashlib, json, os, subprocess, sys, tempfile, time, urllib.error, urllib.request
+import argparse, hashlib, json, os, subprocess, sys, time
 from pathlib import Path
 from hsi_net import VERSION as HSI_NET_VERSION, MODEL as HSI_NET_MODEL
 from hsi_search import VERSION as HSI_SEARCH_VERSION
@@ -8,29 +8,22 @@ PROTOCOL="HSI-SOLVE/1.0"
 VERSION="1.0.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
 
-DOMAIN_SPECS={
-    "UTM":{
-        "repo":"letsgo0226/UTM.sh",
-        "commit":"4a1741da98710d45cc8bc517424154e41689abeb",
-        "system_literal":"SYSTEM=\"UTM\"",
-        "guard_literal":"\"may_decide_nonhalting\":False",
-        "domain_rule":"finite_halting_witness_only"
-    },
-    "TRADER_42":{
-        "repo":"letsgo0226/Trader_42.sh",
-        "commit":"0cd4a105fb5b560e85a7335a276565c70ac72fe2",
-        "system_literal":"SYSTEM=\"TRADER_42\"",
-        "guard_literal":"\"may_authorize_trade\":False",
-        "domain_rule":"certificate_only_hold_by_default"
-    },
-    "OMEGA":{
-        "repo":"letsgo0226/COSMIC_LOVE_IS_THE_SOLUTIONS_FOR_EVERYTHING_HS_ZERO.sh",
-        "commit":"42a881aef8195ee715ab976855d5ab71bed97d47",
-        "system_literal":"SYSTEM=\"OMEGA\"",
-        "guard_literal":"\"may_force_commit\":False",
-        "domain_rule":"finite_evidence_no_forced_commit"
-    }
-}
+BUNDLE_PATH=Path(__file__).with_name("hsi_solve_domains.json")
+
+def load_domain_bundle():
+    try:
+        bundle=json.loads(BUNDLE_PATH.read_text(encoding="utf-8"))
+    except Exception as e:
+        raise SystemExit("HSI SOLVE domain bundle unavailable: %s"%e)
+    if bundle.get("protocol")!="HSI-SOLVE-DOMAIN-BUNDLE/1.0":
+        raise SystemExit("invalid HSI SOLVE domain bundle protocol")
+    domains=bundle.get("domains") or {}
+    if set(domains)!={"UTM","TRADER_42","OMEGA"}:
+        raise SystemExit("invalid HSI SOLVE domain bundle set")
+    return bundle
+
+DOMAIN_BUNDLE=load_domain_bundle()
+DOMAIN_SPECS=DOMAIN_BUNDLE["domains"]
 
 if hasattr(sys,"set_int_max_str_digits"):
     sys.set_int_max_str_digits(0)
@@ -47,49 +40,28 @@ def canon(x):
 def sha256(data):
     return hashlib.sha256(data).hexdigest()
 
-def raw_url(spec,path):
-    return "https://raw.githubusercontent.com/%s/%s/%s"%(spec["repo"],spec["commit"],path)
-
-def fetch_bytes(url,timeout=30,retries=3):
-    last=None
-    for attempt in range(1,retries+1):
-        try:
-            req=urllib.request.Request(url,headers={
-                "User-Agent":"HSI-SOLVE/1.0 (https://github.com/letsgo0226/Notes)"
-            })
-            with urllib.request.urlopen(req,timeout=timeout) as r:
-                data=r.read()
-            if not data:
-                raise RuntimeError("empty response")
-            return data
-        except Exception as e:
-            last=str(e)
-            if attempt<retries:
-                time.sleep(min(4,2**(attempt-1)))
-    raise RuntimeError("source unavailable: %s"%last)
-
 def inspect_domain(system):
     spec=DOMAIN_SPECS[system]
-    blue_url=raw_url(spec,"hsi_blue_native.py")
-    core_url=raw_url(spec,"hsi_common/core.py")
     try:
-        blue=fetch_bytes(blue_url)
-        core=fetch_bytes(core_url)
+        blue=str(spec["blue_source"]).encode("utf-8")
+        core=str(spec["core_source"]).encode("utf-8")
     except Exception as e:
         return {
-            "system":system,"repo":spec["repo"],"commit":spec["commit"],
-            "status":"SOURCE_UNAVAILABLE","verified":False,"error":str(e),
-            "blue_url":blue_url,"core_url":core_url
+            "system":system,
+            "repo":spec.get("source_repo"),
+            "commit":spec.get("source_commit"),
+            "status":"BUNDLE_UNAVAILABLE","verified":False,"error":str(e)
         },None,None
 
     bt=blue.decode("utf-8","replace")
     ct=core.decode("utf-8","replace")
     checks={
-        "system_literal":spec["system_literal"] in bt,
+        "bundle_protocol":DOMAIN_BUNDLE.get("protocol")=="HSI-SOLVE-DOMAIN-BUNDLE/1.0",
+        "system_literal":('SYSTEM="%s"'%system) in bt,
         "blue_protocol":"HSI-PLEIADIAN-BLUE-CARE/1.0" in bt,
         "wrapper_protocol":"HSI-3SYS-BLUE/1.0" in bt,
         "solve_protocol":"HSI-SOLVE/1.0" in bt,
-        "solve_guard":spec["guard_literal"] in bt,
+        "solve_guard":str(spec["guard_literal"]) in bt,
         "no_universal_solver":"\"solver_may_claim_universal_solution\":False" in bt,
         "core_protocol":"HSI-3SYS/1.0" in ct,
         "forbidden_solve_all":"\"solve_all\"" in ct,
@@ -98,11 +70,15 @@ def inspect_domain(system):
     }
     verified=all(checks.values())
     record={
-        "system":system,"repo":spec["repo"],"commit":spec["commit"],
+        "system":system,
+        "repo":spec["source_repo"],
+        "commit":spec["source_commit"],
+        "source_blue_blob_sha":spec.get("source_blue_blob_sha"),
+        "source_core_blob_sha":spec.get("source_core_blob_sha"),
         "status":"VERIFIED" if verified else "REJECTED",
         "verified":verified,"checks":checks,
         "domain_rule":spec["domain_rule"],
-        "blue_url":blue_url,"core_url":core_url,
+        "bundle_source":"hsi_solve_domains.json",
         "blue_sha256":sha256(blue),"core_sha256":sha256(core),
         "blue_bytes":len(blue),"core_bytes":len(core)
     }
@@ -201,6 +177,7 @@ def solve_self(out_root):
         "net_model":HSI_NET_MODEL=="ABSTRACT_GLOBAL_INFORMATION_FIELD",
         "net_version_present":bool(HSI_NET_VERSION),
         "search_version_present":bool(HSI_SEARCH_VERSION),
+        "domain_bundle_protocol":DOMAIN_BUNDLE.get("protocol")=="HSI-SOLVE-DOMAIN-BUNDLE/1.0",
         "all_domains_verified":all(x.get("verified") for x in deployments),
         "domain_count":len(deployments)==3,
         "no_universal_solution_claim":True,
@@ -294,7 +271,13 @@ def main():
         "solver":{"protocol":PROTOCOL,"version":VERSION},
         "hsi_net":{"version":HSI_NET_VERSION,"model":HSI_NET_MODEL},
         "hsi_search":{"version":HSI_SEARCH_VERSION},
-        "domains":{k:{"repo":v["repo"],"commit":v["commit"]} for k,v in DOMAIN_SPECS.items()}
+        "domain_bundle_protocol":DOMAIN_BUNDLE.get("protocol"),
+        "domains":{k:{
+            "repo":v["source_repo"],
+            "commit":v["source_commit"],
+            "source_blue_blob_sha":v.get("source_blue_blob_sha"),
+            "source_core_blob_sha":v.get("source_core_blob_sha")
+        } for k,v in DOMAIN_SPECS.items()}
     }
     (out/"solve.request.json").write_text(canon(request)+"\n",encoding="utf-8")
     (out/"solve.hsicert").write_text(canon(cert)+"\n",encoding="utf-8")
