@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import argparse, hashlib, json, math, os, random, socket, struct, sys, time, urllib.parse, urllib.request, urllib.error, wave
+import argparse, hashlib, json, math, os, random, struct, sys, time, urllib.request, wave
 from array import array
 from pathlib import Path
 from hsi_search import run_search
@@ -47,68 +47,6 @@ class PRNG:
         return (z^(z>>31))&((1<<64)-1)
     def unit(self):return self.u64()/float(1<<64)
     def pick(self,n):return self.u64()%n
-
-def http_json(url):
-    headers={"User-Agent":"HSI-Open-Corpus/1.0.1","Accept":"application/json"}
-    token=os.getenv("OPENVERSE_TOKEN","").strip()
-    if token:headers["Authorization"]="Bearer "+token
-    last=None
-    for attempt in range(1,SEARCH_RETRIES+1):
-        req=urllib.request.Request(url,headers=headers)
-        try:
-            with urllib.request.urlopen(req,timeout=SEARCH_TIMEOUT) as r:
-                return json.load(r)
-        except urllib.error.HTTPError as e:
-            body=e.read().decode("utf-8","replace")
-            if e.code not in (429,500,502,503,504):
-                raise RuntimeError("Openverse HTTP %s: %s"%(e.code,body[:500])) from None
-            last="HTTP %s"%e.code
-        except (urllib.error.URLError,TimeoutError,socket.timeout) as e:
-            last=str(getattr(e,"reason",e))
-        if attempt<SEARCH_RETRIES:
-            delay=min(8,2**(attempt-1))
-            print("search-retry>",attempt,"/",SEARCH_RETRIES,"after",last,"sleep",delay,"s",file=sys.stderr)
-            time.sleep(delay)
-    raise RuntimeError("Openverse unavailable after %d attempts: %s"%(SEARCH_RETRIES,last))
-
-def search(q,filtered=False):
-    # Broad search first is intentionally cheaper on Openverse. HSI performs
-    # the CC0/PDM + WAV admission gate locally. A filtered query is retained
-    # only as a second-stage fallback.
-    params={"q":q,"page_size":SEARCH_PAGE}
-    if filtered:
-        params.update({"license":"cc0,pdm","extension":"wav"})
-    url=API+"?"+urllib.parse.urlencode(params)
-    data=http_json(url)
-    return data.get("results") or [],url
-
-def clean_result(x,query,url):
-    lic=str(x.get("license") or "").lower()
-    ft=str(x.get("filetype") or "").lower().lstrip(".")
-    media=x.get("url")
-    if lic not in ALLOWED_LICENSES or ft!="wav" or not isinstance(media,str) or not media.startswith(("http://","https://")):
-        return None
-    oid=str(x.get("id") or x.get("identifier") or hashlib.sha256(media.encode()).hexdigest()[:32])
-    return {
-        "openverse_id":oid,
-        "title":x.get("title"),
-        "creator":x.get("creator"),
-        "creator_url":x.get("creator_url"),
-        "license":lic,
-        "license_version":x.get("license_version"),
-        "media_url":media,
-        "landing_url":x.get("foreign_landing_url"),
-        "provider":x.get("provider"),
-        "source":x.get("source"),
-        "filetype":"wav",
-        "duration_ms":x.get("duration"),
-        "filesize":x.get("filesize"),
-        "sample_rate":x.get("sample_rate"),
-        "query":query,
-        "openverse_search_url":url,
-        "license_basis":"OPENVERSE_INDEX_METADATA",
-        "license_independently_verified":False,
-    }
 
 def discover(text):
     policy={"license_allow":["cc0","pdm"],"extension_allow":["wav"]}
