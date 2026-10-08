@@ -230,7 +230,7 @@ def build(keywords,out=None,sr=24000,bpm=None,bars=None):
     cert={
         "protocol":PROTOCOL,"version":VERSION,"renderer":"HSI-native-field","external_ai":False,"external_api":False,
         "creative_presets":[],"generation_input":"runtime-keywords-only","generation_basis_e257":field_n,
-        "blue_e257":e257(BLUE),"blue_role":"certificate-normative-only","sample_rate":sr,
+        "blue_e257":e257(BLUE),"blue_role":"certificate-normative-only","blue_conditioning":False,"sample_rate":sr,
         "derived":{"bars":score["bars"],"bpm":score["bpm"],"meter":score["meter"],"subdivision":score["subdivision"],"pitch_classes":score["pitch_classes"],"tonic_midi":score["tonic_midi"],"section_bars":score["section_bars"],"chord_size":score["chord_size"]},
         "duration_seconds":round(duration,3),"audio_bytes":len(raw),"e257_chunk_bytes":128,"e257_chunks":len(blocks),
         "audio_sha256":hashlib.sha256(raw).hexdigest(),"checks":checks
