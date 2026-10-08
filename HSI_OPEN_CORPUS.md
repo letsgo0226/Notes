@@ -146,7 +146,9 @@ HSI-NET-SINGULARITY/1.0
   ↓ finite projection
 HSI-SEARCH/1.0
   ↓
-Openverse audio adapter
+network_audio union
+  ↓
+Openverse + Wikimedia Commons
   ↓
 local CC0 / Public Domain Mark + WAV admission gate
   ↓
@@ -357,10 +359,11 @@ DSP renderer
 
 This does **not** claim to search the whole Internet. The `net_projection` certificate explicitly records that adapter scope is not Internet totality.
 
-The current adapter preference is conservative:
+The current network projection is conservative and multi-adapter:
 
 ```text
-prefer Openverse source: freesound
+Openverse preference: freesound
+fallback adapter: Wikimedia Commons
 licenses: CC0 / PDM only
 categories: music / sound_effect only
 spoken-word pronunciation: rejected
