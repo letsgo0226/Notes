@@ -3,7 +3,7 @@ param(
   [string[]]$HSIArgs
 )
 $ErrorActionPreference="Stop"
-$Pin="343666daf7f8e4f603488ea4e0f1f848845b0916"
+$Pin="09d87a9b6fc615f616afd8adb1813677298a8190"
 $Base="https://raw.githubusercontent.com/letsgo0226/Notes/$Pin"
 $Dir=if($env:HSI_SOLVE_HOME){$env:HSI_SOLVE_HOME}else{Join-Path $HOME ".hsi-solve"}
 $App=Join-Path $Dir "hsi_solve.py"
