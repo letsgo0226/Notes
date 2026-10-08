@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
-import argparse, hashlib, json, math, os, random, struct, sys, time, urllib.parse, urllib.request, urllib.error, wave
+import argparse, hashlib, json, math, os, random, socket, struct, sys, time, urllib.parse, urllib.request, urllib.error, wave
 from array import array
 from pathlib import Path
 
 PROTOCOL="HSI-OPEN-CORPUS/1.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
-VERSION="1.0.0"
+VERSION="1.0.1"
 API=os.getenv("HSI_OPENVERSE_BASE","https://api.openverse.org/v1/audio/").rstrip("/")+"/"
 CACHE=Path(os.getenv("HSI_CORPUS_CACHE",str(Path.home()/".hsi-corpus"/"cache"))).expanduser()
 MAX_ITEMS=max(2,min(8,int(os.getenv("HSI_CORPUS_ITEMS","5"))))
+SEARCH_PAGE=max(5,min(20,int(os.getenv("HSI_OPENVERSE_PAGE_SIZE","10"))))
+SEARCH_TIMEOUT=max(8,min(120,int(os.getenv("HSI_OPENVERSE_TIMEOUT","24"))))
+SEARCH_RETRIES=max(1,min(5,int(os.getenv("HSI_OPENVERSE_RETRIES","3"))))
 MAX_BYTES=max(1048576,min(50*1048576,int(os.getenv("HSI_CORPUS_MAX_BYTES",str(18*1048576)))))
 TARGET_SR=max(16000,min(48000,int(os.getenv("HSI_CORPUS_SR","32000"))))
 E257_ENABLED=os.getenv("HSI_E257","1")!="0"
@@ -45,25 +48,35 @@ class PRNG:
     def pick(self,n):return self.u64()%n
 
 def http_json(url):
-    headers={"User-Agent":"HSI-Open-Corpus/1.0"}
+    headers={"User-Agent":"HSI-Open-Corpus/1.0.1","Accept":"application/json"}
     token=os.getenv("OPENVERSE_TOKEN","").strip()
     if token:headers["Authorization"]="Bearer "+token
-    req=urllib.request.Request(url,headers=headers)
-    try:
-        with urllib.request.urlopen(req,timeout=30) as r:return json.load(r)
-    except urllib.error.HTTPError as e:
-        body=e.read().decode("utf-8","replace")
-        raise RuntimeError("Openverse HTTP %s: %s"%(e.code,body[:500])) from None
-    except urllib.error.URLError as e:
-        raise RuntimeError("Openverse unavailable: %s"%e.reason) from None
+    last=None
+    for attempt in range(1,SEARCH_RETRIES+1):
+        req=urllib.request.Request(url,headers=headers)
+        try:
+            with urllib.request.urlopen(req,timeout=SEARCH_TIMEOUT) as r:
+                return json.load(r)
+        except urllib.error.HTTPError as e:
+            body=e.read().decode("utf-8","replace")
+            if e.code not in (429,500,502,503,504):
+                raise RuntimeError("Openverse HTTP %s: %s"%(e.code,body[:500])) from None
+            last="HTTP %s"%e.code
+        except (urllib.error.URLError,TimeoutError,socket.timeout) as e:
+            last=str(getattr(e,"reason",e))
+        if attempt<SEARCH_RETRIES:
+            delay=min(8,2**(attempt-1))
+            print("search-retry>",attempt,"/",SEARCH_RETRIES,"after",last,"sleep",delay,"s",file=sys.stderr)
+            time.sleep(delay)
+    raise RuntimeError("Openverse unavailable after %d attempts: %s"%(SEARCH_RETRIES,last))
 
-def search(q):
-    params={
-        "q":q,
-        "license":"cc0,pdm",
-        "extension":"wav",
-        "page_size":20,
-    }
+def search(q,filtered=False):
+    # Broad search first is intentionally cheaper on Openverse. HSI performs
+    # the CC0/PDM + WAV admission gate locally. A filtered query is retained
+    # only as a second-stage fallback.
+    params={"q":q,"page_size":SEARCH_PAGE}
+    if filtered:
+        params.update({"license":"cc0,pdm","extension":"wav"})
     url=API+"?"+urllib.parse.urlencode(params)
     data=http_json(url)
     return data.get("results") or [],url
@@ -97,22 +110,32 @@ def clean_result(x,query,url):
     }
 
 def discover(text):
-    qs=[text]
-    toks=[x for x in text.replace(","," ").split() if x]
-    for t in toks:
-        if t not in qs:qs.append(t)
+    # Single-token queries tend to be cheaper and more productive for an
+    # acoustic corpus than a rare full phrase. The full phrase is tried last.
+    toks=[]
+    for x in text.replace(","," ").split():
+        x=x.strip()
+        if x and x.lower() not in {t.lower() for t in toks}:toks.append(x)
+    qs=toks[:]
+    if text not in qs:qs.append(text)
     found=[];seen=set()
     for q in qs:
-        try:rows,url=search(q)
-        except Exception as e:
-            print("search-warning>",q,str(e),file=sys.stderr);continue
-        for row in rows:
-            item=clean_result(row,q,url)
-            if not item:continue
-            oid=item["openverse_id"]
-            if oid in seen:continue
-            seen.add(oid);found.append(item)
-            if len(found)>=MAX_ITEMS:return found
+        stages=(False,True)
+        for filtered in stages:
+            try:rows,url=search(q,filtered=filtered)
+            except Exception as e:
+                print("search-warning>",q,"filtered="+str(filtered).lower(),str(e),file=sys.stderr)
+                continue
+            for row in rows:
+                item=clean_result(row,q,url)
+                if not item:continue
+                oid=item["openverse_id"]
+                if oid in seen:continue
+                seen.add(oid);found.append(item)
+                if len(found)>=MAX_ITEMS:return found
+            # If broad search returned eligible material, do not repeat the same
+            # query through the more expensive server-side filter.
+            if any(i.get("query")==q for i in found):break
     return found
 
 def cache_path(item):
