@@ -4,7 +4,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$Pin = "71be7f28917ec94abcb247db8b4150971c79e532"
+$Pin = "fc807fbce69bc7ab39cc457b70ab72cf4b991e1a"
 $Base = "https://raw.githubusercontent.com/letsgo0226/Notes/$Pin"
 $Dir = if ($env:HSI_CORPUS_HOME) { $env:HSI_CORPUS_HOME } else { Join-Path $HOME ".hsi-corpus" }
 $App = Join-Path $Dir "hsi_open_corpus.py"
@@ -52,10 +52,10 @@ try {
   Remove-Item -Force -ErrorAction SilentlyContinue $TmpApp,$TmpSearch,$TmpNet
 }
 
-Write-Host "HSI Open-Corpus Renderer: no AI / HSI-SEARCH / Openverse CC0+PDM WAV / deterministic DSP"
+Write-Host "HSI Open-Corpus Renderer: no AI / HSI-SEARCH / HSI NET CC0+PDM WAV / deterministic DSP"
 Write-Host "bundle_commit> $Pin"
 Write-Host "note> YouTube audio is not downloaded or sampled."
-Write-Host "note> Openverse license metadata is indexed metadata; verify landing pages before publication/commercial reuse."
+Write-Host "note> Adapter license metadata is indexed metadata; verify landing pages before publication/commercial reuse."
 
 $invoke = @()
 $invoke += $Py.Prefix
