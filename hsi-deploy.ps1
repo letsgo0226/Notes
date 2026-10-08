@@ -18,6 +18,14 @@ if($null -eq $Py){throw "Python 3.9+ required; bootstrap does not install packag
 Invoke-WebRequest -UseBasicParsing "$Base/hsi_net.py" -OutFile $Net
 Invoke-WebRequest -UseBasicParsing "$Base/hsi_deploy.py" -OutFile $App
 
+if(-not $env:GITHUB_TOKEN -and -not $env:GH_TOKEN -and (Get-Command gh -ErrorAction SilentlyContinue)){
+  try {
+    $token = (& gh auth token 2>$null).Trim()
+    if($token){$env:GITHUB_TOKEN=$token}
+  } catch {}
+  Remove-Variable token -ErrorAction SilentlyContinue
+}
+
 Write-Host "HSI Deploy Solver: self + UTM + Trader_42 + Omega"
 Write-Host "policy> solve first; immutable commit resolution; no domain execution during deployment"
 $invoke=@();$invoke+=$Py.Prefix;$invoke+=$App;$invoke+=$HSIArgs
