@@ -1,8 +1,9 @@
 #!/bin/sh
 set -eu
 
-RAW="https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi_open_corpus.py"
-RAW_SEARCH="https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi_search.py"
+PIN="7b1bd7e7f8b498687325824e168fcc0492537eea"
+RAW="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_open_corpus.py"
+RAW_SEARCH="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_search.py"
 DIR="${HSI_CORPUS_HOME:-$HOME/.hsi-corpus}"
 APP="$DIR/hsi_open_corpus.py"
 SEARCH="$DIR/hsi_search.py"
@@ -68,6 +69,7 @@ trap - EXIT HUP INT TERM
 chmod 700 "$APP" "$SEARCH"
 
 echo "HSI Open-Corpus Renderer: no AI / HSI-SEARCH / Openverse CC0+PDM WAV / deterministic DSP"
+echo "bundle_commit> $PIN"
 echo "note> YouTube audio is not downloaded or sampled."
 echo "note> Openverse license metadata is indexed metadata; verify landing pages before publication/commercial reuse."
 
