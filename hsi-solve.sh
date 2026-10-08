@@ -1,6 +1,6 @@
 #!/bin/sh
 set -eu
-PIN="343666daf7f8e4f603488ea4e0f1f848845b0916"
+PIN="09d87a9b6fc615f616afd8adb1813677298a8190"
 BASE="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN"
 DIR="${HSI_SOLVE_HOME:-$HOME/.hsi-solve}"
 APP="$DIR/hsi_solve.py"
