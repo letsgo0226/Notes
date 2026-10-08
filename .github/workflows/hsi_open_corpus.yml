@@ -1,0 +1,125 @@
+name: hsi_open_corpus
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "hsi-corpus.sh"
+      - "hsi_open_corpus.py"
+      - "HSI_OPEN_CORPUS.md"
+      - ".github/workflows/hsi_open_corpus.yml"
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax and non-AI invariants
+        run: |
+          set -eu
+          sh -n hsi-corpus.sh
+          python3 -m py_compile hsi_open_corpus.py
+          grep -q 'ai_model":False' hsi_open_corpus.py
+          grep -q 'neural_renderer":False' hsi_open_corpus.py
+          grep -q 'machine_learning":False' hsi_open_corpus.py
+          grep -q 'youtube_audio_used":False' hsi_open_corpus.py
+          ! grep -Eiq 'torch|tensorflow|transformers|diffusion|openai|suno|runway|fal.ai' hsi_open_corpus.py
+      - name: Start mock Openverse
+        run: |
+          cat >/tmp/mock_openverse.py <<'PY'
+          import io,json,math,struct,urllib.parse,wave
+          from http.server import BaseHTTPRequestHandler,HTTPServer
+
+          def tone(freq,seconds=5,sr=16000):
+              b=io.BytesIO()
+              with wave.open(b,"wb") as w:
+                  w.setnchannels(1);w.setsampwidth(2);w.setframerate(sr)
+                  frames=[]
+                  for i in range(int(seconds*sr)):
+                      v=int(10000*math.sin(2*math.pi*freq*i/sr))
+                      frames.append(struct.pack("<h",v))
+                  w.writeframes(b"".join(frames))
+              return b.getvalue()
+          WAVS={"a":tone(220),"b":tone(330),"c":tone(440)}
+
+          class H(BaseHTTPRequestHandler):
+              def log_message(self,*a):pass
+              def send(self,raw,ctype="application/json",code=200):
+                  if not isinstance(raw,bytes):raw=json.dumps(raw).encode()
+                  self.send_response(code);self.send_header("Content-Type",ctype)
+                  self.send_header("Content-Length",str(len(raw)));self.end_headers();self.wfile.write(raw)
+              def do_GET(self):
+                  u=urllib.parse.urlparse(self.path)
+                  if u.path=="/v1/audio/":
+                      q=urllib.parse.parse_qs(u.query)
+                      assert q.get("license")==["cc0,pdm"]
+                      assert q.get("extension")==["wav"]
+                      base="http://127.0.0.1:8765/audio/"
+                      rows=[
+                        {"id":"cc0-a","title":"A","creator":"Alpha","license":"cc0","license_version":"1.0","url":base+"a.wav","foreign_landing_url":"https://example.test/a","provider":"mock","source":"mock","filetype":"wav","duration":5000,"sample_rate":16000},
+                        {"id":"pdm-b","title":"B","creator":"Beta","license":"pdm","license_version":"1.0","url":base+"b.wav","foreign_landing_url":"https://example.test/b","provider":"mock","source":"mock","filetype":"wav","duration":5000,"sample_rate":16000},
+                        {"id":"cc0-c","title":"C","creator":"Gamma","license":"cc0","license_version":"1.0","url":base+"c.wav","foreign_landing_url":"https://example.test/c","provider":"mock","source":"mock","filetype":"wav","duration":5000,"sample_rate":16000},
+                        {"id":"reject-by","title":"Reject","creator":"Other","license":"by","license_version":"4.0","url":base+"a.wav","foreign_landing_url":"https://example.test/reject","provider":"mock","source":"mock","filetype":"wav"}
+                      ]
+                      return self.send({"result_count":len(rows),"results":rows})
+                  if u.path.startswith("/audio/"):
+                      k=u.path.rsplit("/",1)[-1].split(".")[0]
+                      return self.send(WAVS[k],"audio/wav")
+                  self.send({"detail":"not found"},code=404)
+          HTTPServer(("127.0.0.1",8765),H).serve_forever()
+          PY
+          python3 /tmp/mock_openverse.py >/tmp/mock-openverse.log 2>&1 &
+          echo $! >/tmp/mock-openverse.pid
+          for i in $(seq 1 30); do
+            curl -fsS 'http://127.0.0.1:8765/v1/audio/?q=x&license=cc0%2Cpdm&extension=wav&page_size=20' >/dev/null && exit 0
+            sleep 1
+          done
+          exit 1
+      - name: Online discovery render
+        run: |
+          set -eu
+          rm -rf /tmp/hsi-corpus-a /tmp/hsi-corpus-cache
+          HSI_OPENVERSE_BASE=http://127.0.0.1:8765/v1/audio/           HSI_CORPUS_CACHE=/tmp/hsi-corpus-cache           HSI_CORPUS_SR=16000           HSI_CORPUS_ITEMS=3           HSI_OUT=/tmp/hsi-corpus-a           python3 hsi_open_corpus.py "open corpus"
+          python3 - <<'PY'
+          import json,wave
+          from pathlib import Path
+          p=Path("/tmp/hsi-corpus-a")
+          c=json.loads((p/"song.hsicert").read_text())
+          l=json.loads((p/"corpus.lock.json").read_text())
+          assert c["protocol"]=="HSI-OPEN-CORPUS/1.0"
+          assert c["closed"]==1 and c["technical_closed"]==1
+          assert c["rights_closed"]==0
+          assert c["rights_review_recommended"] is True
+          assert c["ai_model"] is False and c["neural_renderer"] is False and c["machine_learning"] is False
+          assert c["youtube_audio_used"] is False
+          assert c["source_count"]>=2 and c["event_count"]>=5
+          assert all(x["license"] in ("cc0","pdm") for x in c["sources"])
+          assert all(x["openverse_id"]!="reject-by" for x in c["sources"])
+          assert l["youtube_audio_used"] is False
+          with wave.open(str(p/"song.wav"),"rb") as w:
+              assert w.getnchannels()==2 and w.getsampwidth()==2 and w.getframerate()==16000
+          def d257(n):
+              out=bytearray()
+              while n>1:
+                  n,r=divmod(n,257);out.append(r-1)
+              out.reverse();return bytes(out)
+          blocks=json.loads((p/"song.e257").read_text())
+          assert b"".join(d257(x) for x in blocks)==(p/"song.wav").read_bytes()
+          PY
+      - name: Locked offline rerender
+        run: |
+          set -eu
+          kill "$(cat /tmp/mock-openverse.pid)"
+          wait "$(cat /tmp/mock-openverse.pid)" 2>/dev/null || true
+          rm -rf /tmp/hsi-corpus-b
+          HSI_OPENVERSE_BASE=http://127.0.0.1:9/v1/audio/           HSI_CORPUS_CACHE=/tmp/hsi-corpus-cache           HSI_CORPUS_SR=16000           HSI_CORPUS_LOCK=/tmp/hsi-corpus-a/corpus.lock.json           HSI_OUT=/tmp/hsi-corpus-b           python3 hsi_open_corpus.py "open corpus"
+          cmp /tmp/hsi-corpus-a/song.wav /tmp/hsi-corpus-b/song.wav
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path("/tmp/hsi-corpus-a/song.hsicert").read_text())
+          b=json.loads(Path("/tmp/hsi-corpus-b/song.hsicert").read_text())
+          assert a["audio_sha256"]==b["audio_sha256"]
+          assert b["technical_closed"]==1
+          PY
