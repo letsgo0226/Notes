@@ -167,3 +167,39 @@ Omega     : SEARCH may_force_commit      = false
 ```
 
 Thus external evidence can enlarge the finite evidence set without bypassing each system's existing closure rules.
+
+
+## HSI SOLVE integration
+
+The central `hsi-three.sh` dispatcher now delegates to `HSI-SOLVE/1.0`.
+
+Supported central domains:
+
+```text
+SELF
+UTM
+TRADER_42
+OMEGA
+ALL
+```
+
+`SELF` verifies the finite pinned deployment graph. `ALL` verifies SELF and then executes all three existing domain gates locally from the vendored pinned domain bundle.
+
+The meaning of closure is deliberately narrow:
+
+```text
+verification_closed = true
+does not imply
+problem_totality_claim = true
+```
+
+Expected public states remain:
+
+```text
+SELF       -> COMMITTED when deployment verifies
+UTM        -> UNRESOLVED
+TRADER_42  -> HOLD
+OMEGA      -> UNRESOLVED
+```
+
+The Trader path remains certificate-only, paper, dry-run, unarmed, and unable to submit an order.
