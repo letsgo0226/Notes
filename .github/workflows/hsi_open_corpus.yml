@@ -30,6 +30,30 @@ jobs:
           grep -q 'from hsi_search import run_search' hsi_open_corpus.py
           ! grep -q 'def search(' hsi_open_corpus.py
           ! grep -q 'def http_json(' hsi_open_corpus.py
+      - name: Version mismatch fails closed
+        run: |
+          set -eu
+          rm -rf /tmp/hsi-version-mismatch
+          mkdir -p /tmp/hsi-version-mismatch
+          cp hsi_open_corpus.py /tmp/hsi-version-mismatch/
+          cat >/tmp/hsi-version-mismatch/hsi_search.py <<'PY'
+          VERSION="1.0.0"
+          def run_search(*a,**k):
+              return {"status":"FOUND","results":[]}
+          PY
+          set +e
+          (cd /tmp/hsi-version-mismatch && python3 hsi_open_corpus.py "x") >/tmp/version.out 2>&1
+          code=$?
+          set -e
+          test "$code" -ne 0
+          grep -q "requires HSI-SEARCH >= 1.1.0" /tmp/version.out
+      - name: Launcher bundle pin
+        run: |
+          set -eu
+          grep -q '^PIN="[0-9a-f]\{40\}"' hsi-corpus.sh
+          grep -q '^\$Pin = "[0-9a-f]\{40\}"' hsi-corpus.ps1
+          grep -q 'Notes/\$PIN/hsi_open_corpus.py' hsi-corpus.sh
+          grep -q 'Notes/\$PIN/hsi_search.py' hsi-corpus.sh
       - name: Start mock Openverse
         run: |
           cat >/tmp/mock_openverse.py <<'PY'
@@ -98,13 +122,15 @@ jobs:
           l=json.loads((p/"corpus.lock.json").read_text())
           sh=json.loads((p/"search.hsicert").read_text())
           assert c["protocol"]=="HSI-OPEN-CORPUS/1.0"
-          assert c["version"]=="1.2.0"
+          assert c["version"]=="1.3.0"
           assert c["closed"]==1 and c["technical_closed"]==1
           assert c["rights_closed"]==0
           assert c["rights_review_recommended"] is True
           assert c["ai_model"] is False and c["neural_renderer"] is False and c["machine_learning"] is False
           assert c["youtube_audio_used"] is False
           assert c["search_protocol"]=="HSI-SEARCH/1.0"
+          assert c["hsi_search_version"]=="1.1.0"
+          assert c["minimum_hsi_search_version"]=="1.1.0"
           assert c["search_status"]=="FOUND"
           assert sh["protocol"]=="HSI-SEARCH/1.0" and sh["status"]=="FOUND"
           assert sh["blue"]["search_expands_evidence_only"] is True
