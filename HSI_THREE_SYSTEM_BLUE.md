@@ -137,3 +137,33 @@ The public launchers are finite HSI certificate / invariant gates. They do not r
 - a claim that Omega predicts physical world outcomes.
 
 Their purpose is to make the shared finite HSI + Blue semantics directly executable from iSH and macOS.
+
+
+## HSI SEARCH as a shared operator
+
+The three systems share the `HSI-SEARCH/1.0` operator contract:
+
+```text
+SEARCH expands evidence.
+SEARCH does not totalize reality.
+```
+
+The Blue care receipt therefore records:
+
+```text
+search_expands_evidence_only = true
+absence_of_retrieval_is_not_nonexistence = true
+unresolved_is_valid = true
+forced_totalization = false
+may_authorize_domain_action = false
+```
+
+Domain-specific guards remain stronger:
+
+```text
+UTM       : SEARCH may_decide_nonhalting = false
+Trader_42 : SEARCH may_authorize_trade   = false
+Omega     : SEARCH may_force_commit      = false
+```
+
+Thus external evidence can enlarge the finite evidence set without bypassing each system's existing closure rules.
