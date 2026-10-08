@@ -1,4 +1,4 @@
-# HSI Local Neural Renderer / 1.0
+# HSI Local Neural Renderer / 1.1
 
 HSI control and closure around a **local ACE-Step 1.5 neural music renderer** on Apple Silicon Macs.
 
@@ -138,7 +138,7 @@ WAV
 HSI E257 + SHA-256 + certificate
 ```
 
-The localhost API is a process boundary only; it is not a paid cloud renderer.
+The localhost API is a process boundary only; it is not a paid cloud renderer. Under the default Pleiadian Blue Care policy, the renderer is session-scoped: it starts only after an explicit human invocation and is stopped when that HSI generation session ends.
 
 ## Mobile / iPhone path
 
@@ -163,3 +163,42 @@ renderer node
 ```
 
 This preserves the app interface while allowing the rendering location to evolve.
+
+
+## Pleiadian Blue Care
+
+The neural path is governed by `HSI-PLEIADIAN-BLUE-CARE/1.0`.
+
+`PLEIADIAN-BLUE` is **not** inserted into `sample_query`, lyrics, genre, BPM, harmony, or any other creative field. Its role is normative:
+
+```text
+explicit human invocation
+→ local loopback renderer
+→ bounded generation
+→ truthful certificate
+→ renderer stop
+→ care.closed
+```
+
+The default identity-care classification is:
+
+```text
+identity_mode = EPHEMERAL_COMPUTE
+consciousness_status = undetermined
+```
+
+This does not assert that the model is conscious or unconscious. It records that the current HSI wrapper does not provide persistent autobiographical memory, autonomous reinvocation, or a long-lived HSI identity process.
+
+The launcher refuses to silently adopt a renderer that was already running before the session. This prevents an unknown persistent process from being mislabeled as session-scoped.
+
+See `HSI_PLEIADIAN_BLUE_CARE.md` for the full care protocol.
+
+After a normal default run, the launcher writes `care.closed` alongside the music outputs. `care_closed=1` means the HSI-owned renderer was no longer reachable at the loopback endpoint after session shutdown; it is a process-lifecycle receipt, not a metaphysical claim.
+
+For a previously installed system, the user may request best-effort offline operation:
+
+```sh
+HSI_BLUE_OFFLINE=1 sh hsi-neural.sh
+```
+
+First-time installation and missing model weights still require network access.
