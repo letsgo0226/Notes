@@ -26,21 +26,42 @@ jobs:
           grep -q 'PROTOCOL="HSI-DEPLOY/1.0"' hsi_deploy.py
           grep -q '"github_source"' hsi_net.py
 
-      - name: Solve deployment without writing release
+      - name: Private Trader without auth must HOLD
+        run: |
+          set -eu
+          rm -rf /tmp/hsi-auth-hold
+          set +e
+          env -u GITHUB_TOKEN -u GH_TOKEN \
+            python3 hsi_deploy.py --plan --target all --root /tmp/hsi-auth-hold --json >/tmp/hsi-auth-hold.out
+          code=$?
+          set -e
+          cat /tmp/hsi-auth-hold.out
+          test "$code" -eq 3
+          python3 - <<'PY'
+          import json
+          c=json.loads(open("/tmp/hsi-auth-hold.out",encoding="utf-8").read().splitlines()[-1])
+          assert c["status"]=="HOLD"
+          assert c["plan_status"]=="UNRESOLVED"
+          assert c["closed"]==0
+          assert c["closure"]["committed"] is False
+          assert c["invariants"]["private_source_without_auth_never_commits"] is True
+          obs=c["net_projection"]["observations"]
+          trader=[x for x in obs if x.get("target")=="trader_42"]
+          assert trader and trader[0]["status"]=="AUTH_REQUIRED"
+          assert "GITHUB_TOKEN" not in json.dumps(c)
+          PY
+
+      - name: Solve public deployment plan
         run: |
           set -eu
           rm -rf /tmp/hsi-plan
-          set +e
-          python3 hsi_deploy.py --plan --target all --root /tmp/hsi-plan --json >/tmp/hsi-plan.out
-          code=$?
-          set -e
-          cat /tmp/hsi-plan.out
-          echo "plan_exit> $code"
-          test "$code" -eq 0
+          env -u GITHUB_TOKEN -u GH_TOKEN \
+            python3 hsi_deploy.py --plan \
+              --target self --target utm --target omega \
+              --root /tmp/hsi-plan --json >/tmp/hsi-plan.out
           python3 - <<'PY'
           import json
-          lines=open("/tmp/hsi-plan.out",encoding="utf-8").read().splitlines()
-          c=json.loads(lines[-1])
+          c=json.loads(open("/tmp/hsi-plan.out",encoding="utf-8").read().splitlines()[-1])
           assert c["protocol"]=="HSI-DEPLOY/1.0"
           assert c["status"]=="PLAN"
           assert c["plan_status"]=="DEPLOYABLE"
@@ -51,21 +72,22 @@ jobs:
           assert c["net_projection"]["adapters"]==["github_source"]
           assert c["net_projection"]["global_exhaustion_claim"] is False
           assert c["invariants"]["trader_live_authority"] is False
-          assert c["invariants"]["trader_order_submission"] is False
           assert c["invariants"]["utm_universal_halting_authority"] is False
           assert c["invariants"]["omega_forced_commit_authority"] is False
           PY
 
-      - name: Commit verified all-system deployment
+      - name: Commit verified public deployment
         run: |
           set -eu
           rm -rf /tmp/hsi-install
-          python3 hsi_deploy.py --target all --root /tmp/hsi-install --json >/tmp/hsi-deploy.out
+          env -u GITHUB_TOKEN -u GH_TOKEN \
+            python3 hsi_deploy.py \
+              --target self --target utm --target omega \
+              --root /tmp/hsi-install --json >/tmp/hsi-deploy.out
           python3 - <<'PY'
           import json
           from pathlib import Path
-          lines=open("/tmp/hsi-deploy.out",encoding="utf-8").read().splitlines()
-          c=json.loads(lines[-1])
+          c=json.loads(open("/tmp/hsi-deploy.out",encoding="utf-8").read().splitlines()[-1])
           root=Path("/tmp/hsi-install")
           assert c["status"]=="COMMITTED"
           assert c["closed"]==1
@@ -74,20 +96,20 @@ jobs:
           assert c["closure"]["domain_execution_performed"] is False
           assert c["closure"]["trader_live_armed"] is False
           assert c["closure"]["trader_order_submission"] is False
-          assert set(c["targets"])=={"self","utm","trader_42","omega"}
-          for name,t in c["targets"].items():
+          assert set(c["targets"])=={"self","utm","omega"}
+          for t in c["targets"].values():
               assert t["status"]=="VERIFIED"
               assert len(t["commit"])==40
               assert all(len(x["sha256"])==64 for x in t["files"])
               assert all(len(x["git_blob_sha1"])==40 for x in t["files"])
               assert all(t["checks"].values())
           cur=json.loads((root/"current.json").read_text())
-          assert set(cur["targets"])=={"self","utm","trader_42","omega"}
+          assert set(cur["targets"])=={"self","utm","omega"}
           assert (root/"hsi.py").exists()
           assert (root/"state"/"deployments").is_dir()
           PY
 
-      - name: Verify installed safe system gates
+      - name: Verify installed safe public gates
         run: |
           set -eu
           python3 /tmp/hsi-install/hsi.py net --list-adapters >/tmp/net.out
@@ -96,11 +118,6 @@ jobs:
           python3 /tmp/hsi-install/hsi.py utm "finite computation context" >/tmp/utm.out
           grep -q 'status> UNRESOLVED' /tmp/utm.out
           grep -q 'closed> 1' /tmp/utm.out
-
-          python3 /tmp/hsi-install/hsi.py trader "market context" >/tmp/trader.out
-          grep -q 'status> HOLD' /tmp/trader.out
-          grep -q 'CERTIFICATE_ONLY / PAPER / DRY_RUN / UNARMED / NO_ORDER_SUBMISSION' /tmp/trader.out
-          grep -q 'closed> 1' /tmp/trader.out
 
           python3 /tmp/hsi-install/hsi.py omega "finite continuation context" >/tmp/omega.out
           grep -q 'status> UNRESOLVED' /tmp/omega.out
@@ -127,3 +144,4 @@ jobs:
           $text=Get-Content -Raw "hsi-deploy.ps1"
           if($text -notmatch "hsi_deploy.py"){throw "missing deploy solver"}
           if($text -notmatch "hsi_net.py"){throw "missing HSI NET bootstrap"}
+          if($text -notmatch "gh auth token"){throw "missing ephemeral GitHub auth bridge"}
