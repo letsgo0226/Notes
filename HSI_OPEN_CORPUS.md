@@ -52,9 +52,11 @@ runtime input
   ↓
 E257 deterministic field
   ↓
-Openverse audio search
+HSI-SEARCH/1.0
   ↓
-CC0 / Public Domain Mark metadata gate
+Openverse audio adapter
+  ↓
+local CC0 / Public Domain Mark + WAV admission gate
   ↓
 WAV recordings
   ↓
@@ -145,6 +147,7 @@ If the files are still cached, a lock-based rerun does not need a new Openverse 
 ```text
 ~/Music/HSI-Corpus/YYYYMMDD-HHMMSS-PID/
 ├── keywords.txt
+├── search.hsicert
 ├── corpus.lock.json
 ├── events.json
 ├── song.wav
@@ -212,3 +215,30 @@ Later versions can add:
 - license-verified persistent corpus snapshots.
 
 None of those require generative AI.
+
+
+## HSI SEARCH integration
+
+As of Open-Corpus renderer 1.1, discovery is no longer implemented inside the music renderer.
+
+```text
+hsi_open_corpus.py
+      ↓
+HSI-SEARCH/1.0
+      ↓
+source adapter
+      ↓
+search.hsicert
+      ↓
+corpus admission / DSP
+```
+
+A failed or exhausted search remains epistemically distinct from a claim of nonexistence:
+
+```text
+SOURCE_UNAVAILABLE ≠ NO SUCH AUDIO EXISTS
+EXHAUSTED_BUDGET   ≠ SEARCH SPACE EXHAUSTED
+UNRESOLVED         ≠ FALSE
+```
+
+The exact search certificate is embedded in `corpus.lock.json`, so a later locked rerender preserves the original discovery provenance and status.
