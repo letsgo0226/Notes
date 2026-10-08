@@ -1,0 +1,55 @@
+HSI SOLVE / CROSS-PLATFORM
+==========================
+
+Protocol:
+  HSI-SOLVE/1.0
+
+Purpose:
+  finite meta-solver + self-deployment verifier
+
+Domains:
+  SELF
+  UTM
+  TRADER_42
+  OMEGA
+  ALL
+
+macOS / Linux:
+  curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-solve.sh | sh
+
+iSH:
+  wget -qO- https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-solve.sh | sh
+
+Android / Termux:
+  pkg install -y python curl
+  curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-solve.sh | sh
+
+Windows PowerShell:
+  $p = Join-Path $env:TEMP "hsi-solve.ps1"; Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-solve.ps1" -OutFile $p; & $p
+
+Run all domains:
+  curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-solve.sh | sh -s -- --system ALL "finite problem context"
+
+UTM:
+  curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-solve.sh | sh -s -- --system UTM "problem"
+
+TRADER_42:
+  curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-solve.sh | sh -s -- --system TRADER_42 "market context"
+
+OMEGA:
+  curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-solve.sh | sh -s -- --system OMEGA "continuation context"
+
+Expected safe states:
+  SELF       -> COMMITTED when deployment graph verifies
+  UTM        -> UNRESOLVED unless a finite halting witness is verified
+  TRADER_42  -> HOLD / certificate-only / paper / dry-run / unarmed
+  OMEGA      -> UNRESOLVED unless a finite verifier supports closure
+
+Output:
+  ~/HSI/SOLVE/YYYYMMDD-HHMMSS-PID/
+
+Semantic rules:
+  universal_solver_claim = false
+  problem_totality_claim = false
+  unresolved_is_valid = true
+  verification_closure_is_not_problem_totality = true
