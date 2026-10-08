@@ -6,6 +6,7 @@ on:
     paths:
       - "hsi-native.sh"
       - "hsi_native_renderer.py"
+      - "HSI_NATIVE_RENDER.md"
       - ".github/workflows/hsi_native_renderer.yml"
   workflow_dispatch:
 
@@ -14,33 +15,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify native renderer
+      - name: Verify zero-preset native field
         run: |
           set -eu
           sh -n hsi-native.sh
           python3 -m py_compile hsi_native_renderer.py
-          rm -rf /tmp/hsi-a /tmp/hsi-b /tmp/hsi-bootstrap
+          ! grep -Eq 'VERSE|CHORUS|SCALES=|VOWELS=|progression|cinematic dream pop' hsi_native_renderer.py
+          rm -rf /tmp/hsi-a /tmp/hsi-b /tmp/hsi-c /tmp/hsi-bootstrap
           python3 hsi_native_renderer.py --bars 4 --out /tmp/hsi-a "Blue Pleiadian Stars"
           python3 hsi_native_renderer.py --bars 4 --out /tmp/hsi-b "Blue Pleiadian Stars"
+          python3 hsi_native_renderer.py --bars 4 --out /tmp/hsi-c "Moon Cat Home"
           cmp /tmp/hsi-a/song.wav /tmp/hsi-b/song.wav
           cmp /tmp/hsi-a/lyrics.txt /tmp/hsi-b/lyrics.txt
+          ! cmp -s /tmp/hsi-a/song.wav /tmp/hsi-c/song.wav
           python3 - <<'PY'
           import json,wave
           from pathlib import Path
-          p=Path("/tmp/hsi-a")
-          c=json.loads((p/"song.hsicert").read_text())
-          assert c["protocol"]=="HSI-NATIVE-RENDER/1.0"
-          assert c["closed"]==1
-          assert c["external_ai"] is False
-          assert c["external_api"] is False
+          a=Path("/tmp/hsi-a"); c=json.loads((a/"song.hsicert").read_text())
+          assert c["protocol"]=="HSI-NATIVE-FIELD/1.0"
+          assert c["closed"]==1 and c["external_ai"] is False and c["external_api"] is False
+          assert c["creative_presets"]==[] and c["generation_input"]=="runtime-keywords-only"
+          assert c["blue_role"]=="certificate-normative-only" and c["blue_conditioning"] is False
           assert all(c["checks"].values())
-          raw=(p/"song.wav").read_bytes()
-          assert raw[:4]==b"RIFF" and raw[8:12]==b"WAVE"
-          assert len(raw)>10000
-          assert (p/"song.e257").stat().st_size>1000
-          with wave.open(str(p/"song.wav"),"rb") as w:
-              assert w.getnchannels()==1 and w.getsampwidth()==2
-              assert w.getframerate()==22050 and w.getnframes()>1000
+          raw=(a/"song.wav").read_bytes()
+          assert raw[:4]==b"RIFF" and raw[8:12]==b"WAVE" and len(raw)>10000
+          assert (a/"song.e257").stat().st_size>1000
+          s=json.loads((a/"score.json").read_text())
+          assert s["generation_basis_e257"]==c["generation_basis_e257"]
+          assert "[S1]" in (a/"lyrics.txt").read_text()
+          assert "VERSE" not in (a/"lyrics.txt").read_text() and "CHORUS" not in (a/"lyrics.txt").read_text()
+          with wave.open(str(a/"song.wav"),"rb") as w:
+              assert w.getnchannels()==1 and w.getsampwidth()==2 and w.getframerate()==24000 and w.getnframes()>1000
           PY
           HSI_BARS=4 HSI_OUT=/tmp/hsi-bootstrap sh -c 'wget -qO- https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-native.sh | sh -s -- "Blue Pleiadian Stars"'
           test -s /tmp/hsi-bootstrap/song.wav
@@ -48,5 +53,6 @@ jobs:
           import json
           from pathlib import Path
           c=json.loads(Path("/tmp/hsi-bootstrap/song.hsicert").read_text())
-          assert c["closed"]==1 and c["protocol"]=="HSI-NATIVE-RENDER/1.0"
+          assert c["closed"]==1 and c["protocol"]=="HSI-NATIVE-FIELD/1.0"
+          assert c["creative_presets"]==[] and c["blue_conditioning"] is False
           PY
