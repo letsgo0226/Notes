@@ -31,6 +31,7 @@ TARGETS={
             "hsi_search.py":"hsi_search.py",
             "hsi_open_corpus.py":"hsi_open_corpus.py",
             "hsi_native_renderer.py":"hsi_native_renderer.py",
+            "hsi_update.py":"hsi_update.py",
             "hsi_deploy.py":"hsi_deploy.py"
         }
     },
@@ -159,7 +160,10 @@ def validate_target(name,root):
             "net_github_adapter":'"github_source"' in net,
             "search_semantic_humility":'absence_of_retrieval_is_not_evidence_of_nonexistence' in search,
             "corpus_no_ai":_contains(corpus,'"ai_model":False','"neural_renderer":False','"machine_learning":False'),
-            "native_protocol":'PROTOCOL="HSI-NATIVE-FIELD/1.0"' in native
+            "native_protocol":'PROTOCOL="HSI-NATIVE-FIELD/1.0"' in native,
+            "update_protocol":'PROTOCOL="HSI-UPDATE/1.0"' in read("hsi_update.py"),
+            "update_no_auto_rewrite":'"automatic_source_code_rewrite":False' in read("hsi_update.py"),
+            "update_no_auto_push":'"automatic_git_push":False' in read("hsi_update.py")
         })
     else:
         core=read("core.py")
@@ -325,10 +329,11 @@ STATE=json.loads((ROOT/"current.json").read_text(encoding="utf-8"))
 TARGETS=STATE["targets"]
 ALIASES={{"deploy":("self","hsi_deploy.py"),"net":("self","hsi_net.py"),"search":("self","hsi_search.py"),
          "corpus":("self","hsi_open_corpus.py"),"native":("self","hsi_native_renderer.py"),
+         "update":("self","hsi_update.py"),
          "utm":("utm","hsi_blue_native.py"),"trader":("trader_42","hsi_blue_native.py"),
          "trader_42":("trader_42","hsi_blue_native.py"),"omega":("omega","hsi_blue_native.py")}}
 if len(sys.argv)<2 or sys.argv[1] not in ALIASES:
-    raise SystemExit("usage: hsi.py deploy|net|search|corpus|native|utm|trader|omega [args...]")
+    raise SystemExit("usage: hsi.py deploy|net|search|corpus|native|update|utm|trader|omega [args...]")
 target,file=ALIASES[sys.argv[1]]
 if target not in TARGETS:
     raise SystemExit("target not deployed: "+target)
