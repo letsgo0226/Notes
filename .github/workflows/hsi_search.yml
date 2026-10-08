@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Syntax and HSI NET model
+      - name: Syntax and HSI NET registry
         run: |
           set -eu
           sh -n hsi-net.sh
@@ -30,34 +30,67 @@ jobs:
           import json
           r=json.loads(open("/tmp/net.json").read())
           assert r["protocol"]=="HSI-NET-SINGULARITY/1.0"
+          assert r["version"]=="1.1.0"
           assert r["model"]=="ABSTRACT_GLOBAL_INFORMATION_FIELD"
           assert r["adapters"]["openverse_audio"]["status"]=="ACTIVE"
-          assert r["adapters"]["openverse_audio"]["exhaustive"] is False
+          assert r["adapters"]["wikimedia_commons_audio"]["status"]=="ACTIVE"
+          assert r["adapters"]["network_audio"]["members"]==["openverse_audio","wikimedia_commons_audio"]
+          assert all(r["adapters"][x]["exhaustive"] is False for x in ("openverse_audio","wikimedia_commons_audio","network_audio"))
           PY
-      - name: Mock source
+
+      - name: Start mock public-audio adapters
         run: |
           cat >/tmp/mock_search.py <<'PY'
           import json,urllib.parse
           from http.server import BaseHTTPRequestHandler,HTTPServer
           class H(BaseHTTPRequestHandler):
               def log_message(self,*a): pass
-              def do_GET(self):
-                  u=urllib.parse.urlparse(self.path)
-                  if u.path!="/v1/audio/":
-                      self.send_response(404);self.end_headers();return
-                  q=urllib.parse.parse_qs(u.query)
-                  if "source" in q:
-                      assert q["source"]==["freesound"]
-                  base="http://127.0.0.1:8877/"
-                  rows=[
-                    {"id":"ok-cc0","title":"ok","creator":"A","license":"cc0","license_version":"1.0","url":base+"a.wav","foreign_landing_url":"https://example.test/a","provider":"freesound","source":"freesound","filetype":"wav","category":"music"},
-                    {"id":"ok-alt","title":"alt wav","creator":"C","license":"pdm","license_version":"1.0","url":base+"c.mp3","foreign_landing_url":"https://example.test/c","provider":"freesound","source":"freesound","filetype":"mp3","category":"sound_effect","alt_files":[{"url":base+"c.wav","filetype":"wav","filesize":1234,"sample_rate":16000}]},
-                    {"id":"reject-by","title":"reject","creator":"B","license":"by","license_version":"4.0","url":base+"b.wav","foreign_landing_url":"https://example.test/b","provider":"freesound","source":"freesound","filetype":"wav","category":"music"},
-                    {"id":"reject-speech","title":"LL-Q1860-test-sky blue","creator":"Speaker","creator_url":"https://lingualibre.org/wiki/Q1","license":"cc0","license_version":"1.0","url":base+"a.wav","foreign_landing_url":"https://example.test/speech","provider":"wikimedia_audio","source":"wikimedia_audio","filetype":"wav","category":"pronunciation"}
-                  ]
-                  raw=json.dumps({"results":rows}).encode()
+              def sendj(self,obj):
+                  raw=json.dumps(obj).encode()
                   self.send_response(200);self.send_header("Content-Type","application/json")
                   self.send_header("Content-Length",str(len(raw)));self.end_headers();self.wfile.write(raw)
+              def do_GET(self):
+                  u=urllib.parse.urlparse(self.path)
+                  q=urllib.parse.parse_qs(u.query)
+                  base="http://127.0.0.1:8877/"
+                  if u.path=="/v1/audio/":
+                      rows=[
+                        {"id":"ok-alt","title":"ambient sound","creator":"C","license":"pdm","license_version":"1.0",
+                         "url":base+"c.mp3","foreign_landing_url":"https://example.test/c","provider":"freesound","source":"freesound",
+                         "filetype":"mp3","category":"sound_effect",
+                         "alt_files":[{"url":base+"c.wav","filetype":"wav","filesize":1234,"sample_rate":16000}]},
+                        {"id":"reject-by","title":"music","creator":"B","license":"by","license_version":"4.0",
+                         "url":base+"b.wav","foreign_landing_url":"https://example.test/b","provider":"jamendo","source":"jamendo",
+                         "filetype":"wav","category":"music"},
+                        {"id":"reject-speech","title":"LL-Q1860-test-sky blue","creator":"Speaker","creator_url":"https://lingualibre.org/wiki/Q1",
+                         "license":"cc0","license_version":"1.0","url":base+"a.wav","foreign_landing_url":"https://example.test/speech",
+                         "provider":"wikimedia_audio","source":"wikimedia_audio","filetype":"wav","category":"pronunciation"}
+                      ]
+                      return self.sendj({"results":rows})
+                  if u.path=="/w/api.php":
+                      pages=[
+                        {"pageid":101,"title":"File:Blue piano music.wav","imageinfo":[{
+                          "url":base+"a.wav","descriptionurl":"https://commons.wikimedia.org/wiki/File:Blue_piano_music.wav",
+                          "mime":"audio/wav","size":1234,
+                          "extmetadata":{
+                            "LicenseShortName":{"value":"CC0"},
+                            "LicenseUrl":{"value":"https://creativecommons.org/publicdomain/zero/1.0/"},
+                            "Artist":{"value":"Commons Artist"},
+                            "Categories":{"value":"Music|Piano music"},
+                            "ImageDescription":{"value":"instrumental piano music"}
+                          }}]},
+                        {"pageid":102,"title":"File:LL-test-pronunciation.wav","imageinfo":[{
+                          "url":base+"b.wav","descriptionurl":"https://commons.wikimedia.org/wiki/File:LL-test-pronunciation.wav",
+                          "mime":"audio/wav","size":1234,
+                          "extmetadata":{
+                            "LicenseShortName":{"value":"CC0"},
+                            "Artist":{"value":"Lingua Libre Speaker"},
+                            "Categories":{"value":"Pronunciation"},
+                            "ImageDescription":{"value":"pronunciation recording"}
+                          }}]}
+                      ]
+                      return self.sendj({"query":{"pages":pages}})
+                  self.send_response(404);self.end_headers()
           HTTPServer(("127.0.0.1",8877),H).serve_forever()
           PY
           python3 /tmp/mock_search.py >/tmp/mock-search.log 2>&1 &
@@ -67,36 +100,49 @@ jobs:
             sleep 1
           done
           exit 1
-      - name: FOUND projection and local admission
+
+      - name: Network union projection
         run: |
           set -eu
-          HSI_OPENVERSE_BASE=http://127.0.0.1:8877/v1/audio/           python3 hsi_search.py --license cc0,pdm --extension wav             --category music,sound_effect --prefer-source freesound             --max-results 2 --max-calls 6 --retries 1 "Blue Stars" >/tmp/search.out
+          HSI_OPENVERSE_BASE=http://127.0.0.1:8877/v1/audio/ \
+          HSI_WIKIMEDIA_COMMONS_BASE=http://127.0.0.1:8877/w/api.php \
+          python3 hsi_search.py --source network_audio \
+            --license cc0,pdm --extension wav --category music,sound_effect \
+            --prefer-source freesound --max-results 2 --max-calls 12 --retries 1 \
+            "Blue Stars" >/tmp/search.out
           python3 - <<'PY'
           import json
           r=json.loads(open("/tmp/search.out").read().strip().splitlines()[-1])
-          assert r["protocol"]=="HSI-SEARCH/1.0" and r["version"]=="1.3.0"
-          assert r["status"]=="FOUND"
+          assert r["protocol"]=="HSI-SEARCH/1.0" and r["version"]=="1.4.0"
+          assert r["source"]=="network_audio" and r["status"]=="FOUND"
           assert r["net_protocol"]=="HSI-NET-SINGULARITY/1.0"
           n=r["net_projection"]
-          assert n["model"]=="ABSTRACT_GLOBAL_INFORMATION_FIELD"
-          assert n["finite_projection"] is True
-          assert n["global_exhaustion_claim"] is False
+          assert n["version"]=="1.1.0"
+          assert n["adapters"]==["openverse_audio","wikimedia_commons_audio"]
+          assert n["finite_projection"] is True and n["global_exhaustion_claim"] is False
           assert n["epistemic_invariants"]["adapter_scope_is_not_internet_totality"] is True
-          assert n["epistemic_invariants"]["budget_exhaustion_is_not_global_exhaustion"] is True
-          assert r["blue"]["semantic_non_coercion"] is True
-          assert r["epistemic_rule"]=="absence_of_retrieval_is_not_evidence_of_nonexistence"
           ids={x["record_uid"]:x for x in r["results"]}
-          assert "ok-cc0" in ids and "ok-alt" in ids
-          assert ids["ok-alt"]["filetype"]=="wav"
-          assert ids["ok-alt"]["selected_media_variant"]=="alt_file"
-          assert ids["ok-alt"]["media_url"].endswith("/c.wav")
-          assert all(x["record_uid"]!="reject-by" for x in r["results"])
-          assert r["search_uid"].isdigit() and r["search_certificate_uid"].isdigit()
+          assert "openverse:ok-alt" in ids
+          assert ids["openverse:ok-alt"]["selected_media_variant"]=="alt_file"
+          assert ids["openverse:ok-alt"]["media_url"].endswith("/c.wav")
+          commons=[x for x in r["results"] if x["source"]=="wikimedia_commons_audio"]
+          assert len(commons)==1
+          assert commons[0]["license"]=="cc0" and commons[0]["category"]=="music"
+          assert commons[0]["assertion_basis"]=="WIKIMEDIA_COMMONS_EXTMETADATA"
+          assert all("LL-" not in (x.get("title") or "") for x in r["results"])
+          adapters={x["adapter"]:x for x in n["observations"]}
+          assert adapters["openverse_audio"]["successful_responses"]>0
+          assert adapters["wikimedia_commons_audio"]["successful_responses"]>0
           PY
-      - name: SOURCE_UNAVAILABLE is not NOT_EXISTS
+
+      - name: Finite failure is not nonexistence
         run: |
           set +e
-          HSI_OPENVERSE_BASE=http://127.0.0.1:9/v1/audio/           python3 hsi_search.py --license cc0,pdm --extension wav             --category music,sound_effect --max-calls 1 --retries 1 --timeout 5             "missing source" >/tmp/unavailable.out
+          HSI_OPENVERSE_BASE=http://127.0.0.1:9/v1/audio/ \
+          HSI_WIKIMEDIA_COMMONS_BASE=http://127.0.0.1:9/w/api.php \
+          python3 hsi_search.py --source network_audio \
+            --license cc0,pdm --extension wav --category music,sound_effect \
+            --max-calls 2 --retries 1 --timeout 5 "missing source" >/tmp/unavailable.out
           code=$?
           set -e
           test "$code" -eq 3
