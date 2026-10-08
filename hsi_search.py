@@ -291,6 +291,9 @@ def main():
     ap.add_argument("--retries",type=int,default=int(os.getenv("HSI_SEARCH_RETRIES","3")))
     ap.add_argument("--license",default=os.getenv("HSI_SEARCH_LICENSE",""))
     ap.add_argument("--extension",default=os.getenv("HSI_SEARCH_EXTENSION",""))
+    ap.add_argument("--category",default=os.getenv("HSI_SEARCH_CATEGORY",""))
+    ap.add_argument("--prefer-source",action="append",default=[])
+    ap.add_argument("--exclude-source",action="append",default=[])
     a=ap.parse_args()
     query=" ".join(a.query).strip()
     if not query:
@@ -299,7 +302,10 @@ def main():
         raise SystemExit("search query required")
     policy={
         "license_allow":[x.strip().lower() for x in a.license.split(",") if x.strip()],
-        "extension_allow":[x.strip().lower().lstrip(".") for x in a.extension.split(",") if x.strip()]
+        "extension_allow":[x.strip().lower().lstrip(".") for x in a.extension.split(",") if x.strip()],
+        "category_allow":[x.strip().lower() for x in a.category.split(",") if x.strip()],
+        "source_prefer":[x.strip() for x in a.prefer_source if x.strip()],
+        "source_exclude":[x.strip() for x in a.exclude_source if x.strip()]
     }
     budget={"max_results":a.max_results,"max_calls":a.max_calls,"page_size":a.page_size,"timeout_seconds":a.timeout,"retries":a.retries}
     r=run_search(query,a.source,policy,budget)
