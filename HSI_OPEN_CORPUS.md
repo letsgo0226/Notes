@@ -43,7 +43,7 @@ curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh
 $p = Join-Path $env:TEMP "hsi-corpus.ps1"; Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.ps1" -OutFile $p; & $p
 ```
 
-The native Windows launcher downloads the same `hsi_open_corpus.py` and `hsi_search.py` used by Unix-like systems. It accepts Python through the Windows `py -3` launcher, `python3`, or `python`.
+The native Windows launcher downloads the same `hsi_net.py`, `hsi_search.py`, and `hsi_open_corpus.py` used by Unix-like systems. It accepts Python through the Windows `py -3` launcher, `python3`, or `python`.
 
 If Python is missing:
 
@@ -142,6 +142,8 @@ runtime input
   ↓
 E257 deterministic field
   ↓
+HSI-NET-SINGULARITY/1.0
+  ↓ finite projection
 HSI-SEARCH/1.0
   ↓
 Openverse audio adapter
@@ -179,7 +181,8 @@ The automatic v1 gate accepts only results whose Openverse metadata says:
 
 ```text
 license = cc0 OR pdm
-filetype = wav
+category = music OR sound_effect
+selected playable variant = WAV
 ```
 
 This is intentionally narrower than the full Creative Commons family.
@@ -291,7 +294,7 @@ No token is required by HSI v1 for ordinary anonymous operation.
 
 ## Technical limits of v1
 
-The first version deliberately accepts only uncompressed WAV sources so that both iSH and macOS can use the Python standard library without ffmpeg.
+The renderer deliberately decodes only uncompressed WAV so that iSH/macOS/Windows/Linux can use the Python standard library without ffmpeg. A record may qualify through either its primary Openverse file or a WAV listed in Openverse `alt_files`; HSI records which variant was selected.
 
 Quality depends on the retrieved recordings. This is a retrieval-and-remix renderer, not yet a full note-by-note multisample orchestra or concatenative singing engine.
 
@@ -332,3 +335,34 @@ UNRESOLVED         ≠ FALSE
 ```
 
 The exact search certificate is embedded in `corpus.lock.json`, so a later locked rerender preserves the original discovery provenance and status.
+
+
+## HSI NET integration
+
+Open-Corpus now treats public-network discovery as:
+
+```text
+Ω_Net (idealized information totality)
+    ↓
+HSI-NET-SINGULARITY/1.0
+    ↓ finite projection
+HSI-SEARCH/1.0
+    ↓
+openverse_audio adapter
+    ↓
+local rights/category/format gate
+    ↓
+DSP renderer
+```
+
+This does **not** claim to search the whole Internet. The `net_projection` certificate explicitly records that adapter scope is not Internet totality.
+
+The current adapter preference is conservative:
+
+```text
+prefer Openverse source: freesound
+licenses: CC0 / PDM only
+categories: music / sound_effect only
+spoken-word pronunciation: rejected
+playable format: WAV primary or WAV alt_file
+```
