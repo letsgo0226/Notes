@@ -3,7 +3,7 @@ import argparse, hashlib, json, os, socket, sys, time, urllib.error, urllib.pars
 from pathlib import Path
 
 PROTOCOL="HSI-SEARCH/1.0"
-VERSION="1.0.0"
+VERSION="1.1.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
 DEFAULT_SOURCE="openverse_audio"
 
@@ -98,6 +98,9 @@ def _normalize_openverse(row,query,url):
         "duration_ms":row.get("duration"),
         "filesize":row.get("filesize"),
         "sample_rate":row.get("sample_rate"),
+        "category":str(row.get("category") or "").lower(),
+        "genres":row.get("genres") or [],
+        "tags":[(t.get("name") if isinstance(t,dict) else str(t)) for t in (row.get("tags") or [])],
         "matched_query":query,
         "search_url":url,
         "assertion_basis":"OPENVERSE_INDEX_METADATA"
@@ -107,10 +110,25 @@ def _admit(record,policy):
     reasons=[]
     licenses={str(x).lower() for x in policy.get("license_allow",[]) if str(x).strip()}
     extensions={str(x).lower().lstrip(".") for x in policy.get("extension_allow",[]) if str(x).strip()}
+    categories={str(x).lower() for x in policy.get("category_allow",[]) if str(x).strip()}
+    category_deny={str(x).lower() for x in policy.get("category_deny",[]) if str(x).strip()}
     if licenses and record.get("license") not in licenses:
         reasons.append("license_not_allowed")
     if extensions and record.get("filetype") not in extensions:
         reasons.append("extension_not_allowed")
+    cat=record.get("category","")
+    if categories and cat not in categories:
+        reasons.append("category_not_allowed")
+    if category_deny and cat in category_deny:
+        reasons.append("category_denied")
+    text=(" ".join([
+        str(record.get("title") or ""),
+        str(record.get("creator") or ""),
+        str(record.get("creator_url") or ""),
+        " ".join(str(x) for x in (record.get("tags") or []))
+    ])).lower()
+    if "lingualibre" in text or str(record.get("title") or "").startswith("LL-"):
+        reasons.append("lexical_pronunciation_source")
     u=record.get("media_url")
     if not isinstance(u,str) or not u.startswith(("http://","https://")):
         reasons.append("missing_http_media_url")
@@ -146,6 +164,8 @@ def run_search(query,source=DEFAULT_SOURCE,policy=None,budget=None,base_url=None
                     params["license"]=",".join(policy["license_allow"])
                 if policy.get("extension_allow"):
                     params["extension"]=",".join(policy["extension_allow"])
+                if policy.get("category_allow"):
+                    params["category"]=",".join(policy["category_allow"])
             url=api+"?"+urllib.parse.urlencode(params)
             try:
                 data=_http_json(url,timeout,retries,call_log,budget_state)
