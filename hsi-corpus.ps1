@@ -4,7 +4,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$Base = "https://raw.githubusercontent.com/letsgo0226/Notes/main"
+$Pin = "7b1bd7e7f8b498687325824e168fcc0492537eea"
+$Base = "https://raw.githubusercontent.com/letsgo0226/Notes/$Pin"
 $Dir = if ($env:HSI_CORPUS_HOME) { $env:HSI_CORPUS_HOME } else { Join-Path $HOME ".hsi-corpus" }
 $App = Join-Path $Dir "hsi_open_corpus.py"
 $Search = Join-Path $Dir "hsi_search.py"
@@ -48,6 +49,7 @@ try {
 }
 
 Write-Host "HSI Open-Corpus Renderer: no AI / HSI-SEARCH / Openverse CC0+PDM WAV / deterministic DSP"
+Write-Host "bundle_commit> $Pin"
 Write-Host "note> YouTube audio is not downloaded or sampled."
 Write-Host "note> Openverse license metadata is indexed metadata; verify landing pages before publication/commercial reuse."
 
