@@ -1,38 +1,88 @@
-# HSI Native Renderer / 1.0
+# HSI Native Generative Field / 1.0
 
-A fully local HSI music renderer for iSH / Alpine. It does **not** call Runway, fal, Mureka, Railway, or any other generation API.
+A fully local HSI music generator for iSH / Alpine with **zero creative-content presets**.
 
-## Public one-line launch
-
-Interactive:
+The public launcher is unchanged:
 
 ```sh
 wget -qO- https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-native.sh | sh
 ```
 
-Then enter keywords at:
+Then enter runtime input only:
 
 ```text
 keywords>
 ```
 
-Direct:
+Or pass it directly:
 
 ```sh
 wget -qO- https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-native.sh | sh -s -- "Blue Pleiadian Stars"
 ```
 
-The bootstrap installs Python 3 with `apk` only when Python is absent, downloads the current native renderer into `~/.hsi-native/`, and executes it locally.
+## Zero-preset meaning
 
-After the renderer has been downloaded once, the cached program can be run directly:
+The default generation path does **not** contain preset:
 
-```sh
-python3 ~/.hsi-native/hsi_native_renderer.py "Blue Pleiadian Stars"
+- song topic
+- lyrics sentences
+- Verse / Chorus structure
+- musical style
+- BPM
+- bar count
+- meter
+- scale bank
+- chord progression bank
+- melody pattern
+- vowel/formant lookup table
+- voice identity
+
+Instead, the exact runtime input is encoded as:
+
+```text
+field_n = E257(runtime_input_utf8)
 ```
 
-That direct cached invocation is offline.
+and all creative parameters are derived from that state.
 
-## Output
+```text
+runtime input
+   ↓
+E257 field state
+   ↓
+derived section count / section lengths
+   ↓
+derived textual motifs using only runtime tokens
+   ↓
+derived pitch-class field
+   ↓
+derived tonic / meter / subdivision / BPM / bar count
+   ↓
+derived harmony / rhythm / melody
+   ↓
+derived harmonic spectra / token spectra / space / dynamics
+   ↓
+PCM WAV
+   ↓
+reversible E257 audio blocks
+   ↓
+HSI-NATIVE-FIELD/1.0 certificate
+```
+
+The renderer necessarily still contains **computation laws**: arithmetic state transitions, oscillator synthesis, PCM/WAV serialization, E257 encoding, and closure checks. Those are renderer semantics, not creative-content presets.
+
+## PLEIADIAN-BLUE
+
+`PLEIADIAN-BLUE` is retained only in the certificate as a normative identifier.
+
+It is **not** mixed into the generation seed and is not used to choose lyrics, harmony, melody, rhythm, timbre, or structure:
+
+```json
+"blue_role": "certificate-normative-only",
+"blue_conditioning": false
+```
+
+## Outputs
 
 Each run creates:
 
@@ -47,63 +97,44 @@ Each run creates:
 └── manifest.json
 ```
 
-The default render is 20 bars at a deterministic tempo derived from the keyword seed. The renderer uses only the Python standard library.
+`lyrics.txt` contains only recombinations / truncations / rotations of runtime input tokens. No stock lyric sentences are inserted.
 
-## Native synthesis pipeline
+The current native vocal layer is procedural spectral/formant-like synthesis derived from each runtime token. It is not claimed to equal a neural human singer or to pronounce full natural-language lyrics perfectly.
+
+## Closure
+
+`closed=1` requires:
+
+- valid RIFF/WAVE output;
+- exact E257 reconstruction of the WAV bytes;
+- exact E257 round-trip of runtime input;
+- exact E257 round-trip of the Blue certificate identifier.
+
+The certificate also records the actual SHA-256 of the generated WAV.
+
+## Optional overrides
+
+By default, creative parameters are field-derived. Optional explicit overrides remain available when the user intentionally wants one:
+
+```sh
+HSI_BPM=108 ...
+HSI_BARS=24 ...
+HSI_SR=32000 ...
+HSI_OUT=/some/path ...
+```
+
+An override is therefore a runtime user instruction, not a built-in preset.
+
+## Offline use
+
+The one-line launcher downloads the latest renderer to:
 
 ```text
-keywords
-  ↓
-deterministic seed
-  ↓
-procedural original lyrics
-  ↓
-scale / chord progression / melody
-  ↓
-pad + bass + percussion
-  ↓
-vocal-like formant synthesis
-  ↓
-PCM WAV
-  ↓
-128-byte reversible E257 blocks
-  ↓
-HSI-NATIVE-RENDER/1.0 certificate
+~/.hsi-native/hsi_native_renderer.py
 ```
 
-The current v1 vocal layer is a procedural formant synthesizer. It is intentionally not described as a human-quality neural singer: `lyrics.txt` contains the generated words, while the audio maps lyric tokens to vowel/formant gestures rather than fully intelligible natural speech.
-
-## HSI closure
-
-The certificate closes only when:
-
-- the output is a RIFF/WAVE file;
-- E257 blocks reconstruct the exact WAV bytes;
-- keyword E257 round-trips exactly;
-- the `PLEIADIAN-BLUE` normative identifier round-trips exactly.
-
-It also records the actual SHA-256 of the generated WAV. SHA-256 is used in the full native renderer; the separate 2 KB compact kernel retains its no-SHA constraint.
-
-## Controls
-
-Examples:
+After that, the cached renderer can run offline:
 
 ```sh
-HSI_BARS=32 wget -qO- https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-native.sh | sh -s -- "moon cat home"
+python3 ~/.hsi-native/hsi_native_renderer.py "Blue Pleiadian Stars"
 ```
-
-```sh
-HSI_BPM=108 HSI_SR=32000 wget -qO- https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-native.sh | sh -s -- "月光 貓 回家"
-```
-
-Supported environment controls:
-
-- `HSI_BARS`: 4–64, default 20
-- `HSI_BPM`: optional explicit tempo
-- `HSI_SR`: 8000–48000 Hz, default 22050
-- `HSI_OUT`: optional output directory
-- `HSI_NATIVE_HOME`: cache directory for the renderer
-
-## Scope
-
-This version demonstrates that HSI can replace the **external rendering service** with a transparent local computation. It does not imply that a small procedural synthesizer has the learned acoustic quality of a large commercial neural music model. Future native versions can add higher-quality local synthesis or local model weights without changing the public one-line launcher.
