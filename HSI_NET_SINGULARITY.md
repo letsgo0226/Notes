@@ -73,13 +73,15 @@ finite budget ended         !=  Ω_Net was exhausted
 
 ## Adapter registry
 
-Version 1 includes one active adapter:
+Version 1.1 includes two active public audio adapters plus one finite union adapter:
 
 ~~~text
 openverse_audio
+wikimedia_commons_audio
+network_audio = openverse_audio ∪ wikimedia_commons_audio
 ~~~
 
-Its scope is not "the whole Internet." Its scope is openly licensed/public-domain audio indexed by Openverse.
+Neither external adapter is "the whole Internet." Openverse observes media indexed by Openverse; Wikimedia Commons observes files and machine-readable metadata exposed by the Commons Action API. `network_audio` is only their finite union, not Internet totality.
 
 More adapters may be registered later without changing the HSI NET semantics. An adapter must declare its protocol, status, medium, scope, authority, exhaustiveness, and rights/provenance boundary.
 
@@ -112,7 +114,8 @@ HSI-NET-SINGULARITY/1.0
   ↓
 HSI-SEARCH/1.0
   ↓
-openverse_audio adapter
+network_audio union
+  ↓ Openverse + Wikimedia Commons adapters
   ↓
 rights/category/format admission
   ↓
