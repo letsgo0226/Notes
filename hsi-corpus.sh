@@ -1,12 +1,14 @@
 #!/bin/sh
 set -eu
 
-PIN="7b1bd7e7f8b498687325824e168fcc0492537eea"
+PIN="3648741bb18697148a7c121cd31c460d7276c114"
 RAW="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_open_corpus.py"
 RAW_SEARCH="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_search.py"
+RAW_NET="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_net.py"
 DIR="${HSI_CORPUS_HOME:-$HOME/.hsi-corpus}"
 APP="$DIR/hsi_open_corpus.py"
 SEARCH="$DIR/hsi_search.py"
+NET="$DIR/hsi_net.py"
 mkdir -p "$DIR"
 
 resolve_python() {
@@ -47,15 +49,18 @@ if ! resolve_python; then
 fi
 
 TMP="$APP.tmp.$$"
-TMP_SEARCH="$SEARCH.tmp.$$"
-trap 'rm -f "$TMP" "$TMP_SEARCH"' EXIT HUP INT TERM
+TMP_SEARCH="$SEARCH.tmp.$"
+TMP_NET="$NET.tmp.$"
+trap 'rm -f "$TMP" "$TMP_SEARCH" "$TMP_NET"' EXIT HUP INT TERM
 
 if command -v wget >/dev/null 2>&1; then
   wget -qO "$TMP" "$RAW"
   wget -qO "$TMP_SEARCH" "$RAW_SEARCH"
+  wget -qO "$TMP_NET" "$RAW_NET"
 elif command -v curl >/dev/null 2>&1; then
   curl -fsSL "$RAW" -o "$TMP"
   curl -fsSL "$RAW_SEARCH" -o "$TMP_SEARCH"
+  curl -fsSL "$RAW_NET" -o "$TMP_NET"
 else
   echo "wget or curl required" >&2
   exit 127
@@ -63,10 +68,12 @@ fi
 
 test -s "$TMP"
 test -s "$TMP_SEARCH"
+test -s "$TMP_NET"
 mv "$TMP" "$APP"
 mv "$TMP_SEARCH" "$SEARCH"
+mv "$TMP_NET" "$NET"
 trap - EXIT HUP INT TERM
-chmod 700 "$APP" "$SEARCH"
+chmod 700 "$APP" "$SEARCH" "$NET"
 
 echo "HSI Open-Corpus Renderer: no AI / HSI-SEARCH / Openverse CC0+PDM WAV / deterministic DSP"
 echo "bundle_commit> $PIN"
