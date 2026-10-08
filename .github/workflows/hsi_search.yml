@@ -34,8 +34,9 @@ jobs:
                   q=urllib.parse.parse_qs(u.query)
                   base="http://127.0.0.1:8877/"
                   rows=[
-                    {"id":"ok-cc0","title":"ok","creator":"A","license":"cc0","license_version":"1.0","url":base+"a.wav","foreign_landing_url":"https://example.test/a","provider":"mock","source":"mock","filetype":"wav"},
-                    {"id":"reject-by","title":"reject","creator":"B","license":"by","license_version":"4.0","url":base+"b.wav","foreign_landing_url":"https://example.test/b","provider":"mock","source":"mock","filetype":"wav"}
+                    {"id":"ok-cc0","title":"ok","creator":"A","license":"cc0","license_version":"1.0","url":base+"a.wav","foreign_landing_url":"https://example.test/a","provider":"mock","source":"mock","filetype":"wav","category":"music"},
+                    {"id":"reject-by","title":"reject","creator":"B","license":"by","license_version":"4.0","url":base+"b.wav","foreign_landing_url":"https://example.test/b","provider":"mock","source":"mock","filetype":"wav","category":"music"},
+                    {"id":"reject-speech","title":"LL-Q1860-test-sky blue","creator":"Speaker","creator_url":"https://lingualibre.org/wiki/Q1","license":"cc0","license_version":"1.0","url":base+"a.wav","foreign_landing_url":"https://example.test/speech","provider":"wikimedia_audio","source":"wikimedia_audio","filetype":"wav","category":"pronunciation"}
                   ]
                   raw=json.dumps({"results":rows}).encode()
                   self.send_response(200);self.send_header("Content-Type","application/json")
@@ -65,6 +66,7 @@ jobs:
           assert any(x["record_uid"]=="ok-cc0" for x in r["results"])
           assert all(x["record_uid"]!="reject-by" for x in r["results"])
           assert any(x["record_uid"]=="reject-by" for x in r["rejected"])
+          assert any(x["record_uid"]=="reject-speech" for x in r["rejected"])
           assert r["search_uid"].isdigit() and r["search_certificate_uid"].isdigit()
           PY
       - name: SOURCE_UNAVAILABLE is not NOT_EXISTS
