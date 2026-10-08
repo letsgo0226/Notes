@@ -6,7 +6,7 @@ from hsi_search import run_search
 
 PROTOCOL="HSI-OPEN-CORPUS/1.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
-VERSION="1.1.0"
+VERSION="1.2.0"
 API=os.getenv("HSI_OPENVERSE_BASE","https://api.openverse.org/v1/audio/").rstrip("/")+"/"
 CACHE=Path(os.getenv("HSI_CORPUS_CACHE",str(Path.home()/".hsi-corpus"/"cache"))).expanduser()
 MAX_ITEMS=max(2,min(8,int(os.getenv("HSI_CORPUS_ITEMS","5"))))
@@ -19,6 +19,7 @@ E257_ENABLED=os.getenv("HSI_E257","1")!="0"
 LOCK_ENV=os.getenv("HSI_CORPUS_LOCK","").strip()
 RIGHTS_ATTESTED=os.getenv("HSI_RIGHTS_VERIFIED","0")=="1"
 ALLOWED_LICENSES={"cc0","pdm"}
+ALLOWED_CATEGORIES={"music","sound_effect"}
 
 if hasattr(sys,"set_int_max_str_digits"): sys.set_int_max_str_digits(0)
 
@@ -49,7 +50,12 @@ class PRNG:
     def pick(self,n):return self.u64()%n
 
 def discover(text):
-    policy={"license_allow":["cc0","pdm"],"extension_allow":["wav"]}
+    policy={
+        "license_allow":["cc0","pdm"],
+        "extension_allow":["wav"],
+        "category_allow":["music","sound_effect"],
+        "category_deny":["pronunciation","audiobook","podcast","news"]
+    }
     budget={
         "max_results":MAX_ITEMS,
         "page_size":SEARCH_PAGE,
@@ -75,6 +81,9 @@ def discover(text):
             "duration_ms":x.get("duration_ms"),
             "filesize":x.get("filesize"),
             "sample_rate":x.get("sample_rate"),
+            "category":x.get("category"),
+            "genres":x.get("genres") or [],
+            "tags":x.get("tags") or [],
             "query":x.get("matched_query"),
             "openverse_search_url":x.get("search_url"),
             "license_basis":x.get("assertion_basis"),
@@ -231,6 +240,17 @@ def main():
     if a.lock:
         lock=json.loads(Path(a.lock).expanduser().read_text(encoding="utf-8"))
         items=lock.get("sources") or []
+        unsafe=[]
+        for x in items:
+            cat=str(x.get("category") or "").lower()
+            textmeta=(" ".join([
+                str(x.get("title") or ""),str(x.get("creator") or ""),
+                str(x.get("creator_url") or "")," ".join(str(t) for t in (x.get("tags") or []))
+            ])).lower()
+            if cat not in ALLOWED_CATEGORIES or "lingualibre" in textmeta or str(x.get("title") or "").startswith("LL-"):
+                unsafe.append(x.get("openverse_id") or x.get("title"))
+        if unsafe:
+            raise SystemExit("locked corpus rejected by HSI speech/category gate: "+",".join(str(x) for x in unsafe))
         search_cert=lock.get("search_certificate") or {
             "protocol":"HSI-SEARCH/1.0","status":"UNRESOLVED","query":text,
             "epistemic_rule":"absence_of_retrieval_is_not_evidence_of_nonexistence",
@@ -257,6 +277,8 @@ def main():
         "sources":used,
         "license_filter":["cc0","pdm"],
         "format_filter":["wav"],
+        "category_filter":["music","sound_effect"],
+        "speech_policy":"EXCLUDE_PRONUNCIATION_AUDIOBOOK_PODCAST_NEWS_AND_LINGUALIBRE_LEXICAL_CLIPS",
         "youtube_audio_used":False,
         "search_protocol":"HSI-SEARCH/1.0",
         "search_uid":search_cert.get("search_uid"),
@@ -277,6 +299,14 @@ def main():
         "sources_present":len(used)>0,
         "all_indexed_cc0_or_pdm":all(str(x.get("license","")).lower() in ALLOWED_LICENSES for x in used),
         "all_wav":all(str(x.get("filetype","")).lower()=="wav" for x in used),
+        "all_music_or_sound_effect":all(str(x.get("category","")).lower() in ALLOWED_CATEGORIES for x in used),
+        "no_lexical_pronunciation_sources":all(
+            "lingualibre" not in (" ".join([
+                str(x.get("title") or ""),str(x.get("creator") or ""),str(x.get("creator_url") or "")
+            ])).lower()
+            and not str(x.get("title") or "").startswith("LL-")
+            for x in used
+        ),
         "no_ai":True,
         "youtube_audio_unused":True
     }
@@ -287,6 +317,7 @@ def main():
         "license":x.get("license"),"license_version":x.get("license_version"),
         "media_url":x.get("media_url"),"landing_url":x.get("landing_url"),
         "provider":x.get("provider"),"source":x.get("source"),
+        "category":x.get("category"),"genres":x.get("genres") or [],"tags":x.get("tags") or [],
         "raw_sha256":x.get("raw_sha256"),"raw_bytes":x.get("raw_bytes"),
         "license_basis":"OPENVERSE_INDEX_METADATA",
         "license_independently_verified":bool(RIGHTS_ATTESTED)
@@ -304,6 +335,8 @@ def main():
         "search_status":search_cert.get("status"),
         "search_epistemic_rule":search_cert.get("epistemic_rule"),
         "license_filter":["cc0","pdm"],"format_filter":["wav"],
+        "category_filter":["music","sound_effect"],
+        "speech_policy":"EXCLUDE_PRONUNCIATION_AUDIOBOOK_PODCAST_NEWS_AND_LINGUALIBRE_LEXICAL_CLIPS",
         "license_assurance":"USER_ATTESTED" if RIGHTS_ATTESTED else "OPENVERSE_INDEX_ASSERTED_NOT_INDEPENDENTLY_VERIFIED",
         "rights_review_recommended":not RIGHTS_ATTESTED,
         "technical_closed":technical_closed,
