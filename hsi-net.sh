@@ -1,6 +1,6 @@
 #!/bin/sh
 set -eu
-PIN="71be7f28917ec94abcb247db8b4150971c79e532"
+PIN="fc807fbce69bc7ab39cc457b70ab72cf4b991e1a"
 RAW="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_net.py"
 DIR="${HSI_NET_HOME:-$HOME/.hsi-net}"
 APP="$DIR/hsi_net.py"
