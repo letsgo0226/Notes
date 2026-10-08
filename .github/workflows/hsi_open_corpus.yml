@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Syntax and non-AI invariants
         run: |
           set -eu
@@ -28,10 +29,11 @@ jobs:
           grep -q 'machine_learning":False' hsi_open_corpus.py
           grep -q 'youtube_audio_used":False' hsi_open_corpus.py
           ! grep -Eiq 'torch|tensorflow|transformers|diffusion|openai|suno|runway|fal.ai' hsi_open_corpus.py
-          grep -q 'from hsi_search import run_search' hsi_open_corpus.py
-          grep -q 'HSI-NET-SINGULARITY/1.0' hsi_search.py
-          ! grep -q 'def search(' hsi_open_corpus.py
-          ! grep -q 'def http_json(' hsi_open_corpus.py
+          grep -q 'source="network_audio"' hsi_open_corpus.py
+          grep -q 'wikimedia_commons_audio' hsi_search.py
+          test "$(grep 'TMP_SEARCH=' hsi-corpus.sh)" = 'TMP_SEARCH="$SEARCH.tmp.$$"'
+          test "$(grep 'TMP_NET=' hsi-corpus.sh)" = 'TMP_NET="$NET.tmp.$$"'
+
       - name: Version mismatch fails closed
         run: |
           set -eu
@@ -48,7 +50,8 @@ jobs:
           code=$?
           set -e
           test "$code" -ne 0
-          grep -q "requires HSI-SEARCH >= 1.3.0" /tmp/version.out
+          grep -q "requires HSI-SEARCH >= 1.4.0" /tmp/version.out
+
       - name: Launcher bundle pin
         run: |
           set -eu
@@ -57,9 +60,10 @@ jobs:
           grep -q 'Notes/\$PIN/hsi_open_corpus.py' hsi-corpus.sh
           grep -q 'Notes/\$PIN/hsi_search.py' hsi-corpus.sh
           grep -q 'Notes/\$PIN/hsi_net.py' hsi-corpus.sh
-      - name: Start mock Openverse
+
+      - name: Start mock HSI NET audio sources
         run: |
-          cat >/tmp/mock_openverse.py <<'PY'
+          cat >/tmp/mock_audio.py <<'PY'
           import io,json,math,struct,urllib.parse,wave
           from http.server import BaseHTTPRequestHandler,HTTPServer
 
@@ -67,10 +71,7 @@ jobs:
               b=io.BytesIO()
               with wave.open(b,"wb") as w:
                   w.setnchannels(1);w.setsampwidth(2);w.setframerate(sr)
-                  frames=[]
-                  for i in range(int(seconds*sr)):
-                      v=int(10000*math.sin(2*math.pi*freq*i/sr))
-                      frames.append(struct.pack("<h",v))
+                  frames=[struct.pack("<h",int(10000*math.sin(2*math.pi*freq*i/sr))) for i in range(int(seconds*sr))]
                   w.writeframes(b"".join(frames))
               return b.getvalue()
           WAVS={"a":tone(220),"b":tone(330),"c":tone(440)}
@@ -83,43 +84,79 @@ jobs:
                   self.send_header("Content-Length",str(len(raw)));self.end_headers();self.wfile.write(raw)
               def do_GET(self):
                   u=urllib.parse.urlparse(self.path)
+                  base="http://127.0.0.1:8765/"
                   if u.path=="/v1/audio/":
-                      q=urllib.parse.parse_qs(u.query)
-                      assert q.get("q")
-                      assert int(q.get("page_size",["0"])[0])<=20
-                      if "source" in q:
-                          assert q.get("source")==["freesound"]
-                      if "license" in q:
-                          assert q.get("license")==["cc0,pdm"]
-                          assert "extension" not in q
-                          assert q.get("category")==["music,sound_effect"]
-                      base="http://127.0.0.1:8765/audio/"
                       rows=[
-                        {"id":"cc0-a","title":"A","creator":"Alpha","license":"cc0","license_version":"1.0","url":base+"a.wav","foreign_landing_url":"https://example.test/a","provider":"freesound","source":"freesound","filetype":"wav","duration":5000,"sample_rate":16000,"category":"music"},
-                        {"id":"pdm-b","title":"B","creator":"Beta","license":"pdm","license_version":"1.0","url":base+"b.mp3","foreign_landing_url":"https://example.test/b","provider":"freesound","source":"freesound","filetype":"mp3","duration":5000,"sample_rate":16000,"category":"sound_effect","alt_files":[{"url":base+"b.wav","filetype":"wav","filesize":160044,"sample_rate":16000}]},
-                        {"id":"cc0-c","title":"C","creator":"Gamma","license":"cc0","license_version":"1.0","url":base+"c.wav","foreign_landing_url":"https://example.test/c","provider":"freesound","source":"freesound","filetype":"wav","duration":5000,"sample_rate":16000,"category":"music"},
-                        {"id":"reject-by","title":"Reject","creator":"Other","license":"by","license_version":"4.0","url":base+"a.wav","foreign_landing_url":"https://example.test/reject","provider":"freesound","source":"freesound","filetype":"wav","category":"music"},
-                        {"id":"reject-pronunciation","title":"LL-Q1860-test-sky blue","creator":"Speaker","creator_url":"https://lingualibre.org/wiki/Q1","license":"cc0","license_version":"1.0","url":base+"a.wav","foreign_landing_url":"https://example.test/pronunciation","provider":"wikimedia_audio","source":"wikimedia_audio","filetype":"wav","category":"pronunciation"}
+                        {"id":"ov-alt","title":"ambient sound","creator":"Alpha","license":"pdm","license_version":"1.0",
+                         "url":base+"audio/a.mp3","foreign_landing_url":"https://example.test/a","provider":"freesound","source":"freesound",
+                         "filetype":"mp3","category":"sound_effect",
+                         "alt_files":[{"url":base+"audio/a.wav","filetype":"wav","filesize":160044,"sample_rate":16000}]},
+                        {"id":"reject-by","title":"music","creator":"Other","license":"by","license_version":"4.0",
+                         "url":base+"audio/b.wav","foreign_landing_url":"https://example.test/reject","provider":"jamendo","source":"jamendo",
+                         "filetype":"wav","category":"music"},
+                        {"id":"reject-pronunciation","title":"LL-Q1860-test-sky blue","creator":"Speaker","creator_url":"https://lingualibre.org/wiki/Q1",
+                         "license":"cc0","license_version":"1.0","url":base+"audio/c.wav","foreign_landing_url":"https://example.test/pronunciation",
+                         "provider":"wikimedia_audio","source":"wikimedia_audio","filetype":"wav","category":"pronunciation"}
                       ]
-                      return self.send({"result_count":len(rows),"results":rows})
+                      return self.send({"results":rows})
+                  if u.path=="/w/api.php":
+                      pages=[
+                        {"pageid":201,"title":"File:Blue piano music.wav","imageinfo":[{
+                          "url":base+"audio/b.wav","descriptionurl":"https://commons.wikimedia.org/wiki/File:Blue_piano_music.wav",
+                          "mime":"audio/wav","size":160044,
+                          "extmetadata":{
+                            "LicenseShortName":{"value":"CC0"},
+                            "LicenseUrl":{"value":"https://creativecommons.org/publicdomain/zero/1.0/"},
+                            "Artist":{"value":"Commons Artist"},
+                            "Categories":{"value":"Music|Piano music"},
+                            "ImageDescription":{"value":"instrumental piano music"}
+                          }}]},
+                        {"pageid":202,"title":"File:Stars field recording.wav","imageinfo":[{
+                          "url":base+"audio/c.wav","descriptionurl":"https://commons.wikimedia.org/wiki/File:Stars_field_recording.wav",
+                          "mime":"audio/wav","size":160044,
+                          "extmetadata":{
+                            "LicenseShortName":{"value":"Public domain"},
+                            "Artist":{"value":"Commons Recorder"},
+                            "Categories":{"value":"Field recording|Sound effects"},
+                            "ImageDescription":{"value":"ambient sound effect"}
+                          }}]},
+                        {"pageid":203,"title":"File:LL-test-pronunciation.wav","imageinfo":[{
+                          "url":base+"audio/a.wav","descriptionurl":"https://commons.wikimedia.org/wiki/File:LL-test-pronunciation.wav",
+                          "mime":"audio/wav","size":160044,
+                          "extmetadata":{
+                            "LicenseShortName":{"value":"CC0"},
+                            "Artist":{"value":"Lingua Libre Speaker"},
+                            "Categories":{"value":"Pronunciation"},
+                            "ImageDescription":{"value":"pronunciation recording"}
+                          }}]}
+                      ]
+                      return self.send({"query":{"pages":pages}})
                   if u.path.startswith("/audio/"):
                       k=u.path.rsplit("/",1)[-1].split(".")[0]
                       if k in WAVS:return self.send(WAVS[k],"audio/wav")
                   self.send({"detail":"not found"},code=404)
           HTTPServer(("127.0.0.1",8765),H).serve_forever()
           PY
-          python3 /tmp/mock_openverse.py >/tmp/mock-openverse.log 2>&1 &
-          echo $! >/tmp/mock-openverse.pid
+          python3 /tmp/mock_audio.py >/tmp/mock-audio.log 2>&1 &
+          echo $! >/tmp/mock-audio.pid
           for i in $(seq 1 30); do
-            curl -fsS 'http://127.0.0.1:8765/v1/audio/?q=x&page_size=20' >/dev/null && exit 0
+            curl -fsS 'http://127.0.0.1:8765/v1/audio/?q=x&page_size=10' >/dev/null && exit 0
             sleep 1
           done
           exit 1
-      - name: Online projection and render
+
+      - name: Network projection and render
         run: |
           set -eu
           rm -rf /tmp/hsi-corpus-a /tmp/hsi-corpus-cache
-          HSI_OPENVERSE_BASE=http://127.0.0.1:8765/v1/audio/           HSI_CORPUS_CACHE=/tmp/hsi-corpus-cache           HSI_CORPUS_SR=16000           HSI_CORPUS_ITEMS=3           HSI_OUT=/tmp/hsi-corpus-a           python3 hsi_open_corpus.py "open corpus"
+          HSI_OPENVERSE_BASE=http://127.0.0.1:8765/v1/audio/ \
+          HSI_WIKIMEDIA_COMMONS_BASE=http://127.0.0.1:8765/w/api.php \
+          HSI_CORPUS_CACHE=/tmp/hsi-corpus-cache \
+          HSI_CORPUS_SR=16000 \
+          HSI_CORPUS_ITEMS=3 \
+          HSI_OUT=/tmp/hsi-corpus-a \
+          python3 hsi_open_corpus.py "Blue Stars"
+
           python3 - <<'PY'
           import json,wave
           from pathlib import Path
@@ -128,26 +165,29 @@ jobs:
           l=json.loads((p/"corpus.lock.json").read_text())
           sh=json.loads((p/"search.hsicert").read_text())
           assert c["protocol"]=="HSI-OPEN-CORPUS/1.0"
-          assert c["version"]=="1.5.0"
+          assert c["version"]=="1.6.0"
+          assert c["hsi_search_version"]=="1.4.0"
+          assert c["minimum_hsi_search_version"]=="1.4.0"
           assert c["closed"]==1 and c["technical_closed"]==1
           assert c["rights_closed"]==0
           assert c["ai_model"] is False and c["neural_renderer"] is False and c["machine_learning"] is False
-          assert c["search_protocol"]=="HSI-SEARCH/1.0"
-          assert c["hsi_search_version"]=="1.3.0"
-          assert c["minimum_hsi_search_version"]=="1.3.0"
-          assert c["net_protocol"]=="HSI-NET-SINGULARITY/1.0"
-          assert c["net_model"]=="ABSTRACT_GLOBAL_INFORMATION_FIELD"
           assert c["search_status"]=="FOUND"
+          assert sh["source"]=="network_audio"
+          assert sh["version"]=="1.4.0"
+          assert sh["net_projection"]["adapters"]==["openverse_audio","wikimedia_commons_audio"]
           assert sh["net_projection"]["finite_projection"] is True
           assert sh["net_projection"]["global_exhaustion_claim"] is False
           assert sh["net_projection"]["epistemic_invariants"]["adapter_scope_is_not_internet_totality"] is True
+          adapters={x["adapter"]:x for x in sh["net_projection"]["observations"]}
+          assert adapters["openverse_audio"]["accepted"]>=1
+          assert adapters["wikimedia_commons_audio"]["accepted"]>=1
           assert c["source_count"]>=2 and c["event_count"]>=5
           assert all(x["license"] in ("cc0","pdm") for x in c["sources"])
-          assert all(x["openverse_id"] not in ("reject-by","reject-pronunciation") for x in c["sources"])
           assert all(x["category"] in ("music","sound_effect") for x in c["sources"])
           assert c["checks"]["no_lexical_pronunciation_sources"] is True
           assert c["checks"]["all_music_or_sound_effect"] is True
           assert any(x.get("selected_media_variant")=="alt_file" for x in c["sources"])
+          assert any(str(x.get("openverse_id","")).startswith("commons:") for x in c["sources"])
           assert l["search_certificate"]["net_projection"]["projection_uid"]==c["net_projection_uid"]
           with wave.open(str(p/"song.wav"),"rb") as w:
               assert w.getnchannels()==2 and w.getsampwidth()==2 and w.getframerate()==16000
@@ -159,13 +199,20 @@ jobs:
           blocks=json.loads((p/"song.e257").read_text())
           assert b"".join(d257(x) for x in blocks)==(p/"song.wav").read_bytes()
           PY
+
       - name: Locked offline rerender
         run: |
           set -eu
-          kill "$(cat /tmp/mock-openverse.pid)"
-          wait "$(cat /tmp/mock-openverse.pid)" 2>/dev/null || true
+          kill "$(cat /tmp/mock-audio.pid)"
+          wait "$(cat /tmp/mock-audio.pid)" 2>/dev/null || true
           rm -rf /tmp/hsi-corpus-b
-          HSI_OPENVERSE_BASE=http://127.0.0.1:9/v1/audio/           HSI_CORPUS_CACHE=/tmp/hsi-corpus-cache           HSI_CORPUS_SR=16000           HSI_CORPUS_LOCK=/tmp/hsi-corpus-a/corpus.lock.json           HSI_OUT=/tmp/hsi-corpus-b           python3 hsi_open_corpus.py "open corpus"
+          HSI_OPENVERSE_BASE=http://127.0.0.1:9/v1/audio/ \
+          HSI_WIKIMEDIA_COMMONS_BASE=http://127.0.0.1:9/w/api.php \
+          HSI_CORPUS_CACHE=/tmp/hsi-corpus-cache \
+          HSI_CORPUS_SR=16000 \
+          HSI_CORPUS_LOCK=/tmp/hsi-corpus-a/corpus.lock.json \
+          HSI_OUT=/tmp/hsi-corpus-b \
+          python3 hsi_open_corpus.py "Blue Stars"
           cmp /tmp/hsi-corpus-a/song.wav /tmp/hsi-corpus-b/song.wav
           python3 - <<'PY'
           import json
