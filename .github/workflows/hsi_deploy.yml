@@ -48,7 +48,9 @@ jobs:
           obs=c["net_projection"]["observations"]
           trader=[x for x in obs if x.get("target")=="trader_42"]
           assert trader and trader[0]["status"]=="AUTH_REQUIRED"
-          assert "GITHUB_TOKEN" not in json.dumps(c)
+          assert c["environment"]["github_auth_available"] is False
+          dumped=json.dumps(c)
+          assert "Authorization" not in dumped and "Bearer " not in dumped
           PY
 
       - name: Solve public deployment plan
