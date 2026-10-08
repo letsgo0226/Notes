@@ -1,0 +1,97 @@
+name: hsi_local_neural
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "hsi-neural.sh"
+      - "hsi_local_neural.py"
+      - "HSI_LOCAL_NEURAL.md"
+      - ".github/workflows/hsi_local_neural.yml"
+  workflow_dispatch:
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax
+        run: |
+          set -eu
+          sh -n hsi-neural.sh
+          python3 -m py_compile hsi_local_neural.py
+      - name: Mock local ACE-Step API
+        run: |
+          cat >/tmp/mock_ace.py <<'PY'
+          import json,struct,wave,io
+          from http.server import BaseHTTPRequestHandler,HTTPServer
+          request_payload=None
+          def reply(h,obj,code=200,ctype="application/json"):
+              raw=obj if isinstance(obj,bytes) else json.dumps(obj).encode()
+              h.send_response(code);h.send_header("Content-Type",ctype);h.send_header("Content-Length",str(len(raw)));h.end_headers();h.wfile.write(raw)
+          def wav_bytes():
+              b=io.BytesIO()
+              with wave.open(b,"wb") as w:
+                  w.setnchannels(1);w.setsampwidth(2);w.setframerate(8000)
+                  w.writeframes(b"".join(struct.pack("<h",0) for _ in range(16000)))
+              return b.getvalue()
+          AUDIO=wav_bytes()
+          class H(BaseHTTPRequestHandler):
+              def log_message(self,*a): pass
+              def do_GET(self):
+                  if self.path=="/health": return reply(self,{"data":{"status":"ok","service":"ACE-Step API"},"code":200,"error":None})
+                  if self.path.startswith("/v1/audio"): return reply(self,AUDIO,ctype="audio/wav")
+                  return reply(self,{"detail":"not found"},404)
+              def do_POST(self):
+                  global request_payload
+                  n=int(self.headers.get("Content-Length","0"));body=self.rfile.read(n)
+                  p=json.loads(body or b"{}")
+                  if self.path=="/release_task":
+                      request_payload=p
+                      assert set(p)=={"sample_query","thinking","use_random_seed","seed","batch_size","audio_format"}
+                      assert p["sample_query"]=="Blue Pleiadian Stars"
+                      assert p["thinking"] is True and p["use_random_seed"] is False
+                      assert p["batch_size"]==1 and p["audio_format"]=="wav"
+                      return reply(self,{"data":{"task_id":"mock-task","status":"queued"},"code":200,"error":None})
+                  if self.path=="/query_result":
+                      assert p=={"task_id_list":["mock-task"]}
+                      item={"file":"/v1/audio?path=mock.wav","status":1,"prompt":"learned expansion","lyrics":"learned lyrics","metas":{"bpm":123},"seed_value":"42","lm_model":"mock-lm","dit_model":"mock-dit"}
+                      return reply(self,{"data":[{"task_id":"mock-task","status":1,"result":json.dumps([item])}],"code":200,"error":None})
+                  return reply(self,{"detail":"not found"},404)
+          HTTPServer(("127.0.0.1",8001),H).serve_forever()
+          PY
+          python3 /tmp/mock_ace.py >/tmp/mock.log 2>&1 &
+          echo $! >/tmp/mock.pid
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8001/health >/dev/null && exit 0
+            sleep 1
+          done
+          exit 1
+      - name: Verify HSI neural closure
+        run: |
+          set -eu
+          rm -rf /tmp/hsi-neural-test
+          HSI_OUT=/tmp/hsi-neural-test python3 hsi_local_neural.py "Blue Pleiadian Stars"
+          python3 - <<'PY'
+          import json,wave
+          from pathlib import Path
+          p=Path("/tmp/hsi-neural-test")
+          c=json.loads((p/"song.hsicert").read_text())
+          r=json.loads((p/"request.json").read_text())
+          assert c["protocol"]=="HSI-LOCAL-NEURAL/1.0"
+          assert c["closed"]==1
+          assert c["creative_presets"]==[]
+          assert c["generation_input"]=="runtime-keywords-only"
+          assert c["blue_conditioning"] is False
+          assert c["local_model"] is True
+          assert c["external_cloud"] is False
+          assert c["external_paid_api"] is False
+          assert all(c["checks"].values())
+          payload=r["payload"]
+          assert payload["sample_query"]=="Blue Pleiadian Stars"
+          for forbidden in ("prompt","lyrics","bpm","audio_duration","duration","key_scale","time_signature","model"):
+              assert forbidden not in payload
+          assert (p/"song.e257").stat().st_size>1000
+          with wave.open(str(p/"song.wav"),"rb") as w:
+              assert w.getframerate()==8000 and w.getnframes()==16000
+          PY
