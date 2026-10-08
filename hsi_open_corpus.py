@@ -2,11 +2,25 @@
 import argparse, hashlib, json, math, os, random, struct, sys, time, urllib.request, wave
 from array import array
 from pathlib import Path
-from hsi_search import run_search
+from hsi_search import run_search, VERSION as HSI_SEARCH_VERSION
 
 PROTOCOL="HSI-OPEN-CORPUS/1.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
-VERSION="1.2.0"
+VERSION="1.3.0"
+MIN_HSI_SEARCH_VERSION=(1,1,0)
+
+def _semver_tuple(v):
+    try:
+        return tuple(int(x) for x in str(v).split(".")[:3])
+    except Exception:
+        return (0,0,0)
+
+if _semver_tuple(HSI_SEARCH_VERSION) < MIN_HSI_SEARCH_VERSION:
+    raise SystemExit(
+        "HSI version mismatch: Open-Corpus %s requires HSI-SEARCH >= 1.1.0; got %s. "
+        "Rerun the public launcher so both components are refreshed together."
+        % (VERSION, HSI_SEARCH_VERSION)
+    )
 API=os.getenv("HSI_OPENVERSE_BASE","https://api.openverse.org/v1/audio/").rstrip("/")+"/"
 CACHE=Path(os.getenv("HSI_CORPUS_CACHE",str(Path.home()/".hsi-corpus"/"cache"))).expanduser()
 MAX_ITEMS=max(2,min(8,int(os.getenv("HSI_CORPUS_ITEMS","5"))))
@@ -37,6 +51,37 @@ def d257(n):
     out.reverse();return bytes(out)
 
 def canon(x):return json.dumps(x,ensure_ascii=False,sort_keys=True,separators=(",",":"))
+
+
+def music_source_reasons(item):
+    reasons=[]
+    cat=str(item.get("category") or "").lower()
+    meta=(" ".join([
+        str(item.get("title") or ""),
+        str(item.get("creator") or ""),
+        str(item.get("creator_url") or ""),
+        " ".join(str(t) for t in (item.get("tags") or []))
+    ])).lower()
+    title=str(item.get("title") or "")
+    if cat not in ALLOWED_CATEGORIES:
+        reasons.append("renderer_category_not_allowed")
+    if cat in {"pronunciation","audiobook","podcast","news"}:
+        reasons.append("renderer_spoken_word_category")
+    if "lingualibre" in meta or title.startswith("LL-"):
+        reasons.append("renderer_lexical_pronunciation_source")
+    return reasons
+
+def renderer_admit_sources(items):
+    admitted=[];rejected=[]
+    for item in items:
+        reasons=music_source_reasons(item)
+        if reasons:
+            x=dict(item);x["renderer_rejection_reasons"]=reasons
+            rejected.append(x)
+            print("source-rejected>",item.get("title") or item.get("openverse_id"),",".join(reasons),file=sys.stderr)
+        else:
+            admitted.append(item)
+    return admitted,rejected
 
 class PRNG:
     def __init__(self,n):
@@ -89,6 +134,17 @@ def discover(text):
             "license_basis":x.get("assertion_basis"),
             "license_independently_verified":False
         })
+    items,renderer_rejected=renderer_admit_sources(items)
+    cert["renderer_admission"]={
+        "required_search_version":">=1.1.0",
+        "actual_search_version":HSI_SEARCH_VERSION,
+        "admitted_after_renderer_gate":len(items),
+        "rejected_after_renderer_gate":len(renderer_rejected),
+        "rejected":renderer_rejected
+    }
+    if not items and cert.get("status")=="FOUND":
+        cert["status"]="UNRESOLVED"
+        cert["reason"]="search_found_only_sources_rejected_by_renderer_music_gate"
     return items,cert
 
 def cache_path(item):
@@ -234,6 +290,7 @@ def main():
     out=Path(a.out).expanduser() if a.out else Path.home()/"Music"/"HSI-Corpus"/(time.strftime("%Y%m%d-%H%M%S")+"-"+str(os.getpid()))
     out.mkdir(parents=True,exist_ok=True)
     print("protocol>",PROTOCOL);print("output>",out)
+    print("versions> open_corpus="+VERSION+" hsi_search="+HSI_SEARCH_VERSION)
     print("ai> false")
     print("youtube_audio_used> false")
 
@@ -251,6 +308,9 @@ def main():
                 unsafe.append(x.get("openverse_id") or x.get("title"))
         if unsafe:
             raise SystemExit("locked corpus rejected by HSI speech/category gate: "+",".join(str(x) for x in unsafe))
+        items,locked_rejected=renderer_admit_sources(items)
+        if locked_rejected:
+            raise SystemExit("locked corpus rejected by renderer defense-in-depth gate")
         search_cert=lock.get("search_certificate") or {
             "protocol":"HSI-SEARCH/1.0","status":"UNRESOLVED","query":text,
             "epistemic_rule":"absence_of_retrieval_is_not_evidence_of_nonexistence",
@@ -327,6 +387,8 @@ def main():
         "generation_input":"runtime-keywords-only",
         "generation_basis_e257":basis,
         "renderer":"open-corpus-retrieval-dsp",
+        "hsi_search_version":HSI_SEARCH_VERSION,
+        "minimum_hsi_search_version":"1.1.0",
         "ai_model":False,"neural_renderer":False,"machine_learning":False,
         "youtube_audio_used":False,
         "corpus_provider":"Openverse API",
