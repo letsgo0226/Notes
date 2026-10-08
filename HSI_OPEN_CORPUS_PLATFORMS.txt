@@ -1,0 +1,168 @@
+HSI OPEN-CORPUS / CROSS-PLATFORM LAUNCHERS
+==========================================
+
+Protocols:
+  HSI-SEARCH/1.0
+  HSI-OPEN-CORPUS/1.0
+  HSI-PLEIADIAN-BLUE-CARE/1.0
+
+Properties:
+  AI model          = false
+  Neural renderer   = false
+  Machine learning  = false
+  YouTube audio use = false
+  HSI SEARCH        = true
+  E257              = true
+  Provenance        = true
+
+--------------------------------------------------
+iPhone / iPad — iSH
+--------------------------------------------------
+
+wget -qO- https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
+
+Direct runtime input:
+
+wget -qO- https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh -s -- "Blue Pleiadian Stars"
+
+
+--------------------------------------------------
+macOS — Terminal
+--------------------------------------------------
+
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
+
+Direct runtime input:
+
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh -s -- "Blue Pleiadian Stars"
+
+
+--------------------------------------------------
+Android — Termux
+--------------------------------------------------
+
+First setup:
+
+pkg install -y python curl && curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
+
+After setup:
+
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
+
+Direct runtime input:
+
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh -s -- "Blue Pleiadian Stars"
+
+
+--------------------------------------------------
+Windows — Native PowerShell
+--------------------------------------------------
+
+$p = Join-Path $env:TEMP "hsi-corpus.ps1"; Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.ps1" -OutFile $p; & $p
+
+Direct runtime input:
+
+$p = Join-Path $env:TEMP "hsi-corpus.ps1"; Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.ps1" -OutFile $p; & $p "Blue Pleiadian Stars"
+
+If Python 3 is missing:
+
+winget install Python.Python.3.13
+
+
+--------------------------------------------------
+Windows — WSL
+--------------------------------------------------
+
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
+
+If Python is missing:
+
+sudo apt-get update && sudo apt-get install -y python3 curl
+
+
+--------------------------------------------------
+Linux
+--------------------------------------------------
+
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
+
+or:
+
+wget -qO- https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
+
+
+--------------------------------------------------
+ChromeOS — Crostini
+--------------------------------------------------
+
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
+
+If needed:
+
+sudo apt-get update && sudo apt-get install -y python3 curl
+
+
+--------------------------------------------------
+Raspberry Pi OS
+--------------------------------------------------
+
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
+
+
+--------------------------------------------------
+FreeBSD / other POSIX-like systems
+--------------------------------------------------
+
+Requires Python 3 plus curl or wget.
+
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-corpus.sh | sh
+
+
+--------------------------------------------------
+HSI SEARCH — standalone
+--------------------------------------------------
+
+iSH:
+
+wget -qO- https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-search.sh | sh
+
+macOS / Linux / Termux:
+
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-search.sh | sh
+
+Openverse CC0/PDM WAV search:
+
+curl -fsSL https://raw.githubusercontent.com/letsgo0226/Notes/main/hsi-search.sh | sh -s -- --license cc0,pdm --extension wav "Blue Pleiadian Stars"
+
+
+--------------------------------------------------
+Output
+--------------------------------------------------
+
+Default Open-Corpus output:
+
+~/Music/HSI-Corpus/YYYYMMDD-HHMMSS-PID/
+
+Typical files:
+
+  keywords.txt
+  search.hsicert
+  corpus.lock.json
+  events.json
+  song.wav
+  song.e257
+  song.hsicert
+  manifest.json
+
+
+--------------------------------------------------
+Semantic rule
+--------------------------------------------------
+
+SEARCH expands evidence.
+SEARCH does not totalize reality.
+
+No retrieval         != nonexistence
+SOURCE_UNAVAILABLE   != false
+EXHAUSTED_BUDGET     != exhaustive knowledge
+UNRESOLVED           != false
