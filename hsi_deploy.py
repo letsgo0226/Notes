@@ -90,16 +90,30 @@ def _http_json(url,timeout=30):
 
 def resolve_commit(repo,ref):
     owner,name=repo.split("/",1)
-    url="https://api.github.com/repos/%s/%s/branches/%s"%(
-        urllib.parse.quote(owner,safe=""),
-        urllib.parse.quote(name,safe=""),
-        urllib.parse.quote(ref,safe="")
-    )
-    data=_http_json(url)
-    sha=((data.get("commit") or {}).get("sha") or "").strip()
-    if len(sha)!=40 or any(c not in "0123456789abcdefABCDEF" for c in sha):
-        raise RuntimeError("invalid resolved commit for %s@%s"%(repo,ref))
-    return sha.lower(),url
+    owner_q=urllib.parse.quote(owner,safe="")
+    name_q=urllib.parse.quote(name,safe="")
+    ref_q=urllib.parse.quote(ref,safe="")
+    candidates=[
+        ("branch","https://api.github.com/repos/%s/%s/branches/%s"%(owner_q,name_q,ref_q)),
+        ("git_ref","https://api.github.com/repos/%s/%s/git/ref/heads/%s"%(owner_q,name_q,ref_q)),
+        ("commit","https://api.github.com/repos/%s/%s/commits/%s"%(owner_q,name_q,ref_q))
+    ]
+    errors=[]
+    for method,url in candidates:
+        try:
+            data=_http_json(url)
+            if method=="branch":
+                sha=((data.get("commit") or {}).get("sha") or "").strip()
+            elif method=="git_ref":
+                sha=((data.get("object") or {}).get("sha") or "").strip()
+            else:
+                sha=(data.get("sha") or "").strip()
+            if len(sha)==40 and all(c in "0123456789abcdefABCDEF" for c in sha):
+                return sha.lower(),url,method
+            errors.append(method+":invalid_sha")
+        except Exception as e:
+            errors.append(method+":"+str(e))
+    raise RuntimeError("cannot resolve %s@%s within finite resolver set: %s"%(repo,ref," | ".join(errors)))
 
 def raw_url(repo,commit,path):
     return "https://raw.githubusercontent.com/%s/%s/%s"%(repo,commit,urllib.parse.quote(path,safe="/"))
@@ -207,9 +221,9 @@ def solve_plan(root,targets):
         for name in targets:
             spec=TARGETS[name]
             try:
-                commit,url=resolve_commit(spec["repo"],spec["ref"])
-                sources[name]={"repo":spec["repo"],"ref":spec["ref"],"commit":commit,"resolver_url":url,"files":spec["files"]}
-                observations.append({"target":name,"repo":spec["repo"],"ref":spec["ref"],"commit":commit,"status":"RESOLVED"})
+                commit,url,method=resolve_commit(spec["repo"],spec["ref"])
+                sources[name]={"repo":spec["repo"],"ref":spec["ref"],"commit":commit,"resolver_url":url,"resolver_method":method,"files":spec["files"]}
+                observations.append({"target":name,"repo":spec["repo"],"ref":spec["ref"],"commit":commit,"resolver_method":method,"status":"RESOLVED"})
             except Exception as e:
                 observations.append({"target":name,"repo":spec["repo"],"ref":spec["ref"],"status":"SOURCE_UNAVAILABLE","error":str(e)})
                 status="UNRESOLVED";reason="source_resolution_failed";break
