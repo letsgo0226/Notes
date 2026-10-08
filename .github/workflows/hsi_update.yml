@@ -1,0 +1,159 @@
+name: hsi_update
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "hsi_update.py"
+      - "hsi-update.sh"
+      - "hsi-update.ps1"
+      - "HSI_UPDATE.md"
+      - ".github/workflows/hsi_update.yml"
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Syntax and mutation boundary
+        run: |
+          set -eu
+          sh -n hsi-update.sh
+          python3 -m py_compile hsi_update.py
+          grep -q 'PROTOCOL="HSI-UPDATE/1.0"' hsi_update.py
+          grep -q '"automatic_source_code_rewrite":False' hsi_update.py
+          grep -q '"automatic_git_push":False' hsi_update.py
+          grep -q '"human_approval_required_before_repository_mutation":True' hsi_update.py
+
+      - name: Build single-source closed artifact fixture
+        run: |
+          set -eu
+          rm -rf /tmp/hsi-artifact
+          mkdir -p /tmp/hsi-artifact
+          cat >/tmp/hsi-artifact/manifest.json <<'JSON'
+          {"protocol":"HSI-OPEN-CORPUS/1.0","closed":1,"rights_closed":0}
+          JSON
+          cat >/tmp/hsi-artifact/song.hsicert <<'JSON'
+          {
+            "protocol":"HSI-OPEN-CORPUS/1.0",
+            "version":"1.7.0",
+            "technical_closed":1,
+            "rights_closed":0,
+            "search_protocol":"HSI-SEARCH/1.0",
+            "search_status":"FOUND",
+            "sources":[
+              {
+                "source_id":"commons:165652849",
+                "openverse_id":"commons:165652849",
+                "category":"music",
+                "license":"pdm",
+                "partial_source":true,
+                "downloaded_bytes":18874368,
+                "source_total_bytes":31098656
+              }
+            ]
+          }
+          JSON
+          cat >/tmp/hsi-artifact/corpus.lock.json <<'JSON'
+          {"sources":[{"source_id":"commons:165652849","openverse_id":"commons:165652849","category":"music","license":"pdm","partial_source":true,"downloaded_bytes":18874368,"source_total_bytes":31098656}]}
+          JSON
+          python3 - <<'PY'
+          import json
+          e=[]
+          for i in range(11):
+              e.append({"source_id":"commons:165652849","dst_start_seconds":i*2.0,"fragment_seconds":3.0})
+          open("/tmp/hsi-artifact/events.json","w").write(json.dumps(e))
+          PY
+          cat >/tmp/hsi-artifact/search.hsicert <<'JSON'
+          {
+            "protocol":"HSI-SEARCH/1.0",
+            "status":"FOUND",
+            "renderer_admission":{"rejected":[]},
+            "rejected":[
+              {
+                "record_uid":"commons:speech",
+                "rejection_reasons":["category_denied","lexical_pronunciation_source"]
+              }
+            ]
+          }
+          JSON
+
+      - name: Solve update candidate
+        run: |
+          set -eu
+          python3 hsi_update.py /tmp/hsi-artifact --json >/tmp/update.out
+          cat /tmp/update.out
+          python3 - <<'PY'
+          import json
+          c=json.loads(open("/tmp/update.out",encoding="utf-8").read().splitlines()[-1])
+          assert c["protocol"]=="HSI-UPDATE/1.0"
+          assert c["status"]=="UPDATE_CANDIDATE"
+          assert c["observation"]["technical_closed"]==1
+          assert c["observation"]["rights_closed"]==0
+          assert c["observation"]["source_count"]==1
+          assert c["observation"]["unique_event_sources"]==1
+          assert c["observation"]["event_count"]==11
+          assert c["observation"]["max_event_source_share"]==1.0
+          codes={x["code"] for x in c["observation"]["findings"]}
+          assert "SINGLE_SOURCE_COLLAPSE" in codes
+          assert "SOURCE_DOMINANCE_HIGH" in codes
+          assert "FINITE_PREFIX_SAMPLING_USED" in codes
+          assert "SPEECH_GATE_OBSERVED" in codes
+          assert "RIGHTS_REVIEW_OPEN" in codes
+          ids=[x["id"] for x in c["candidate_updates"]]
+          assert ids[0]=="MULTI_SOURCE_COMPOSITION_V1"
+          assert "OPTIONAL_NATIVE_CONNECTIVE_LAYER" in ids
+          assert "RIGHTS_ATTESTATION_WORKFLOW" in ids
+          assert c["policy"]["automatic_source_code_rewrite"] is False
+          assert c["policy"]["automatic_git_push"] is False
+          assert c["policy"]["human_approval_required_before_repository_mutation"] is True
+          assert c["plan_uid"].isdigit()
+          PY
+          test -f /tmp/hsi-artifact/update.hsicert
+
+      - name: Non-closed artifact must HOLD
+        run: |
+          set -eu
+          python3 - <<'PY'
+          import json
+          p="/tmp/hsi-artifact/manifest.json"
+          x=json.load(open(p))
+          x["closed"]=0
+          open(p,"w").write(json.dumps(x))
+          PY
+          set +e
+          python3 hsi_update.py /tmp/hsi-artifact --json >/tmp/update-hold.out
+          code=$?
+          set -e
+          test "$code" -eq 3
+          python3 - <<'PY'
+          import json
+          c=json.loads(open("/tmp/update-hold.out",encoding="utf-8").read().splitlines()[-1])
+          assert c["status"]=="HOLD"
+          codes={x["code"] for x in c["observation"]["findings"]}
+          assert "TECHNICAL_NOT_CLOSED" in codes
+          assert c["candidate_updates"][0]["id"]=="RESTORE_TECHNICAL_CLOSURE"
+          PY
+
+  windows-launcher:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify PowerShell syntax
+        shell: pwsh
+        run: |
+          $tokens=$null
+          $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Join-Path $PWD "hsi-update.ps1"),
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if($errors.Count -ne 0){
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+          $text=Get-Content -Raw "hsi-update.ps1"
+          if($text -notmatch "hsi_update.py"){throw "missing update solver"}
