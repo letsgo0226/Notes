@@ -6,6 +6,7 @@ on:
     paths:
       - "hsi-corpus.sh"
       - "hsi_open_corpus.py"
+      - "hsi_search.py"
       - "HSI_OPEN_CORPUS.md"
       - ".github/workflows/hsi_open_corpus.yml"
   workflow_dispatch:
@@ -19,12 +20,15 @@ jobs:
         run: |
           set -eu
           sh -n hsi-corpus.sh
-          python3 -m py_compile hsi_open_corpus.py
+          python3 -m py_compile hsi_search.py hsi_open_corpus.py
           grep -q 'ai_model":False' hsi_open_corpus.py
           grep -q 'neural_renderer":False' hsi_open_corpus.py
           grep -q 'machine_learning":False' hsi_open_corpus.py
           grep -q 'youtube_audio_used":False' hsi_open_corpus.py
           ! grep -Eiq 'torch|tensorflow|transformers|diffusion|openai|suno|runway|fal.ai' hsi_open_corpus.py
+          grep -q 'from hsi_search import run_search' hsi_open_corpus.py
+          ! grep -q 'def search(' hsi_open_corpus.py
+          ! grep -q 'def http_json(' hsi_open_corpus.py
       - name: Start mock Openverse
         run: |
           cat >/tmp/mock_openverse.py <<'PY'
@@ -90,17 +94,26 @@ jobs:
           p=Path("/tmp/hsi-corpus-a")
           c=json.loads((p/"song.hsicert").read_text())
           l=json.loads((p/"corpus.lock.json").read_text())
+          sh=json.loads((p/"search.hsicert").read_text())
           assert c["protocol"]=="HSI-OPEN-CORPUS/1.0"
-          assert c["version"]=="1.0.1"
+          assert c["version"]=="1.1.0"
           assert c["closed"]==1 and c["technical_closed"]==1
           assert c["rights_closed"]==0
           assert c["rights_review_recommended"] is True
           assert c["ai_model"] is False and c["neural_renderer"] is False and c["machine_learning"] is False
           assert c["youtube_audio_used"] is False
+          assert c["search_protocol"]=="HSI-SEARCH/1.0"
+          assert c["search_status"]=="FOUND"
+          assert sh["protocol"]=="HSI-SEARCH/1.0" and sh["status"]=="FOUND"
+          assert sh["blue"]["search_expands_evidence_only"] is True
+          assert sh["epistemic_rule"]=="absence_of_retrieval_is_not_evidence_of_nonexistence"
           assert c["source_count"]>=2 and c["event_count"]>=5
           assert all(x["license"] in ("cc0","pdm") for x in c["sources"])
           assert all(x["openverse_id"]!="reject-by" for x in c["sources"])
           assert l["youtube_audio_used"] is False
+          assert l["search_protocol"]=="HSI-SEARCH/1.0"
+          assert l["search_status"]=="FOUND"
+          assert l["search_certificate"]["search_uid"]==sh["search_uid"]
           with wave.open(str(p/"song.wav"),"rb") as w:
               assert w.getnchannels()==2 and w.getsampwidth()==2 and w.getframerate()==16000
           def d257(n):
