@@ -2,10 +2,11 @@
 import argparse, hashlib, json, math, os, random, socket, struct, sys, time, urllib.parse, urllib.request, urllib.error, wave
 from array import array
 from pathlib import Path
+from hsi_search import run_search
 
 PROTOCOL="HSI-OPEN-CORPUS/1.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
-VERSION="1.0.1"
+VERSION="1.1.0"
 API=os.getenv("HSI_OPENVERSE_BASE","https://api.openverse.org/v1/audio/").rstrip("/")+"/"
 CACHE=Path(os.getenv("HSI_CORPUS_CACHE",str(Path.home()/".hsi-corpus"/"cache"))).expanduser()
 MAX_ITEMS=max(2,min(8,int(os.getenv("HSI_CORPUS_ITEMS","5"))))
@@ -110,33 +111,38 @@ def clean_result(x,query,url):
     }
 
 def discover(text):
-    # Single-token queries tend to be cheaper and more productive for an
-    # acoustic corpus than a rare full phrase. The full phrase is tried last.
-    toks=[]
-    for x in text.replace(","," ").split():
-        x=x.strip()
-        if x and x.lower() not in {t.lower() for t in toks}:toks.append(x)
-    qs=toks[:]
-    if text not in qs:qs.append(text)
-    found=[];seen=set()
-    for q in qs:
-        stages=(False,True)
-        for filtered in stages:
-            try:rows,url=search(q,filtered=filtered)
-            except Exception as e:
-                print("search-warning>",q,"filtered="+str(filtered).lower(),str(e),file=sys.stderr)
-                continue
-            for row in rows:
-                item=clean_result(row,q,url)
-                if not item:continue
-                oid=item["openverse_id"]
-                if oid in seen:continue
-                seen.add(oid);found.append(item)
-                if len(found)>=MAX_ITEMS:return found
-            # If broad search returned eligible material, do not repeat the same
-            # query through the more expensive server-side filter.
-            if any(i.get("query")==q for i in found):break
-    return found
+    policy={"license_allow":["cc0","pdm"],"extension_allow":["wav"]}
+    budget={
+        "max_results":MAX_ITEMS,
+        "page_size":SEARCH_PAGE,
+        "timeout_seconds":SEARCH_TIMEOUT,
+        "retries":SEARCH_RETRIES,
+        "max_calls":max(8,min(40,SEARCH_RETRIES*8))
+    }
+    cert=run_search(text,source="openverse_audio",policy=policy,budget=budget,base_url=API)
+    items=[]
+    for x in cert.get("results") or []:
+        items.append({
+            "openverse_id":x.get("record_uid"),
+            "title":x.get("title"),
+            "creator":x.get("creator"),
+            "creator_url":x.get("creator_url"),
+            "license":x.get("license"),
+            "license_version":x.get("license_version"),
+            "media_url":x.get("media_url"),
+            "landing_url":x.get("landing_url"),
+            "provider":x.get("provider"),
+            "source":x.get("upstream_source"),
+            "filetype":x.get("filetype"),
+            "duration_ms":x.get("duration_ms"),
+            "filesize":x.get("filesize"),
+            "sample_rate":x.get("sample_rate"),
+            "query":x.get("matched_query"),
+            "openverse_search_url":x.get("search_url"),
+            "license_basis":x.get("assertion_basis"),
+            "license_independently_verified":False
+        })
+    return items,cert
 
 def cache_path(item):
     safe="".join(c if c.isalnum() or c in "-_" else "_" for c in item["openverse_id"])
@@ -287,11 +293,21 @@ def main():
     if a.lock:
         lock=json.loads(Path(a.lock).expanduser().read_text(encoding="utf-8"))
         items=lock.get("sources") or []
+        search_cert=lock.get("search_certificate") or {
+            "protocol":"HSI-SEARCH/1.0","status":"UNRESOLVED","query":text,
+            "epistemic_rule":"absence_of_retrieval_is_not_evidence_of_nonexistence",
+            "reason":"legacy_lock_without_search_certificate"
+        }
         print("corpus> locked",len(items))
     else:
-        items=discover(text)
+        items,search_cert=discover(text)
+        print("search_status>",search_cert.get("status"))
+        print("search_uid>",search_cert.get("search_uid"))
         print("corpus> discovered",len(items))
-    if not items:raise SystemExit("no Openverse CC0/PDM WAV candidates found")
+    (out/"search.hsicert").write_text(canon(search_cert)+"\n",encoding="utf-8")
+    if not items:
+        status=search_cert.get("status","UNRESOLVED")
+        raise SystemExit("HSI SEARCH "+status+": no admitted Openverse CC0/PDM WAV evidence within finite search budget")
 
     wav,basis,seconds,events,decoded=render(items,text,out)
     used_ids={e["source_id"] for e in events}
@@ -303,7 +319,11 @@ def main():
         "sources":used,
         "license_filter":["cc0","pdm"],
         "format_filter":["wav"],
-        "youtube_audio_used":False
+        "youtube_audio_used":False,
+        "search_protocol":"HSI-SEARCH/1.0",
+        "search_uid":search_cert.get("search_uid"),
+        "search_status":search_cert.get("status"),
+        "search_certificate":search_cert
     }
     (out/"corpus.lock.json").write_text(canon(lock)+"\n",encoding="utf-8")
     (out/"events.json").write_text(canon(events)+"\n",encoding="utf-8")
@@ -341,6 +361,10 @@ def main():
         "ai_model":False,"neural_renderer":False,"machine_learning":False,
         "youtube_audio_used":False,
         "corpus_provider":"Openverse API",
+        "search_protocol":"HSI-SEARCH/1.0",
+        "search_uid":search_cert.get("search_uid"),
+        "search_status":search_cert.get("status"),
+        "search_epistemic_rule":search_cert.get("epistemic_rule"),
         "license_filter":["cc0","pdm"],"format_filter":["wav"],
         "license_assurance":"USER_ATTESTED" if RIGHTS_ATTESTED else "OPENVERSE_INDEX_ASSERTED_NOT_INDEPENDENTLY_VERIFIED",
         "rights_review_recommended":not RIGHTS_ATTESTED,
@@ -362,7 +386,7 @@ def main():
         "checks":checks,"sources":provenance
     }
     (out/"song.hsicert").write_text(canon(cert)+"\n",encoding="utf-8")
-    files=["keywords.txt","corpus.lock.json","events.json","song.wav","song.hsicert"]
+    files=["keywords.txt","search.hsicert","corpus.lock.json","events.json","song.wav","song.hsicert"]
     if E257_ENABLED:files.append("song.e257")
     (out/"manifest.json").write_text(canon({"protocol":PROTOCOL,"output":str(out),"files":files,"closed":technical_closed,"rights_closed":rights_closed})+"\n",encoding="utf-8")
     print("audio>",wav);print("sources>",len(provenance));print("events>",len(events))
