@@ -22,6 +22,12 @@ get(){
 
 get "$BASE/hsi_net.py" "$NET"
 get "$BASE/hsi_deploy.py" "$APP"
+if [ -z "${GITHUB_TOKEN:-}" ] && [ -z "${GH_TOKEN:-}" ] && command -v gh >/dev/null 2>&1; then
+  TKN="$(gh auth token 2>/dev/null || true)"
+  if [ -n "$TKN" ]; then export GITHUB_TOKEN="$TKN"; fi
+  unset TKN
+fi
+
 cd "$DIR"
 echo "HSI Deploy Solver: self + UTM + Trader_42 + Omega"
 echo "policy> solve first; immutable commit resolution; no domain execution during deployment"
