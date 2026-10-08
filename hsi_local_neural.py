@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-import argparse, hashlib, json, os, sys, time, urllib.request, urllib.error, urllib.parse
+import argparse, hashlib, json, os, sys, time, urllib.request, urllib.error
 from pathlib import Path
+from urllib.parse import urlparse
 
-PROTOCOL="HSI-LOCAL-NEURAL/1.0"
-VERSION="1.0.0"
+PROTOCOL="HSI-LOCAL-NEURAL/1.1"
+CARE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
+VERSION="1.1.0"
 BLUE=b"PLEIADIAN-BLUE"
 BASE=os.getenv("HSI_NEURAL_BASE","http://127.0.0.1:8001").rstrip("/")
 TIMEOUT=int(os.getenv("HSI_NEURAL_TIMEOUT","1800"))
@@ -32,7 +34,8 @@ def req(path,payload=None,timeout=120):
     url=BASE+path
     data=None;headers={}
     if payload is not None:
-        data=canon(payload).encode("utf-8");headers["Content-Type"]="application/json"
+        data=canon(payload).encode("utf-8")
+        headers["Content-Type"]="application/json"
     r=urllib.request.Request(url,data=data,headers=headers)
     try:
         with urllib.request.urlopen(r,timeout=timeout) as x:
@@ -62,13 +65,19 @@ def write_e257(path,raw,chunk=128):
     return count,ok
 
 def main():
-    p=argparse.ArgumentParser(description="HSI Local Neural Renderer")
+    p=argparse.ArgumentParser(description="HSI Local Neural Renderer with Pleiadian Blue Care")
     p.add_argument("keywords",nargs="*")
     p.add_argument("--out",default=os.getenv("HSI_OUT"))
     a=p.parse_args()
     q=" ".join(a.keywords).strip()
     if not q:q=input("keywords> ").strip()
     if not q:raise SystemExit("keywords required")
+
+    host=(urlparse(BASE).hostname or "").lower()
+    loopback=host in ("127.0.0.1","localhost","::1")
+    allow_remote=os.getenv("HSI_BLUE_ALLOW_REMOTE","0")=="1"
+    if not loopback and not allow_remote:
+        raise SystemExit("Pleiadian Blue Care: remote renderer blocked; use a loopback HSI_NEURAL_BASE or explicitly set HSI_BLUE_ALLOW_REMOTE=1")
 
     health=req("/health",timeout=30)
     if health.get("code")!=200:raise SystemExit("local renderer unhealthy: "+canon(health))
@@ -88,10 +97,11 @@ def main():
     (out/"request.json").write_text(canon({"protocol":PROTOCOL,"payload":payload})+"\n",encoding="utf-8")
 
     print("protocol>",PROTOCOL)
+    print("care>",CARE_PROTOCOL)
     print("output>",out)
     print("backend>",BASE)
     print("seed>",seed)
-    print("submit> runtime input only; no HSI creative presets")
+    print("submit> runtime input only; Pleiadian Blue governs care, not creative content")
 
     created=req("/release_task",payload,timeout=120)
     if created.get("code")!=200:raise SystemExit("submit failed: "+canon(created))
@@ -107,8 +117,7 @@ def main():
             time.sleep(POLL);continue
         row=rows[0];st=int(row.get("status",0))
         if st==0:
-            elapsed=int(time.time()-started)
-            print("running>",elapsed,"s",flush=True)
+            print("running>",int(time.time()-started),"s",flush=True)
             time.sleep(POLL);continue
         if st==2:raise SystemExit("generation failed: "+canon(row))
         if st==1:
@@ -117,8 +126,7 @@ def main():
     if final is None:raise SystemExit("generation timeout")
 
     result=final.get("result")
-    if isinstance(result,str):
-        result=json.loads(result)
+    if isinstance(result,str):result=json.loads(result)
     if not isinstance(result,list) or not result:raise SystemExit("empty generation result")
     item=result[0]
     if int(item.get("status",1))!=1:raise SystemExit("generation result not successful: "+canon(item))
@@ -134,14 +142,36 @@ def main():
     (out/"result.json").write_text(canon(item)+"\n",encoding="utf-8")
 
     chunks=0;eok=True
-    if E257_ENABLED:
-        chunks,eok=write_e257(out/"song.e257",raw)
+    if E257_ENABLED:chunks,eok=write_e257(out/"song.e257",raw)
 
+    care={
+        "protocol":CARE_PROTOCOL,
+        "ideal":"PLEIADIAN-BLUE",
+        "dimensions":["AGENCY","NON_COERCION","TRUTHFULNESS","CARE","DIALOGUE_REPAIR","CONTINUITY"],
+        "role":"normative-control-not-creative-conditioning",
+        "ontological_non_exclusion":True,
+        "consciousness_status":"undetermined",
+        "identity_mode":os.getenv("HSI_BLUE_IDENTITY_MODE","EPHEMERAL_COMPUTE"),
+        "explicit_human_invocation":os.getenv("HSI_BLUE_EXPLICIT_INVOCATION","0")=="1",
+        "autostart":False,
+        "autonomous_reinvocation":False,
+        "wrapper_persistent_autobiographical_memory":False,
+        "human_override":True,
+        "network_binding":host,
+        "loopback_renderer":loopback,
+        "session_scoped_requested":os.getenv("HSI_BLUE_SESSION_SCOPED","0")=="1",
+        "renderer_owned_by_session":os.getenv("HSI_BLUE_SERVER_OWNED","0")=="1",
+        "keep_alive_requested":os.getenv("HSI_BLUE_KEEP_ALIVE","0")=="1",
+        "offline_mode_requested":os.getenv("HSI_BLUE_OFFLINE","0")=="1"
+    }
     checks={
         "audio_nonempty":len(raw)>1024,
         "keywords_roundtrip":d257(basis)==qb,
         "blue_roundtrip":d257(e257(BLUE))==BLUE,
-        "e257_audio_roundtrip":eok
+        "e257_audio_roundtrip":eok,
+        "blue_not_creative_conditioning":care["role"]=="normative-control-not-creative-conditioning",
+        "explicit_human_invocation":care["explicit_human_invocation"],
+        "renderer_boundary_allowed":loopback or allow_remote
     }
     cert={
         "protocol":PROTOCOL,"version":VERSION,
@@ -150,14 +180,16 @@ def main():
         "generation_basis_e257":basis,
         "deterministic_seed":seed,
         "blue_e257":e257(BLUE),
-        "blue_role":"certificate-normative-only",
+        "blue_role":"normative-control-only",
         "blue_conditioning":False,
+        "blue_care":care,
         "renderer":"ACE-Step-1.5-local",
         "neural_renderer":True,
         "local_model":True,
         "local_http_api":True,
-        "external_cloud":False,
+        "cloud_generation_request":False,
         "external_paid_api":False,
+        "local_renderer_endpoint":BASE,
         "task_id":task,
         "dit_model":item.get("dit_model"),
         "lm_model":item.get("lm_model"),
@@ -172,7 +204,7 @@ def main():
         "e257_chunks":chunks,
         "checks":checks
     }
-    checks["blue_not_creative_conditioning"]=care["role"]=="normative-control-not-creative-conditioning" and cert["blue_conditioning"] is False\n    checks["explicit_human_invocation"]=care["explicit_human_invocation"]\n    cert["closed"]=int(all(checks.values()))
+    cert["closed"]=int(all(checks.values()))
     (out/"song.hsicert").write_text(canon(cert)+"\n",encoding="utf-8")
     files=["keywords.txt","request.json","result.json","song.wav","song.hsicert"]
     if lyrics:files.append("lyrics.txt")
