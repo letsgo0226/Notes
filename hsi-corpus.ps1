@@ -4,11 +4,12 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$Pin = "7b1bd7e7f8b498687325824e168fcc0492537eea"
+$Pin = "3648741bb18697148a7c121cd31c460d7276c114"
 $Base = "https://raw.githubusercontent.com/letsgo0226/Notes/$Pin"
 $Dir = if ($env:HSI_CORPUS_HOME) { $env:HSI_CORPUS_HOME } else { Join-Path $HOME ".hsi-corpus" }
 $App = Join-Path $Dir "hsi_open_corpus.py"
 $Search = Join-Path $Dir "hsi_search.py"
+$Net = Join-Path $Dir "hsi_net.py"
 New-Item -ItemType Directory -Force -Path $Dir | Out-Null
 
 function Resolve-HSIPython {
@@ -36,16 +37,19 @@ if ($null -eq $Py) {
 
 $TmpApp = "$App.tmp.$PID"
 $TmpSearch = "$Search.tmp.$PID"
+$TmpNet = "$Net.tmp.$PID"
 try {
   Invoke-WebRequest -UseBasicParsing "$Base/hsi_open_corpus.py" -OutFile $TmpApp
   Invoke-WebRequest -UseBasicParsing "$Base/hsi_search.py" -OutFile $TmpSearch
-  if ((Get-Item $TmpApp).Length -le 0 -or (Get-Item $TmpSearch).Length -le 0) {
+  Invoke-WebRequest -UseBasicParsing "$Base/hsi_net.py" -OutFile $TmpNet
+  if ((Get-Item $TmpApp).Length -le 0 -or (Get-Item $TmpSearch).Length -le 0 -or (Get-Item $TmpNet).Length -le 0) {
     throw "Downloaded HSI program is empty."
   }
   Move-Item -Force $TmpApp $App
   Move-Item -Force $TmpSearch $Search
+  Move-Item -Force $TmpNet $Net
 } finally {
-  Remove-Item -Force -ErrorAction SilentlyContinue $TmpApp,$TmpSearch
+  Remove-Item -Force -ErrorAction SilentlyContinue $TmpApp,$TmpSearch,$TmpNet
 }
 
 Write-Host "HSI Open-Corpus Renderer: no AI / HSI-SEARCH / Openverse CC0+PDM WAV / deterministic DSP"
