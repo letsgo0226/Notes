@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-PIN="71be7f28917ec94abcb247db8b4150971c79e532"
+PIN="fc807fbce69bc7ab39cc457b70ab72cf4b991e1a"
 RAW="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_open_corpus.py"
 RAW_SEARCH="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_search.py"
 RAW_NET="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_net.py"
@@ -75,10 +75,10 @@ mv "$TMP_NET" "$NET"
 trap - EXIT HUP INT TERM
 chmod 700 "$APP" "$SEARCH" "$NET"
 
-echo "HSI Open-Corpus Renderer: no AI / HSI-SEARCH / Openverse CC0+PDM WAV / deterministic DSP"
+echo "HSI Open-Corpus Renderer: no AI / HSI-SEARCH / HSI NET CC0+PDM WAV / deterministic DSP"
 echo "bundle_commit> $PIN"
 echo "note> YouTube audio is not downloaded or sampled."
-echo "note> Openverse license metadata is indexed metadata; verify landing pages before publication/commercial reuse."
+echo "note> Adapter license metadata is indexed metadata; verify landing pages before publication/commercial reuse."
 
 if [ "$#" -eq 0 ] && [ -r /dev/tty ]; then
   exec "$PY" "$APP" </dev/tty
