@@ -13,6 +13,10 @@ Properties:
   Machine learning  = false
   YouTube audio use = false
   HSI SEARCH        = true
+  HSI SEARCH version      = 1.4.0
+  HSI NET version         = 1.1.0
+  Open-Corpus version     = 1.6.0
+  Network audio adapters  = Openverse + Wikimedia Commons
   E257              = true
   Provenance        = true
 
