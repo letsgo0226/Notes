@@ -1,0 +1,127 @@
+name: hsi_deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "hsi_deploy.py"
+      - "hsi-deploy.sh"
+      - "hsi-deploy.ps1"
+      - "hsi_net.py"
+      - "HSI_DEPLOY.md"
+      - ".github/workflows/hsi_deploy.yml"
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Syntax
+        run: |
+          set -eu
+          sh -n hsi-deploy.sh
+          python3 -m py_compile hsi_net.py hsi_deploy.py
+          grep -q 'PROTOCOL="HSI-DEPLOY/1.0"' hsi_deploy.py
+          grep -q '"github_source"' hsi_net.py
+
+      - name: Solve deployment without writing release
+        run: |
+          set -eu
+          rm -rf /tmp/hsi-plan
+          set +e
+          python3 hsi_deploy.py --plan --target all --root /tmp/hsi-plan --json >/tmp/hsi-plan.out
+          code=$?
+          set -e
+          test "$code" -eq 0
+          python3 - <<'PY'
+          import json
+          lines=open("/tmp/hsi-plan.out",encoding="utf-8").read().splitlines()
+          c=json.loads(lines[-1])
+          assert c["protocol"]=="HSI-DEPLOY/1.0"
+          assert c["status"]=="PLAN"
+          assert c["plan_status"]=="DEPLOYABLE"
+          assert c["closed"]==1
+          assert c["closure"]["committed"] is False
+          assert c["closure"]["domain_execution_performed"] is False
+          assert c["net_projection"]["model"]=="ABSTRACT_GLOBAL_INFORMATION_FIELD"
+          assert c["net_projection"]["adapters"]==["github_source"]
+          assert c["net_projection"]["global_exhaustion_claim"] is False
+          assert c["invariants"]["trader_live_authority"] is False
+          assert c["invariants"]["trader_order_submission"] is False
+          assert c["invariants"]["utm_universal_halting_authority"] is False
+          assert c["invariants"]["omega_forced_commit_authority"] is False
+          PY
+
+      - name: Commit verified all-system deployment
+        run: |
+          set -eu
+          rm -rf /tmp/hsi-install
+          python3 hsi_deploy.py --target all --root /tmp/hsi-install --json >/tmp/hsi-deploy.out
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          lines=open("/tmp/hsi-deploy.out",encoding="utf-8").read().splitlines()
+          c=json.loads(lines[-1])
+          root=Path("/tmp/hsi-install")
+          assert c["status"]=="COMMITTED"
+          assert c["closed"]==1
+          assert c["closure"]["committed"] is True
+          assert c["closure"]["all_targets_verified"] is True
+          assert c["closure"]["domain_execution_performed"] is False
+          assert c["closure"]["trader_live_armed"] is False
+          assert c["closure"]["trader_order_submission"] is False
+          assert set(c["targets"])=={"self","utm","trader_42","omega"}
+          for name,t in c["targets"].items():
+              assert t["status"]=="VERIFIED"
+              assert len(t["commit"])==40
+              assert all(len(x["sha256"])==64 for x in t["files"])
+              assert all(len(x["git_blob_sha1"])==40 for x in t["files"])
+              assert all(t["checks"].values())
+          cur=json.loads((root/"current.json").read_text())
+          assert set(cur["targets"])=={"self","utm","trader_42","omega"}
+          assert (root/"hsi.py").exists()
+          assert (root/"state"/"deployments").is_dir()
+          PY
+
+      - name: Verify installed safe system gates
+        run: |
+          set -eu
+          python3 /tmp/hsi-install/hsi.py net --list-adapters >/tmp/net.out
+          grep -q '"github_source"' /tmp/net.out
+
+          python3 /tmp/hsi-install/hsi.py utm "finite computation context" >/tmp/utm.out
+          grep -q 'status> UNRESOLVED' /tmp/utm.out
+          grep -q 'closed> 1' /tmp/utm.out
+
+          python3 /tmp/hsi-install/hsi.py trader "market context" >/tmp/trader.out
+          grep -q 'status> HOLD' /tmp/trader.out
+          grep -q 'CERTIFICATE_ONLY / PAPER / DRY_RUN / UNARMED / NO_ORDER_SUBMISSION' /tmp/trader.out
+          grep -q 'closed> 1' /tmp/trader.out
+
+          python3 /tmp/hsi-install/hsi.py omega "finite continuation context" >/tmp/omega.out
+          grep -q 'status> UNRESOLVED' /tmp/omega.out
+          grep -q 'closed> 1' /tmp/omega.out
+
+  windows-launcher:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify PowerShell launcher syntax
+        shell: pwsh
+        run: |
+          $tokens=$null
+          $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Join-Path $PWD "hsi-deploy.ps1"),
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if($errors.Count -ne 0){
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+          $text=Get-Content -Raw "hsi-deploy.ps1"
+          if($text -notmatch "hsi_deploy.py"){throw "missing deploy solver"}
+          if($text -notmatch "hsi_net.py"){throw "missing HSI NET bootstrap"}
