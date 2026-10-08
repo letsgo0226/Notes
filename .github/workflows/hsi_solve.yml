@@ -7,6 +7,7 @@ on:
       - "hsi-solve.sh"
       - "hsi-solve.ps1"
       - "hsi_solve.py"
+      - "hsi_solve_domains.json"
       - "hsi_net.py"
       - "hsi_search.py"
       - "HSI_SOLVE.md"
@@ -25,6 +26,8 @@ jobs:
           set -eu
           sh -n hsi-solve.sh
           python3 -m py_compile hsi_net.py hsi_search.py hsi_solve.py
+          test -s hsi_solve_domains.json
+          grep -q 'hsi_solve_domains.json' hsi-solve.sh
           grep -q 'PROTOCOL="HSI-SOLVE/1.0"' hsi_solve.py
           grep -q '"universal_solver":False' hsi_solve.py
           grep -q '"problem_totality_claim":False' hsi_solve.py
@@ -109,7 +112,7 @@ jobs:
           ) | Out-Null
           if($errors.Count -ne 0){$errors|ForEach-Object{Write-Error $_.Message};exit 1}
           $text=Get-Content -Raw "hsi-solve.ps1"
-          foreach($name in @("hsi_solve.py","hsi_net.py","hsi_search.py")){
+          foreach($name in @("hsi_solve.py","hsi_net.py","hsi_search.py","hsi_solve_domains.json")){
             if($text -notmatch [regex]::Escape($name)){throw "missing $name"}
           }
           if($text -match "ACE-Step|torch|tensorflow|transformers|diffusion|Suno|Runway|fal.ai"){
