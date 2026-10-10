@@ -8,6 +8,8 @@ on:
       - "hsi-corpus.ps1"
       - "hsi_open_corpus.py"
       - "hsi_corpus_clxy_gate.py"
+      - "hsi_corpus_autoevolve.py"
+      - "hsi_render_policy.json"
       - "hsi_xy_analytic_2k/**"
       - "hsi_search.py"
       - "hsi_net.py"
@@ -19,6 +21,8 @@ on:
       - "hsi-corpus.ps1"
       - "hsi_open_corpus.py"
       - "hsi_corpus_clxy_gate.py"
+      - "hsi_corpus_autoevolve.py"
+      - "hsi_render_policy.json"
       - "hsi_xy_analytic_2k/**"
       - "hsi_search.py"
       - "hsi_net.py"
@@ -36,13 +40,16 @@ jobs:
         run: |
           set -eu
           sh -n hsi-corpus.sh
-          python3 -m py_compile hsi_net.py hsi_search.py hsi_open_corpus.py hsi_corpus_clxy_gate.py
+          python3 -m py_compile hsi_net.py hsi_search.py hsi_open_corpus.py hsi_corpus_clxy_gate.py hsi_corpus_autoevolve.py
           grep -q 'ai_model":False' hsi_open_corpus.py
           grep -q 'neural_renderer":False' hsi_open_corpus.py
           grep -q 'machine_learning":False' hsi_open_corpus.py
           grep -q 'youtube_audio_used":False' hsi_open_corpus.py
           ! grep -Eiq 'torch|tensorflow|transformers|diffusion|openai|suno|runway|fal.ai' hsi_open_corpus.py
           grep -q 'source="network_audio"' hsi_open_corpus.py
+          test -s hsi_render_policy.json
+          grep -q 'RAW_POLICY=' hsi-corpus.sh
+          grep -q '\$TmpPolicy = ' hsi-corpus.ps1
           grep -q 'wikimedia_commons_audio' hsi_search.py
           test "$(grep 'TMP_SEARCH=' hsi-corpus.sh)" = 'TMP_SEARCH="$SEARCH.tmp.$$"'
           test "$(grep 'TMP_NET=' hsi-corpus.sh)" = 'TMP_NET="$NET.tmp.$$"'
@@ -184,12 +191,14 @@ jobs:
           l=json.loads((p/"corpus.lock.json").read_text())
           sh=json.loads((p/"search.hsicert").read_text())
           assert c["protocol"]=="HSI-OPEN-CORPUS/1.0"
-          assert c["version"]=="1.8.0"
+          assert c["version"]=="1.9.0"
           assert c["hsi_search_version"]=="1.4.0"
           assert c["minimum_hsi_search_version"]=="1.4.0"
           assert c["closed"]==1 and c["technical_closed"]==1
           assert c["correspondence_closed"]==1
           assert c["correspondence"]["protocol"]=="HSI-RC/1.0"
+          assert c["render_policy_uid"]==c["correspondence"]["render_policy_uid"]
+          assert c["render_policy"]["event_boost"]>=0
           assert c["correspondence"]["sigma"]=="1/2"
           assert c["correspondence"]["residual"]==0
           assert (p/"correspondence.hsicert").exists()
@@ -256,6 +265,33 @@ jobs:
               fail=subprocess.run([sys.executable,"hsi_corpus_clxy_gate.py","--artifact",str(tampered)],
                                   capture_output=True,text=True)
               assert fail.returncode==3, fail.stdout+fail.stderr
+          PY
+
+      - name: Endogenous renderer proposal search using real WAV output
+        run: |
+          set -eu
+          HSI_CORPUS_CACHE=/tmp/hsi-corpus-cache \
+          HSI_CORPUS_SR=16000 \
+          HSI_RC_MAX_CANDIDATES=1 \
+          python3 hsi_corpus_autoevolve.py \
+            --baseline /tmp/hsi-corpus-a \
+            --lock /tmp/hsi-corpus-a/corpus.lock.json \
+            --out /tmp/hsi-corpus-evolution \
+            --max-candidates 4 "Blue Stars"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("/tmp/hsi-corpus-evolution")
+          c=json.loads((p/"hsi_corpus_evolution.hsicert").read_text())
+          x=json.loads((p/"hsi_render_policy.json").read_text())
+          assert c["status"]=="VERIFIED_PROPOSAL" and c["closed"]==1
+          assert c["candidate"]["events"]>c["baseline"]["events"]
+          assert c["candidate"]["unique_sources"]>=c["baseline"]["unique_sources"]
+          assert c["candidate"]["audio_sha256"]!=c["baseline"]["audio_sha256"]
+          assert c["candidate"]["correspondence_residual"]==0
+          assert c["proof"]["clxy_step_D1_num"]==0 and c["proof"]["clxy_evolve_D1_num"]==0
+          assert c["policy"]==x
+          assert c["git_commit_performed"] is False
           PY
 
       - name: Locked offline rerender
