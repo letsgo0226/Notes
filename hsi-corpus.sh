@@ -1,14 +1,16 @@
 #!/bin/sh
 set -eu
 
-PIN="a42d730b774752aa2dbad3751fce6f33a16d1f46"
+PIN="7ab944d924efa03cc15bb4722d9db3e5d25980b5"
 RAW="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_open_corpus.py"
 RAW_SEARCH="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_search.py"
 RAW_NET="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_net.py"
+RAW_POLICY="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_render_policy.json"
 DIR="${HSI_CORPUS_HOME:-$HOME/.hsi-corpus}"
 APP="$DIR/hsi_open_corpus.py"
 SEARCH="$DIR/hsi_search.py"
 NET="$DIR/hsi_net.py"
+POLICY="$DIR/hsi_render_policy.json"
 mkdir -p "$DIR"
 
 resolve_python() {
@@ -51,16 +53,19 @@ fi
 TMP="$APP.tmp.$$"
 TMP_SEARCH="$SEARCH.tmp.$$"
 TMP_NET="$NET.tmp.$$"
-trap 'rm -f "$TMP" "$TMP_SEARCH" "$TMP_NET"' EXIT HUP INT TERM
+TMP_POLICY="$POLICY.tmp.$$"
+trap 'rm -f "$TMP" "$TMP_SEARCH" "$TMP_NET" "$TMP_POLICY"' EXIT HUP INT TERM
 
 if command -v wget >/dev/null 2>&1; then
   wget -qO "$TMP" "$RAW"
   wget -qO "$TMP_SEARCH" "$RAW_SEARCH"
   wget -qO "$TMP_NET" "$RAW_NET"
+  wget -qO "$TMP_POLICY" "$RAW_POLICY"
 elif command -v curl >/dev/null 2>&1; then
   curl -fsSL "$RAW" -o "$TMP"
   curl -fsSL "$RAW_SEARCH" -o "$TMP_SEARCH"
   curl -fsSL "$RAW_NET" -o "$TMP_NET"
+  curl -fsSL "$RAW_POLICY" -o "$TMP_POLICY"
 else
   echo "wget or curl required" >&2
   exit 127
@@ -69,9 +74,11 @@ fi
 test -s "$TMP"
 test -s "$TMP_SEARCH"
 test -s "$TMP_NET"
+test -s "$TMP_POLICY"
 mv "$TMP" "$APP"
 mv "$TMP_SEARCH" "$SEARCH"
 mv "$TMP_NET" "$NET"
+mv "$TMP_POLICY" "$POLICY"
 trap - EXIT HUP INT TERM
 chmod 700 "$APP" "$SEARCH" "$NET"
 

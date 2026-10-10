@@ -7,7 +7,7 @@ from hsi_search import run_search, VERSION as HSI_SEARCH_VERSION
 PROTOCOL="HSI-OPEN-CORPUS/1.0"
 CORRESPONDENCE_PROTOCOL="HSI-RC/1.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
-VERSION="1.8.0"
+VERSION="1.9.0"
 MIN_HSI_SEARCH_VERSION=(1,4,0)
 
 def _semver_tuple(v):
@@ -46,6 +46,30 @@ RC_PROFILE={
 RC_PRIMES={"rms":2,"peak":3,"crest":5,"silence_ratio":7,"stereo_balance":11,"clip_ratio":13}
 ALLOWED_LICENSES={"cc0","pdm"}
 ALLOWED_CATEGORIES={"music","sound_effect"}
+RENDER_PROFILE_PROTOCOL="HSI-CORPUS-RENDER-POLICY/1.0"
+DEFAULT_RENDER_POLICY={"event_boost":0,"fade_ms":180,"gain_scale":1.0}
+
+def read_render_policy():
+    name=os.getenv("HSI_RENDER_PROFILE")
+    p=Path(name).expanduser() if name else Path(__file__).with_name("hsi_render_policy.json")
+    if not p.is_file():
+        if name:raise ValueError("explicit HSI_RENDER_PROFILE is missing")
+        return dict(DEFAULT_RENDER_POLICY)
+    o=json.loads(p.read_text(encoding="utf-8"))
+    if not isinstance(o,dict) or set(o)!={"protocol","event_boost","fade_ms","gain_scale"}:
+        raise ValueError("render policy schema rejected")
+    if o["protocol"]!=RENDER_PROFILE_PROTOCOL:
+        raise ValueError("render policy protocol mismatch")
+    if type(o["event_boost"]) is not int or not 0<=o["event_boost"]<=4:
+        raise ValueError("render event_boost outside permitted range")
+    if type(o["fade_ms"]) is not int or not 100<=o["fade_ms"]<=320:
+        raise ValueError("render fade_ms outside permitted range")
+    if type(o["gain_scale"]) not in (int,float) or not math.isfinite(o["gain_scale"]) or not .7<=o["gain_scale"]<=1.3:
+        raise ValueError("render gain_scale outside permitted range")
+    return {k:o[k] for k in DEFAULT_RENDER_POLICY}
+
+RENDER_POLICY=read_render_policy()
+RENDER_POLICY_UID=hashlib.sha256(json.dumps(RENDER_POLICY,sort_keys=True,separators=(",",":")).encode()).hexdigest()
 
 if hasattr(sys,"set_int_max_str_digits"): sys.set_int_max_str_digits(0)
 
@@ -315,7 +339,7 @@ def render(items,text,out,candidate_index=0):
             item["rejected_reason"]=str(e)
             print("source-warning>",item.get("title") or item["openverse_id"],str(e),file=sys.stderr)
     if not decoded:raise SystemExit("no usable CC0/PDM WAV sources found")
-    event_count=max(len(decoded)*2,5+rng.pick(7))
+    event_count=max(len(decoded)*2,5+rng.pick(7))+RENDER_POLICY["event_boost"]
     for ei in range(event_count):
         item,audio,sr=decoded[rng.pick(len(decoded))]
         rate=.84+rng.unit()*.34
@@ -326,9 +350,9 @@ def render(items,text,out,candidate_index=0):
         src_start=0 if len(shifted)==frag_n else rng.pick(len(shifted)-frag_n)
         dst_start=rng.pick(max(1,total-frag_n))
         pan=rng.unit()*2-1
-        lg=math.sqrt((1-pan)*.5)*(.20+.20*rng.unit())
-        rg=math.sqrt((1+pan)*.5)*(.20+.20*rng.unit())
-        fade=min(int(.18*TARGET_SR),frag_n//4)
+        lg=math.sqrt((1-pan)*.5)*(.20+.20*rng.unit())*RENDER_POLICY["gain_scale"]
+        rg=math.sqrt((1+pan)*.5)*(.20+.20*rng.unit())*RENDER_POLICY["gain_scale"]
+        fade=min(int(RENDER_POLICY["fade_ms"]*.001*TARGET_SR),frag_n//4)
         for j in range(frag_n):
             env=1.0
             if fade:
@@ -377,6 +401,7 @@ def main():
     print("protocol>",PROTOCOL);print("output>",out)
     print("versions> open_corpus="+VERSION+" hsi_search="+HSI_SEARCH_VERSION)
     print("ai> false")
+    print("render_policy_uid>",RENDER_POLICY_UID)
     print("youtube_audio_used> false")
 
     if a.lock:
@@ -439,6 +464,8 @@ def main():
         "candidate_count":candidate_index+1,
         "profile":{k:list(v) for k,v in RC_PROFILE.items()},
         "features":features,
+        "render_policy":RENDER_POLICY,
+        "render_policy_uid":RENDER_POLICY_UID,
         "terms":rc_terms,
         "residual":residual,
         "closed":effective_rc_closed,
@@ -452,6 +479,8 @@ def main():
         "runtime_input":text,
         "generation_basis_e257":basis,
         "candidate_index":candidate_index,
+        "render_policy":RENDER_POLICY,
+        "render_policy_uid":RENDER_POLICY_UID,
         "correspondence_protocol":CORRESPONDENCE_PROTOCOL,
         "sources":used,
         "license_filter":["cc0","pdm"],
@@ -524,6 +553,8 @@ def main():
         "generation_basis_e257":basis,
         "candidate_index":candidate_index,
         "candidate_count":candidate_index+1,
+        "render_policy":RENDER_POLICY,
+        "render_policy_uid":RENDER_POLICY_UID,
         "correspondence":rc_cert,
         "renderer":"open-corpus-retrieval-dsp",
         "hsi_search_version":HSI_SEARCH_VERSION,
@@ -568,7 +599,7 @@ def main():
     (out/"song.hsicert").write_text(canon(cert)+"\n",encoding="utf-8")
     files=["keywords.txt","search.hsicert","corpus.lock.json","events.json","correspondence.hsicert","song.wav","song.hsicert"]
     if E257_ENABLED:files.append("song.e257")
-    (out/"manifest.json").write_text(canon({"protocol":PROTOCOL,"output":str(out),"files":files,"closed":closed,"technical_closed":technical_closed,"correspondence_closed":effective_rc_closed,"rights_closed":rights_closed})+"\n",encoding="utf-8")
+    (out/"manifest.json").write_text(canon({"protocol":PROTOCOL,"output":str(out),"files":files,"closed":closed,"technical_closed":technical_closed,"correspondence_closed":effective_rc_closed,"rights_closed":rights_closed,"render_policy_uid":RENDER_POLICY_UID})+"\n",encoding="utf-8")
     print("audio>",wav);print("sources>",len(provenance));print("events>",len(events))
     print("candidate_index>",candidate_index);print("E_half>",format(residual,".12g"))
     print("technical_closed>",technical_closed);print("correspondence_closed>",effective_rc_closed);print("rights_closed>",rights_closed)
