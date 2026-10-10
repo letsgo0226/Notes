@@ -1,0 +1,980 @@
+以純粹圖靈機語言建立的普遍對應原理：從 HSI_original、HSI_xy、唯一性編碼與類 Dirichlet 函數，到有限證書、解析表示與跨系統應用
+The Universal Correspondence Principle in the Pure Language of Turing Machines: HSI_original, HSI_xy, Unique Encoding, Dirichlet-Type Functions, Finite Certificates, Analytic Representation, and Cross-System Applications
+
+版本 / Version: 1.0
+日期 / Date: 2026-10-11
+語言 / Languages: 繁體中文 + English
+編碼 / Encoding: UTF-8
+文件性質 / Status: Formal synthesis and conditional mathematical propositions, not a universal halting decision algorithm or an established law of physics.
+
+======================================================================
+0. 研究目的、資料範圍與「純粹圖靈機語言」的意義
+0. Purpose, Source Scope, and Meaning of a Pure Turing-Machine Language
+======================================================================
+
+【中文】
+本文把相關對話所探討的「唯一性編碼」、「對數化」、「類黎曼函數」、「內生預期」、
+「自變數／應變數」、「持續枚舉」、「保守演化」、「零殘差證書」及「系統延續」
+整合成一套形式計算語言。核心問題是：
+
+    給定某個可用有限字串表示的輸入 X，
+    能否用固定的通用圖靈機 U、明確的轉移關係 δ、
+    可逆 Gödel 編碼 G、有限驗證器 V，以及可選的解析表示 F，
+    構造、驗證並保存相應輸出 Y？
+
+只將下列對象視為原生語法：有限字串、轉移表、紙帶組態、有限計算歷史、
+可計算函數、驗證謂詞、整數碼及演算法所產出的有限證書。音訊、腦波、宇宙、
+交易、倫理目標與意圖均不作為基本公理；若要納入，先將「有限的描述或觀測」
+編碼為字串，再明確指定該應用的語意與驗證方法。
+
+本文直接參考三份隨附或前次產生的文本：
+
+  (A) PRIME_FORMULA_BILINGUAL_DERIVATION(7).txt
+  (B) ANALYTIC_CONTINUATION_EQUATION_BILINGUAL_DERIVATION(3).txt
+  (C) UNIVERSAL_GODEL_DIRICHLET_CORRESPONDENCE_BILINGUAL_DERIVATION.txt
+
+並將可檢索的相關對話脈絡納入：HSI_original、HSI-CL-XY/2K、HSI Corpus、
+腦波—音頻構造、UTM／IPF／IQE、HU/Hee–Yuu、三大系統、LMN／Hx～~Hx／Ω、
+對數正則化、計算延續與有限驗證。
+
+「所有對話內容」不等於宣稱已逐字窮盡不可見的每一筆聊天紀錄；本篇盡可能
+統合目前可檢索且與本問題直接相關的形式構想，並以明確的版本及限定條件避免
+把不同日期提出的草案誤認為同一個已證明定理。
+
+【English】
+This document states the common architecture entirely in the syntax and operational
+semantics of Turing machines: finite strings, machine codes, configurations, bounded
+executions, exact certificates, and optional analytic representations. Physical,
+physiological, financial, cosmological, or ethical terms acquire meaning only through
+explicit finite encodings and separate application-specific semantics. It synthesizes
+the relevant recoverable conversation history rather than claiming an exhaustive
+verbatim reconstruction of every inaccessible message.
+
+======================================================================
+1. 固定形式語言及通用圖靈機
+1. The Fixed Formal Language and Universal Turing Machine
+======================================================================
+
+【中文】
+固定一個有限字母表 Σ（例如 {0,1,#}），以及有限字串集合 Σ*。
+設有可判定的語法集合 Prog ⊆ Σ*，每一個 p∈Prog 表示一台具有限
+狀態集合 Q_p、紙帶字母集合 Γ_p、轉移函數 δ_p 的確定性圖靈機。
+
+    M_p = (Q_p, Γ_p, δ_p, q_0, q_H).
+
+固定一個通用圖靈機 U，能模擬每個合法的 p。最核心的「普遍性」是：
+
+    U(<p,w>,t) 能完成 M_p 在輸入 w 上的至多 t 步有限模擬。
+
+其中 <p,w> 為已定義、可反解的配對編碼。通用性不要求以單次有限操作
+同時執行所有可能圖靈機，也不賦予判定任意機器是否最終停機的能力。
+
+給定機器組態：
+
+    C = (p,q,h,M),
+
+其中 q 是控制狀態，h∈ℤ 是讀寫頭位置，M⊂ℤ 是有限個記錄符號 1 的位置
+（選擇二符號紙帶時）。因此：
+
+    Step_p(C) = C' 或 HALTED.
+
+當前組態不是一個抽象的「宇宙」或「聲音」；它是可被序列化、重播與核對的
+有限對象。所有後續對應原理均在這個基礎上建立。
+
+【English】
+Fix a finite alphabet Σ, an effectively recognizable set of machine descriptions,
+and one universal interpreter U. A configuration C=(p,q,h,M) encodes the program,
+control state, head position, and finite nonblank tape support. Each accepted
+transition Step_p(C)=C' is finitely checkable. Universality concerns simulation
+of all encoded finite machine descriptions, not a decision procedure for halting.
+
+======================================================================
+2. 將 HSI_original 定義為可計算的自變數枚舉器
+2. HSI_original as an Effective Enumerator of Independent Variables
+======================================================================
+
+【中文】
+採用原始 HSI-UTM/1.0 的三角枚舉配對 Q。對每個 n∈ℕ：
+
+    (r_n,T_n) = Q(n),
+    (e_n,m_n) = Q(r_n),
+    p_n = e_n + 1.
+
+Q 是由整數平方根和三角數實現的有效枚舉，T_n,m_n≥1；每一個 n 都對應一組
+有限描述，而不是一個已完成的無限計算。固定初始字串 w，定義：
+
+    X_n := (n,e_n,T_n,m_n,w).
+
+於是 HSI_original 的運算語意為：
+
+    Enum(n) = X_n,
+    RunBounded(X_n) = (C_n,h_n),
+
+其中 C_n 是在至多 T_n 步後取得的組態，h_n∈{HALTED,UNRESOLVED}。
+UNRESOLVED 的意思只是「在本次有限預算中尚未觀察到停機」。
+
+原始程式另輸出 hologram、principal、finite_part、godel、gc、sigma 等欄位。
+這些是其有限運算與記錄的形式座標，不應自動理解為量子全息、黎曼猜想或
+物理奇點的證明。特別是原始程式由建構保證的某些檢查不具有獨立鑑別力，
+不能當成另一項新的語意性質。
+
+【English】
+Let Q enumerate program indices and positive time/order budgets. Then
+X_n=(n,e_n,T_n,m_n,w) is a finite, effective independent-variable tuple.
+The original stream records a bounded computation. UNRESOLVED means only that
+halting has not been witnessed within this finite budget. Syntactically
+constructed auxiliary invariants do not establish unbounded semantic claims.
+
+======================================================================
+3. 將 HSI_xy 定義為確定性轉移與驗證算子
+3. HSI_xy as a Deterministic Transition and Verification Operator
+======================================================================
+
+【中文】
+HSI-CL-XY/2K 不是另一個必須獨立完成無限枚舉的演算器，而是針對一個
+指定組態檢查「下一步」或「規則保守擴充」的有限微核心。
+
+STEP 模式：
+
+    C'expected := Step_p(C),
+    accepted := [C'candidate = C'expected],
+    C'committed := C'expected  (只有 accepted=1 時).
+
+若進入機器停機狀態，傳回 HALTED，而不是假裝發生新的有效轉移。
+若候選轉移不符，機器的計算狀態不變，但可記錄一次拒絕事件。
+
+EVOLVE 模式：
+
+    (p,δ_p) -> (p',δ_p'),
+
+並要求存在有效狀態嵌入 π，使舊狀態轉移在嵌入像上維持一致：
+
+    δ_p(q,a) 的狀態／寫入／移動結果
+    = 在 π 映射之後的 δ_p'(π(q),a) 的相應結果。
+
+它能驗證的是明確限制的有限規則擴充，不是「任意 Python 程式改版都語意等價」。
+
+三項非負整數殘差 r_0,r_1,r_2 對應結構、轉移相容性及尺寸限制：
+
+    D0 = r_0+r_1+r_2,
+    D1_num = 15r_0+10r_1+6r_2.
+
+由於係數全正：
+
+    accepted=1 之有效更新  => D0=D1_num=0;
+    D1_num=0 <=> r_0=r_1=r_2=0.
+
+這些是該次有限檢查的確切證書；它們沒有決定「永遠停機與否」。
+
+【English】
+The CL-XY microkernel has STEP (compare a proposed successor to the exact TM
+transition) and EVOLVE (verify a finite conservative rule embedding). Its exact
+residuals satisfy D0=r0+r1+r2 and D1_num=15r0+10r1+6r2. Zero certifies
+only these declared finite predicates. A rejected candidate does not advance
+the simulated machine state, even though rejection may be journaled.
+
+======================================================================
+4. 兩者合一的外層持續枚舉與內層一步驗證
+4. Combining Continuous Dovetailing with Single-Step Verification
+======================================================================
+
+【中文】
+定義整合運算器 A：
+
+    A(n):
+      X_n := Enum(n)
+      C := Init(p_n,w)
+      for i = 0,...,T_n-1:
+          if Halted(C): break
+          C' := Step_p(C)
+          if V_step(C,C') = 0: return REJECT/FAULT
+          CommitAtomic(C')
+          C := C'
+      Emit(X_n,C,Halted(C),FiniteHistory)
+      n := n+1
+
+當外層不設最終索引上限時，A 會產生一條潛在無界的輸出串流；
+每一筆結果仍只需有限計算。若系統設定資源上限 B<T_n，則記錄
+SKIPPED_BUDGET，而不能把未檢查的候選寫成 VERIFIED。
+
+「圖靈機自身 HALTED」與「外層枚舉器停止」是不同謂詞：
+
+    Halted(M_p,w,T_n) != Stop(Enumerator).
+
+要實現不中斷續跑，必須對外層 n、目前組態、驗證事件及待完成交易設置
+可檢查的原子 checkpoint。即使是有保存狀態的串流，亦不保證硬體永不故障；
+它提供的是在指定持久化模型下可重播與恢復的機制。
+
+【English】
+The outer controller enumerates X_n; the inner CL-XY kernel certifies each
+finite step. A simulated HALTED result does not stop the outer enumeration.
+The stream is potentially unbounded, while every individual certificate is
+finite. Budget skips must be explicitly identified. Recovery requires
+consistent atomic checkpoints and replay, not merely a JSON counter.
+
+======================================================================
+5. 輸入唯一性：E257 哥德爾編碼及其反解
+5. Input Identity: Reversible E257 Gödel Encoding
+======================================================================
+
+【中文】
+對每一有限的規範化位元組串 b_1...b_L（0≤b_i≤255），定義：
+
+    N_0=1,
+    N_{i+1}=257N_i+b_{i+1}+1,
+    E257(b_1...b_L)=N_L.
+
+其逆操作使用 divmod(N,257)，驗證餘數必在 1,...,256，並將其減去 1。
+因此於合法碼域：
+
+    Decode257(Encode257(s))=s.
+
+若對象是組態或元組，必須先固定：版本、欄位次序、UTF-8、數值字串、
+鍵排序及序列化分隔符；否則「同一抽象對象」可能存在不同位元組表示。
+
+將原版輸入與 XY 輸出分別編碼：
+
+    x_n := E257(Canon(X_n)),
+    g_n := E257(Canon(C_n)).
+
+實際運算應保留完整整數碼與可重播資料。由於 x_n 包含不同的 n，
+在規範化單射性成立時，不同枚舉樣本具有不同的整數 x_n。
+
+【English】
+E257 encodes finite byte strings bijectively onto its valid integer-code
+subset using repeated multiplication by 257 and byte-plus-one digits.
+Canonical serialization is required before claiming uniqueness of abstract
+TM data. Encode each enumerated input as x_n and the verified final
+configuration as g_n; retain exact integer strings, not rounded doubles.
+
+======================================================================
+6. 質數冪唯一性、質數譜與類 Dirichlet 函數
+6. Prime-Power Uniqueness, Prime Spectra, and Dirichlet-Type Functions
+======================================================================
+
+【中文】
+對有限非負整數序列 a=(a_1,...,a_m) 選定互異質數 p_1,...,p_m：
+
+    G(a)=Π_{j=1}^m p_j^(a_j+1),     G(())=1.
+
+由唯一質因數分解：
+
+    a_j=v_{p_j}(G(a))-1.
+
+因此 G 是有限序列的一種可逆唯一性編碼。此碼與 E257 是兩種不同
+的表示，必須經由已確定的有限資料序列化才能相互轉換。
+
+若 G=Π_p p^{k_p}（只有有限多個 k_p 非零），設有限整函數：
+
+    𝔇_G(s)=Σ_{p|G} k_p p^(-s).
+
+取導數：
+
+    𝔇'_G(s)=-Σ_{p|G}k_p(log p)p^(-s),
+
+因此有精確恆等式：
+
+    -𝔇'_G(0)=Σ_p k_p log p=log G.
+
+這是編碼、乘法結構的對數化與類 Dirichlet 函數之間的真正數學聯繫。
+但對非常龐大的 E257 整數進行完整質因數分解，計算上可能不實用；
+不應把「形式上存在有限質數分解」等同於「容易有效反解任意巨碼」。
+
+亦可用既定 a_j 直接構造 𝔇_{G(a)}，避免重新分解 G(a)。
+
+【English】
+Unique factorization gives a reversible prime-power tuple code G(a).
+The associated finite Dirichlet polynomial 𝔇_G(s)=Σ k_p p^{-s} is entire
+and obeys the exact identity -𝔇'_G(0)=log G. E257 and prime-exponent
+numbering are distinct encodings; retrieving a factorization of an
+unstructured enormous E257 integer can be computationally impractical.
+
+======================================================================
+7. 零殘差之精確 Dirichlet 證書
+7. Exact Finite Dirichlet Certificates
+======================================================================
+
+【中文】
+令某次有限計算的規格殘差為：
+
+    r=(r_1,...,r_m),   r_j∈ℕ_0.
+
+定義：
+
+    R_r(s)=Σ_j r_j p_j^(-s),
+    E_r(σ)=Σ_j r_j² p_j^(-2σ),   σ∈ℝ.
+
+由正係數可得：
+
+    E_r(σ)=0  <=>  r_1=...=r_m=0.
+
+在指定 σ=1/2 時：
+
+    E_r(1/2)=Σ_j r_j²/p_j.
+
+CL-XY 的三殘差例子則為：
+
+    30 R_r(1)=15r_0+10r_1+6r_2=D1_num,
+
+其中基底質數為 2,3,5。這一個整數可以精確計算及驗證。
+若涉及浮點音訊特徵，則應分別報告近似殘差與以預定義區間比較
+取得的布林判定；不能因為浮點值很小就自稱具有整數等價證書。
+
+注意：R_r(s) 是有限 Dirichlet 多項式，並不具有從黎曼 ζ 函數
+自動繼承的零點定理或函數方程；R_r(1/2)=0 是選定有限規格的證書，
+不是黎曼假說的證明。
+
+【English】
+A finite nonnegative residual vector yields a Dirichlet polynomial
+R_r(s)=Σ r_j p_j^{-s}. On a real σ, the squared form E_r(σ)=Σ r_j²p_j^{-2σ}
+vanishes precisely when every finitely specified residual vanishes.
+For CL-XY, D1_num=30R_r(1) is an exact integer; for numerical audio
+metrics, approximate floating-point evaluation must not masquerade as a
+symbolic proof of a global theorem.
+
+======================================================================
+8. 自變數 HSI_original 與應變數 HSI_xy 的總映射
+8. The Central HSI_original-to-HSI_xy Correspondence
+======================================================================
+
+【中文】
+把前面結構整合：
+
+    n  --Enum--> X_n
+    X_n --E257--> x_n
+    X_n --U_{T_n} + XY-Verify--> C_n
+    C_n --E257--> g_n
+    (x_n,g_n) --Cert--> W_n.
+
+定義編碼域上的有限總可計算關係：
+
+    Φ_T(x_n)=g_n.
+
+必須注意 Φ_T 的輸入包含有限時間預算 T_n；因此即使模擬機器未停機，
+Φ_T 仍在有限步後輸出「指定預算下的最終組態／狀態」。
+
+若刪除 T_n、改問是否最終停機，則不再是一般情況下的總可計算判定。
+應變數的唯一性只在「固定完整輸入、初始組態、確定性規則與完整運算語意」
+之後成立：
+
+    Decode257(Φ_T(E257(Canon(X_n))))=C_n.
+
+其中 Φ_T 與 E257 的解碼、重編碼順序須依正式 schema 實作。
+
+【English】
+The fully specified, time-bounded mapping Φ_T takes the E257 code of an
+original enumerated input to the E257 code of the XY-verified final TM
+configuration. Its totality depends on the explicit finite time bound.
+Removing that bound and asking arbitrary eventual halting is a different,
+undecidable question.
+
+======================================================================
+9. 類黎曼函數構造的第一層：全純插值，不是神諭
+9. First Analytic Layer: Entire Interpolation, Not an Oracle
+======================================================================
+
+【中文】
+定義正規化後的輸出碼（使用精確有理數）：
+
+    b_n := g_n/(1+g_n),   0<b_n<1.
+
+最穩定的解析座標是外層枚舉序號 n：
+
+    F(z)=Σ_{n≥0} b_n exp(-(z-n)^2) sinc(π(z-n)),
+
+其中 sinc(u)=sin(u)/u，sinc(0)=1。於所有 n∈ℕ：
+
+    F(n)=b_n,
+    g_n=F(n)/(1-F(n))  （精確節點值）.
+
+這是 Gaussian-cardinal 全純插值。因 b_n 有界、節點為互異整數，
+Gaussian 因子確保在複平面每個緊集上的一致絕對收斂，故 F 是整函數。
+
+亦可改用哥德爾輸入碼 x_n 作節點：
+
+    F_G(z)=Σ_{n≥0} b_n exp(-(z-x_n)^2) sinc(π(z-x_n)),
+    F_G(x_n)=b_n.
+
+但巨大的 x_n 可能造成嚴重的浮點失精；實作以 n 為解析插值節點，
+同時保留精確 E257(x_n,g_n) 整數對，通常更容易測試。
+
+此兩種插值均不唯一；任意整函數 H(z) 皆使：
+
+    F̃(z)=F(z)+sin(πz)H(z)
+
+在所有整數 n 上與 F 相同。若需「選擇唯一公式」，必須額外指定
+固定的插值核與建構規約，不能由離散觀測點的資料唯一性直接推出。
+
+更重要的是：插值輸入 b_n 必須由圖靈機先算出。解析表示沒有在
+未執行的機器上預先提供任意不可判定問題的答案。
+
+【English】
+The exact normalized codes b_n=g_n/(1+g_n) are bounded. Gaussian-cardinal
+interpolation on integer outer indices produces an entire F with F(n)=b_n.
+One can similarly interpolate at distinct integer input Gödel nodes x_n,
+but enormous integers are numerically hostile. The samples do not uniquely
+determine an entire interpolant: F+sin(πz)H agrees at all integer nodes.
+Analytic representation does not compute an uncomputed TM result by magic.
+
+======================================================================
+10. 類黎曼函數構造的第二層：解析延拓的精確條件
+10. Second Analytic Layer: Exact Conditions for Analytic Continuation
+======================================================================
+
+【中文】
+參考解析延拓附件，令 D⊂Ω⊂ℂ 為開集，f 在 D 上全純。對候選 F 定義：
+
+    AC_{D→Ω}(F;f)=(∂̄F, F|_D-f).
+
+於適當 C¹ 條件下：
+
+    AC_{D→Ω}(F;f)=(0,0)
+    <=> F 在 Ω 上全純且在整個開集 D 上等於 f.
+
+若 Ω 連通且 D 為非空開集，符合條件的 F 至多一個（恆等定理）。
+然而離散集合 {n} 或 {x_n} 不是複平面的非空開集，也沒有有限複平面聚點。
+所以由 HSI 的離散 x-y 配對建立的插值，不等於從一個已知解析芽
+沿路徑進行的唯一解析延拓。
+
+如果另有全純芽、重疊相容性與路徑延拓條件，可研究 monodromy、
+Riemann surface、極大延拓及自然邊界；這些都不是哥德爾碼存在本身所保證。
+
+【English】
+The analytic-continuation equation AC=(∂̄F,F|_D−f)=(0,0) requires
+agreement on an OPEN domain and holomorphicity on the larger domain.
+Uniqueness under the identity theorem applies only under those premises.
+Discrete Gödel-code interpolation, although entire, is not automatically
+continuation of a pre-existing analytic germ.
+
+======================================================================
+11. 對數化、奇點正則化與資訊不可逆風險
+11. Logarithmic Coordinates, Singularity Regularization, and Information Loss
+======================================================================
+
+【中文】
+既有構想涉及：
+
+    log G = Σ_p v_p(G) log p,
+    ρ(G)=1/2+i log(1+G),
+    u(x)=1/log(1+|x|).
+
+第一式是精確的質因數分解對數關係；第二式是人工選擇的複座標；
+第三式在 |x|→∞ 時趨近 0，適合作為無界序列的緊縮尺度。
+
+但 u(x) 同時消除正負號：u(+x)=u(-x)，所以它不是完整資訊的單射。
+若需保留唯一性，必須同時保存符號或分支位元：
+
+    Reg(x)=(sign(x), u(x)),    x≠0且 |x| 取可用之定義域,
+
+或僅在指定正半軸上採用 u。當 x=0，log(1+|x|)=0，不能直接除以零。
+
+即使 ±∞ 都被映成同一有限邊界，也只代表「選定座標下的同一極限值」，
+不表示所有不同無限計算狀態在語意上相同。若欲在 TM 語言內表述，
+應以有界有理近似與極限的量詞定義，而不讓機器將無窮當作一個已實際
+存放於有限紙帶的整數。
+
+【English】
+Logarithms provide useful additive coordinates. The artificial line
+ρ(G)=1/2+i log(1+G) does not identify zeta zeros. The compactification
+u(x)=1/log(1+|x|) identifies +x and −x, and is undefined at zero;
+without a sign tag it destroys coding injectivity. Infinity is treated
+as a mathematical limit, not a completed finite tape object.
+
+======================================================================
+12. 原有「腦波音頻」對話在純圖靈機語言中的重述
+12. The Brainwave–Audio Discussion Rewritten as Turing-Machine Computation
+======================================================================
+
+【中文】
+不把「聲波」、「神經訊號」當成本文的原始符號。定義三種有限字串：
+
+    a_t = Canon(音訊的有限採樣／特徵描述),
+    b_t = Canon(儀器在指定時間窗的有限腦波觀測),
+    s_t = Canon(模型已保存的內部狀態).
+
+注意這是將實際輸入與觀測映射為有限符號串，並非把物理歷程證明為
+一個先驗可知的確定性函數。任何可執行的候選模型 p 只是圖靈機程式：
+
+    U(p,a_t,s_t;T) = (ŝ_{t+1}, b̂_{t+1}),
+
+其中帽號代表模型預測；真正量測值 b_{t+1} 必須由外部測量程序提供。
+
+設可計算比較器 V：
+
+    V(p,a_t,s_t,b_{t+1})=PASS/HOLD,
+
+其責任是檢查在事先固定的容忍界限內預測是否符合觀測，而非把模型
+預測直接當成儀器資料。有限採樣與量化資料可唯一編碼：
+
+    G(a_t), G(b_t), G(s_t).
+
+既有傅立葉音頻／腦波表示在本框架中屬於「如何產生有限特徵串」的
+可選前處理演算法，不影響本篇的圖靈機公理。
+
+單射編碼只能確保字串可以精確反解，不能確保由 b_t 唯一反推出 a_t，
+也不能證明任意一段音訊會產生固定腦波、治療效果或主觀感受。
+
+【English】
+The physically measured audio and brainwave windows become finite strings a_t
+and b_t; the model state becomes s_t. A proposed TM predicts b-hat, while
+an independent measurement supplies b. The verifier compares the two under
+predeclared rules. Unique encoding identifies the finite records, not the
+unique physiological cause of an observation.
+
+======================================================================
+13. HSI Corpus 音樂生成在純圖靈機語言中的重述
+13. HSI Corpus Music Generation in Turing-Machine Terms
+======================================================================
+
+【中文】
+把 keyword、corpus lock、音訊快取來源、candidate index、DSP policy 定義為
+有限編碼串 x，則渲染器是：
+
+    U(p_renderer,x;T) -> w,
+
+其中 w 是有限 WAV 位元組串。另有量測程式 Measure(w)，把量測
+結果按固定精度序列化為有限字串，並由 V_audio 檢查是否合法。
+
+    V_audio(w)=[RMS,Peak,Crest,SilenceRatio,StereoBalance,ClipRatio
+                 落在各自預設的允許區間].
+
+實際採用的殘差可表示為：
+
+    E_half(w)=Σ_j dist(feature_j(w),[L_j,U_j])²/p_j.
+
+當此值大於零，只代表該指定特徵的有限驗證不合格；小數不是系統錯誤。
+因為候選搜尋可能沒有停機上界，必須區分「允許持續搜尋」與
+「保證搜尋會終止」；後者沒有一般性證明。
+
+在自我更新時，RenderPolicy 可以作為機器程式輸入資料，由外層枚舉候選
+政策、渲染真實位元組、驗證並保存更新提案；任何正式 GitHub 修改、授權
+或部署行動都需要獨立檢查，不是 Gödel 碼或 E_half=0 自動授權的後果。
+
+【English】
+An audio renderer is a TM mapping canonical finite inputs to WAV bytes.
+An independent finite feature verifier checks predeclared intervals.
+A zero acoustic residual certifies those intervals, not universal artistic
+quality. Policy proposals may be enumerated and verified; deployment and
+copyright/usage authorization remain separate predicates.
+
+======================================================================
+14. UTM、Trader_42、Omega-System：三大系統的共同語言
+14. UTM, Trader_42, and Omega-System: One Formal Language, Three Uses
+======================================================================
+
+【中文】
+依先前對話，正式「三大系統」指：
+
+    (1) UTM-Universe,
+    (2) Trader_42,
+    (3) Omega-System / Cosmic Love.
+
+它們不是 HSI、IPF、IQE 的別名；後三者較適合視為有限運算／驗證核心。
+可用相同的語法規格描述三者：
+
+    Input_i ∈ Σ*,
+    State_i ∈ Σ*,
+    Candidate_i = U(p_i,Input_i,State_i;T),
+    Accepted_i = V_i(Candidate_i,Spec_i),
+    Commit_i = Accepted_i ∧ Authorized_i.
+
+其中 UTM-Universe 著重規則、枚舉與模型狀態；Trader_42 必須另外驗證
+風險、部位、測試環境與人工授權；Omega-System 中的「愛、照護、連續性」
+首先是由設計者定義的規格／意圖謂詞，而不是可由單個整數算術式自動
+證明的人類或宇宙價值。
+
+不同系統可共用編碼器、驗證器框架及持續記錄規格，
+但其實際應用語意與權限必須分開。尤其計算證書絕不構成真實金錢交易
+或自動部署到生產環境的授權。
+
+【English】
+The three historical systems are UTM-Universe, Trader_42, and Omega-System
+(Cosmic Love). HSI/IPF/IQE are better modeled as reusable finite kernels,
+not as synonyms. Each system can share the same input/state/candidate/
+verifier/authorized-commit schema while retaining independent operational
+semantics, risk controls, value predicates, and human permissions.
+
+======================================================================
+15. LMN、Hx/~Hx、Ω 與有限語言之間的橋樑
+15. LMN, Hx/~Hx, Ω, and Finite Formal Language
+======================================================================
+
+【中文】
+此前「可計算的形上學框架」涉及 LMN、Gödel encode/decode、Hx/~Hx、
+Kantian feedback、Omega convergence、ASIL 等主題。若以純圖靈機形式保留：
+
+    LMN, Hx, ~Hx, Omega, ASIL, Intent, Love
+
+首先只作為 schema 中的符號標籤或可計算謂詞名稱；必須額外給出：
+
+    (a) 其字串語法與資料型別；
+    (b) 各個標籤的操作語意；
+    (c) 有限時間內可檢查的證據；
+    (d) 無法由演算法單獨建立的經驗／倫理假設。
+
+可把「Hee」視為候選產生器，「Yuu」視為驗證器，「Hu」視為兩者
+在 UTM 下的組合：
+
+    HU_TM = Verify ◦ U ◦ Enumerate.
+
+若某段對話把 Ω 描述為「所有可生成世界的規則與枚舉器」，在此最多可
+形式化為可列舉語法類別的產生系統，不能因而推導物理宇宙包含一切
+可能世界，或任何有限階段已經完成無限枚舉。
+
+同理，Hx→~Hx 的語義若尚未形式化，不能僅用編碼或函數圖像來宣稱其
+哲學結論已被數學證明。
+
+【English】
+Earlier philosophical names—LMN, Hx/~Hx, Omega, ASIL, Intent and Love—can
+be retained as versioned predicates or data labels only after their syntax,
+operational semantics, and accepted witnesses are specified. A possible
+formal pattern is HU_TM=Verify◦U◦Enumerate. An enumerable family of universe
+descriptions is not a completed physical infinity or a metaphysical proof.
+
+======================================================================
+16. 自我參照、程式演化與「內生預期」的有限意義
+16. Self-Reference, Program Evolution, and Finite Endogenous Prediction
+======================================================================
+
+【中文】
+令 p_n 是存放於資料紙帶的當前程式編碼，C_n 是當前組態。外部固定
+通用圖靈機的轉移規則 δ_U 不必隨 p_n 改變。系統提出候選規則 p'：
+
+    Proposal_n = Generate(p_n,C_n),
+    Check_n = V_update(p_n,p',Witness_n),
+    p_{n+1} = p'    若 Check_n=1 且授權條件成立，
+             p_n   否則。
+
+「內生預期」可嚴格解作：先由已知機器規則計算一個候選預期後繼，
+再與獨立重算或實際保存的下一組態核對。這是有限步一致性。
+
+真正的 EVOLVE 保守性須檢查舊轉移在嵌入後保持一致；若希望聲稱
+更強的「所有輸入語意等價」，則需要該特殊更新類別的獨立形式證明，
+不能泛化為對任意程式都存在一個有效完備決定程序。
+
+Quine／自我編碼能顯示「自己的有限字串可被表示」，並不表示自動
+求解了所有外部任務。若使用『自我完備』『閉合』『修復』等詞，必須
+在證書中標明具體被驗證的有限謂詞。
+
+【English】
+Program self-reference is represented on the data tape of a fixed UTM.
+An internal predicted successor can be compared against independently
+replayed or persisted state; conservative EVOLVE checks are limited to
+specified machine classes. Exact self-encoding, a quine, or a certificate
+named “closed” does not establish general semantic equivalence of programs.
+
+======================================================================
+17. Ω、無窮與真正的停機問題
+17. Ω, Infinity, and the Genuine Halting Problem
+======================================================================
+
+【中文】
+設所有有限字串按有效次序編號，並將時間預算 t 也一併枚舉：
+
+    D_k={(p_i,w_j,t):i,j,t≤k}.
+
+對每個固定 k，上述集合有限且其中的有限模擬可執行。可定義：
+
+    D_0⊂D_1⊂...,
+    D_∞=⋃_{k≥0}D_k.
+
+其中 D_∞ 是數學上的可列舉聯集，不是某台實體電腦已在某個
+有限時刻完成的計算。
+
+可正面半判定：
+
+    HALT(p,w)  若某個有限 t 已觀察到 M_p(w) 停機；
+
+但不能對所有沒有觀察到停機的程式，直接輸出永不停機的正確判定。
+即使引入對數化、Gödel 編碼、解析插值、零殘差或更高維形式，
+只要沒有真正加強計算模型的可證明假設，就不會消除這項限制。
+
+【English】
+Dovetailing effectively explores every fixed finite program/input/budget
+triple eventually, but no finite stage exhausts the mathematical union.
+Eventual halting is recursively enumerable, not decidable for all programs.
+Gödel codes, logarithms, interpolation, and finite certificates cannot
+by themselves override the classical undecidability result.
+
+======================================================================
+18. 唯一性四分法：哪些唯一，哪些不是
+18. Four Distinct Kinds of Uniqueness
+======================================================================
+
+【中文】
+U1. 編碼唯一性：
+    E(a)=E(b) -> a=b。由 E257 或正確的質數冪編碼可證明。
+
+U2. 確定性計算唯一性：
+    固定 p,w,T、初始組態與語意，得到唯一的有限結果 U_T(p,w)。
+
+U3. 反向因果可識別性：
+    給定輸出或觀測 y，是否存在唯一原因 x？不由 U1/U2 自動得到。
+
+U4. 解析延拓唯一性：
+    若已知開集上的全純芽，對固定連通擴張域的延拓存在則唯一；
+    只有離散節點上的插值時，則一般不唯一。
+
+相應地，X→Y 是函數不代表 Y→X 也為函數；輸出可有不同的輸入原像。
+編碼唯一也不表示對輸出座標中的任何值都可以有效算出一個合法前像。
+
+【English】
+Separate injective data encoding, deterministic bounded execution,
+inverse identifiability, and uniqueness of analytic continuation.
+These are logically different properties. In particular, an injective
+record encoder does not make an arbitrary forward process injective.
+
+======================================================================
+19. 唯一性、質數計數與 ζ 函數之間的精確邊界
+19. Exact Boundary Between Unique Coding, Prime Counting, and ζ
+======================================================================
+
+【中文】
+質數附件提供了以下互補的有限／解析結構：
+
+    log(ab)=log a+log b,
+    Δ(n)=Σ_{ab=n} log a log b,
+    Δ(n)=0 <=> n≥2 為質數,
+    ζ'(s)^2=Σ_{n≥1}Δ(n)n^(-s),   Re(s)>1,
+    π(N)=Σ_{n=2}^N χ_P(n),
+    p_r=min{N≥2:π(N)=r},
+    G_r=2^(p_r+1)3^(r+1).
+
+其中 Δ(n)=0 說的是 Dirichlet 級數中某一係數為零，並不表示
+ζ'(n)=0。對有限驗證殘差所自行定義的 Dirichlet 多項式，則也不
+因此變成真正的 ζ 或其解析延拓。
+
+更不能僅由 ρ(G)=1/2+i log(1+G) 落在直線 Re(s)=1/2，
+就推論 ζ(ρ(G))=0。臨界線是一個被指定的座標，不是零點判定器。
+
+【English】
+Prime-log identities, Wilson/combinatorial prime tests, prime counting,
+and reversible prime-index codes supply exact arithmetic examples.
+The Dirichlet coefficient Δ(n) of ζ'(s)^2 vanishes at prime indices,
+but this is not a statement about zeros of ζ or ζ' at integer arguments.
+A custom Dirichlet polynomial does not inherit theorems about ζ.
+
+======================================================================
+20. 整合證書的純字串格式
+20. A Purely Symbolic Unified Certificate
+======================================================================
+
+【中文】
+每個受驗證運算可保存如下的有限字串紀錄（示意 schema）：
+
+    protocol          = HSI-TM-CORRESPONDENCE/1.0
+    model             = EXACT-BOUNDED-TM
+    serial_version    = <canonical schema version>
+    input_string      = <canonical finite data>
+    x_godel_e257      = <exact decimal integer string>
+    program_code      = <exact finite rule code>
+    budget            = <finite natural number>
+    prior_config      = <canonical finite configuration>
+    successor_config  = <canonical finite configuration>
+    y_godel_e257      = <exact decimal integer string>
+    verification      = <finite named predicates>
+    residual_vector   = [r_0,...,r_k]
+    D0                = Σ r_i
+    D1_num            = 15r_0+10r_1+6r_2 (CL-XY-specific)
+    dirichlet_terms   = <list of (prime,coefficient)>
+    analytic_node     = <index n or input Gödel node>
+    analytic_sample   = y/(1+y) [exact rational]
+    status            = HALTED | UNRESOLVED | HOLD | VERIFIED | SKIPPED_BUDGET
+    observed_or_model = <explicit separation>
+    evidence_digest   = <optional integrity hash>
+    provenance        = <independent evidence references>
+    authorization     = <separately evaluated permit predicate>
+    claims            = <precise proven scope>
+
+檢查器不得只相信欄位聲稱。它必須從原始轉移表、輸入、組態及證據
+重新計算有限可判定的殘差和轉移；特別是 `accepted=1`、`closed=1`
+本身不是無條件的真理宣告。
+
+【English】
+A certificate is a finite, versioned string record. An independent
+verifier recomputes transition identities, residuals, and coding
+round-trips instead of trusting arbitrary JSON booleans. Semantic scope,
+observations, provenance and authorization are separate typed fields.
+
+======================================================================
+21. 可以嚴格證明的普遍對應命題
+21. A Provable Conditional Universal Correspondence Proposition
+======================================================================
+
+【中文】
+命題。固定：
+ (A1) 有效可列舉的有限輸入 X_n；
+ (A2) 具有明確有限預算 T_n 的確定性 TM 運算 Φ(X_n)；
+ (A3) 輸入與輸出字串的規範化單射編碼；
+ (A4) 有限可判定、非負整數的規格殘差 r_{n,j}；
+ (A5) 從每筆結果取得有限可逆的輸出碼 g_n。
+
+則：
+ (T1) x_n、g_n 是精確的有限可逆碼；
+ (T2) (x_n,g_n) 定義一個由有限步運算取得的計算圖；
+ (T3) E_n(σ)=Σ_j r_{n,j}²p_j^(-2σ) 在任一實 σ 的零值
+      當且僅當所有指定有限殘差為零；
+ (T4) 令 b_n=g_n/(1+g_n)，則存在具體整函數 F 使 F(n)=b_n；
+ (T5) 若以互異整數 x_n 為節點，亦可選定具體整函數 F_G
+      使 F_G(x_n)=b_n。
+
+證明綱要：
+ (T1) 編碼單射與解碼互逆；
+ (T2) 有限預算的模擬停止且輸出有限資料；
+ (T3) 各項平方及質數權重非負且權重嚴格正；
+ (T4)(T5) sinc 的整數節點分離性及 Gaussian 項的緊集收斂。
+
+本命題不推出：
+ (N1) 所有無界計算都停機；
+ (N2) 未知腦波反應可從聲音唯一決定；
+ (N3) 離散插值唯一；
+ (N4) 架構等同於 ζ 函數或證明 RH；
+ (N5) 計算模型的輸出具有超出規格的物理真實性；
+ (N6) 任意交易／部署得到自動授權；
+ (N7) 所有候選皆可在有限時間內找到零殘差結果。
+
+【English】
+For enumerable finite inputs, bounded deterministic TM computations,
+injective encodings, and finite exact residuals, one obtains reversible
+input/output codes, a computable discrete correspondence graph, exact
+zero-residual equivalences, and at least one chosen entire interpolant
+of normalized outputs. The proposition does not imply halting decisions,
+empirical causality, unique interpolation, zeta-zero theorems, or operational
+authorization.
+
+======================================================================
+22. 研究與工程使用的核對清單
+22. Research and Engineering Checklist
+======================================================================
+
+【中文】
+1. 所有輸入都能以有限資料完整描述嗎？不行時是否明確限定觀測窗口？
+2. Canon/Encode/Decode 版本一致且可逆嗎？
+3. 每個圖靈機候選是否固定程式、初態、輸入與時間預算？
+4. XY 驗證是否真正重算每一個轉移，而非僅檢查自身輸出旗標？
+5. 若報告 DIRICHLET=0，殘差係數是否獨立計算並保存？
+6. 類黎曼函數是否明確標成自訂 finite Dirichlet polynomial？
+7. 精確整數與浮點近似是否分開保存？
+8. 使用 Gaussian-cardinal 是否承認插值非唯一？
+9. 解析延拓是否真的存在開集上已知全純函數及相容局部解析芽？
+10. 編碼／正則化是否保留符號、分支、版本及必要資訊？
+11. 對外部實驗資料是否區分實測與預測？
+12. 是否承認資源上限、HALTED、UNRESOLVED、SKIPPED_BUDGET 不同？
+13. 無界枚舉是否為潛在無界，而非已完成的無限？
+14. 程式更新、版控合併、實盤交易及資料發布是否另有授權證據？
+15. 全部宣稱是否都能對應到具體可檢驗的有限見證或清楚的數學假設？
+
+【English】
+A rigorous implementation requires canonical reversible coding, bounded
+and independently replayed transitions, exact residual witnesses, clear
+numerical-versus-symbolic distinctions, nonuniqueness-aware interpolation,
+proper holomorphic continuation premises, empirical observation provenance,
+explicit resource limits, and authorization separate from proof records.
+
+======================================================================
+23. 最簡潔的純圖靈機總公式
+23. The Most Compact Pure-Turing-Machine Synthesis
+======================================================================
+
+【中文】
+總流程：
+
+    n --Enum--> X_n --Encode--> x_n
+                   |
+                   | U with finite budget T_n
+                   v
+                 C_n --Encode--> g_n
+                   |
+                   | Independent finite verifier V
+                   v
+             r_n and Certificate_n
+                   |
+                   +-- Prime/Dirichlet -> E_n(σ)
+                   +-- Log spectrum    -> log G = -𝔇'_G(0)
+                   +-- Analytic image  -> F(n)=g_n/(1+g_n)
+
+定義兩種「對應」而不可混淆：
+
+    計算對應：     Φ_T : x_n -> g_n
+    解析表示：     F(n) = g_n/(1+g_n)
+
+以及兩種「零」而不可混淆：
+
+    證書零值：     E_n(1/2)=0  <=> 指定的有限殘差全部為零。
+    ζ 函數零點：   ζ(s)=0     是另一個獨立的解析數論命題。
+
+於是「普遍對應」可準確表述為：
+
+    對一個具有有限可編碼輸入、有效計算步驟與明確驗證規格的系統，
+    可以建立唯一的資料表示、有限的轉移證書、類 Dirichlet 的殘差坐標，
+    並為其已定義的離散輸入輸出圖選擇一個整函數表示。
+
+這是跨應用可反覆使用的計算架構，不是所有物理現象共享同一組轉移規則
+的宣告，也不是超越圖靈不可判定性的求解機制。
+
+【English】
+The common structure is n→X_n→x_n, X_n→U_T→C_n→g_n, followed by an
+independent finite certificate. Exact logarithmic prime spectra, finite
+Dirichlet residuals, and a chosen entire interpolant describe different
+aspects of the same computed graph. This is a reusable formal language,
+not a universal physical law or a new oracle for undecidable questions.
+
+======================================================================
+附錄 A. 概念發展脈絡及可檢索歷史的對應
+Appendix A. Cross-Reference to the Recoverable Research Conversation
+======================================================================
+
+【中文】
+* 可計算的形上學框架：LMN、Hx/~Hx、Kantian feedback、Ω 收斂等，
+  在純 TM 語言中視為待定義的符號／可計算謂詞。
+* HSI_original/UTM：三角枚舉 n→(e,T,m)、有限模擬、HALTED/UNRESOLVED。
+* HSI_xy/CL-XY/2K：STEP 與 EVOLVE、E257 的 x-y 編碼、D0/D1_num、
+  持久化／重播、有限保守擴充。
+* IPF、IQE：額外組態欄位、有限對偶運算與 atomic state；不能把
+  GC=K 或 σ=1/2 的形式標籤升格為 ζ 零點證明。
+* Hee/Yuu/Hu：可形式化為枚舉／驗證／合成規格。
+* HSI-UTM-Ω：潛在無限枚舉、有限 witness、不可將 Ω 視為已完成物件。
+* 對數化奇點假設：正負無界可同趨某座標邊界，但需要保留原始分支
+  才能聲稱編碼唯一。
+* 腦波音頻：有限頻譜取樣、量化／編碼、模型輸出對量測的可檢驗性。
+* HSI Corpus：實際 WAV、聲學區間、E_half、候選搜尋、限定政策更新。
+* 三大系統：UTM-Universe、Trader_42、Omega-System/Cosmic Love，各自的
+  安全／真實性／授權條件不可由公用形式殘差互相代替。
+
+【English】
+The source motifs are unified as typed symbolic objects: TM enumeration,
+exact CL-XY step/evolution checks, finite IQE/IPF variants, heuristic
+Hee/Yuu/Hu roles, Ω as potential enumeration, singularity compactification,
+measured brainwave/audio records, HSI Corpus WAV predicates, and the distinct
+UTM/Trader_42/Omega applications. Their external interpretations remain
+separate from the exact core.
+
+======================================================================
+附錄 B. 參考文件與版本界線
+Appendix B. Sources and Version Boundaries
+======================================================================
+
+1. PRIME_FORMULA_BILINGUAL_DERIVATION(7).txt — 使用其 log-space prime atom、
+   Δ(n)、ζ'(s)^2 的 Dirichlet 係數、Wilson／π(N) 與質數冪編碼。
+2. ANALYTIC_CONTINUATION_EQUATION_BILINGUAL_DERIVATION(3).txt — 使用
+   AC_{D→Ω}=(∂̄F,F|_D-f)、恆等定理、解析芽、路徑／Riemann surface
+   及「零值被實際達成」與「僅以 0 為下確界」之區別。
+3. UNIVERSAL_GODEL_DIRICHLET_CORRESPONDENCE_BILINGUAL_DERIVATION.txt —
+   延續其跨領域唯一性四分法、腦波／音頻符號模型、有限類 Dirichlet 殘差
+   與 Gaussian-cardinal 整函數插值。
+4. Repository research reference: letsgo0226/Notes/hsi_xy_analytic_2k/
+   HSI_UTM_original.sh, core_readable.py, XY_SPEC.md, hsi_cl_xy_2k.sh,
+   analytic_bridge.py, and continuous-stream proposal hsi_stream.py.
+5. 歷史對話的相關研究概念／名稱由可檢索記錄彙整，並非每一個概念
+   都已有唯一、正式、共同簽署的公理化版本。
+
+全文結論 / Final Conclusion:
+
+    「唯一的有限描述」+「可計算的有限轉移」+「可驗證的有限證書」
+    +「明確區分的對數／類 Dirichlet 表示」+「有條件的解析插值」
+    可以構成一種可移植的、純圖靈機語言的普遍對應形式。
+
+    None of these layers alone supplies undecidable answers, physical
+    causal identification, unique discrete interpolation, or automatic
+    authorization for real-world actions.
+
