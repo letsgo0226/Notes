@@ -1,5 +1,10 @@
 name: HSI CL XY 2K review checks
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'hsi_xy_analytic_2k/**'
+      - '.github/workflows/hsi_xy_analytic_2k.yml'
   pull_request:
     paths:
       - 'hsi_xy_analytic_2k/**'
@@ -19,7 +24,25 @@ jobs:
       - name: Verify portable shell, exact size, UTM behavior and replay
         run: |
           sh -n hsi_xy_analytic_2k/hsi_cl_xy_2k.sh
+          sh -n hsi_xy_analytic_2k/hsi_stream.sh
+          python3 -m py_compile hsi_xy_analytic_2k/hsi_stream.py
           python3 -m unittest discover -s hsi_xy_analytic_2k -p 'test_*.py' -q
+      - name: Verify public pinned stream launcher and actual continuous output
+        run: |
+          set -eu
+          export HSI_XY_HOME="$RUNNER_TEMP/hsi-xy-bundle"
+          export HSI_STREAM_STATE="$RUNNER_TEMP/hsi-xy-stream.json"
+          sh hsi_xy_analytic_2k/hsi_stream.sh --limit 4 --sleep 0 > "$RUNNER_TEMP/xy-stream.out"
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          lines=Path(os.environ["RUNNER_TEMP"],"xy-stream.out").read_text().splitlines()
+          rows=[json.loads(s) for s in lines]
+          assert len(rows)==4
+          assert [r["step"] for r in rows]==list(range(4))
+          assert all(r["xy_closed"]==1 and r["xy_D1_num"]==0 for r in rows)
+          print("verified: 4 continuous outer results, zero XY residual")
+          PY
       - name: Guard against automatic live actions
         run: |
           python3 - <<'PY'
