@@ -81,6 +81,28 @@ class Stream(unittest.TestCase):
         full=self.run_stream("--limit","10",state=Path(self.tmp.name)/"fresh.json")
         self.assertEqual(all_rows,full)
 
+    def test_original_codes_are_xy_analytic_coordinates(self):
+        from fractions import Fraction
+        from hsi_stream import decode_e257
+        rows=self.run_stream("--limit","9")
+        seen=set()
+        for n,row in enumerate(rows):
+            r,T=pair(n)
+            e,m=pair(r)
+            self.assertEqual(decode_e257(row["x"]),[n,e,T,m,"1"])
+            self.assertNotIn(row["x"],seen)
+            seen.add(row["x"])
+            g=int(row["y"])
+            normalized=Fraction(g,g+1)
+            self.assertGreater(normalized,0)
+            self.assertLess(normalized,1)
+            p,q,h,tape=decode_e257(row["y"])
+            self.assertEqual(p,row["program"])
+            self.assertEqual(q,row["q"])
+            self.assertEqual(h,row["head"])
+            self.assertEqual(len(tape),row["tape_ones"])
+            self.assertEqual(row["analytic_sample"],"y/(1+y)")
+
     def test_bounded_skips_are_explicit_and_resumable(self):
         rows=self.run_stream("--limit","8","--max-budget","1")
         self.assertEqual(len(rows),8)
