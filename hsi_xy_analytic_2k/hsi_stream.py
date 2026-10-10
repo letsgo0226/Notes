@@ -15,6 +15,16 @@ import time
 from pathlib import Path
 
 PROTOCOL = "HSI-UTM-XY-STREAM/1.0"
+ANALYTIC_PROTOCOL = "HSI-ORIGINAL-XY-ANALYTIC/1.0"
+
+
+def encode_e257(obj):
+    data = json.dumps(obj, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+    n = 1
+    for byte in data:
+        n = 257*n + byte + 1
+    return str(n)
+
 
 
 def pair(n):
@@ -128,13 +138,15 @@ def stream(args):
         r, T = pair(n)
         e, m = pair(r)
         p = e+1
+        original_x = encode_e257([n,e,T,m,args.word])
         skipped = args.max_budget != 0 and T > args.max_budget
         if skipped:
             if xy_path.exists():
                 raise RuntimeError("unexpected active XY state for skipped candidate")
             item = {"protocol":PROTOCOL,"step":n,"branch":e,"budget":T,
                     "order":m,"program":p,"status":"SKIPPED_BUDGET",
-                    "xy_steps":0,"xy_closed":0}
+                    "xy_steps":0,"xy_closed":0,
+                    "x":original_x,"y":None,"analytic_sample_available":False}
         else:
             if not xy_path.exists() and args.evolve_rule is not None:
                 ev, d = execute_xy(micro, xy_path, p, args.word,
@@ -175,9 +187,14 @@ def stream(args):
                     "xy_D0":0,"xy_D1_num":0,"q":d["q"],
                     "head":d["h"],"tape_ones":len(d["m"]),
                     "xy_history":len(d["H"])}
+            item["x"] = original_x
+            item["y"] = encode_e257([d["p"],d["q"],d["h"],d["m"]])
+            item["analytic_protocol"] = ANALYTIC_PROTOCOL
+            item["analytic_sample"] = "y/(1+y)"
             if last is not None:
-                item["x"] = last["x"]
-                item["y"] = last["y"]
+                if item["y"] != last["y"]:
+                    raise RuntimeError("final XY output differs from certified last step")
+                item["xy_step_x"] = last["x"]
         # Atomic checkpoint before emitting; crashes may omit, never falsely advance.
         state = {"protocol":PROTOCOL, "next":n+1, "last_completed":n, "config":config}
         store(path, state)
