@@ -81,6 +81,15 @@ def execute_xy(script, path, p, word, *, evolve=None, perm=None):
         raise RuntimeError("XY y code mismatches saved state")
     if y["step"] != d["n"] or y["history"] != len(d["H"]):
         raise RuntimeError("XY counter/history mismatch")
+    if y["kind"] != "HALTED":
+        event = decode_e257(d["H"][-1])
+        residual = event[-1]
+        if (not isinstance(residual, list) or len(residual) != 3
+                or any(type(v) is not int or v < 0 for v in residual)):
+            raise RuntimeError("XY history has invalid residuals")
+        if y["D0"] != sum(residual) or y["D1_num"] != (
+                15*residual[0]+10*residual[1]+6*residual[2]):
+            raise RuntimeError("XY Dirichlet residual does not match persisted event")
     if y["D0"] < 0 or y["D1_num"] < 0 or (y["D0"] == 0) != (y["D1_num"] == 0):
         raise RuntimeError("XY Dirichlet zero certificate inconsistency")
     return y, d
@@ -112,6 +121,10 @@ def stream(args):
     completed = 0
     while args.limit == 0 or completed < args.limit:
         n = state["next"]
+        # Recover from a crash after committing the outer index but before
+        # clearing the previous candidate's persisted XY state.
+        if xy_path.exists() and state.get("last_completed") == n-1:
+            xy_path.unlink()
         r, T = pair(n)
         e, m = pair(r)
         p = e+1
@@ -133,6 +146,13 @@ def stream(args):
             last = None
             d = read(xy_path) if xy_path.exists() else None
             if d is not None:
+                if args.evolve_rule is not None:
+                    if not d.get("H"):
+                        raise RuntimeError("evolution history is missing")
+                    first = decode_e257(d["H"][0])
+                    if (first[0] != "E" or first[1] != args.evolve_rule
+                            or first[-1] != [0,0,0]):
+                        raise RuntimeError("previous XY evolution was rejected; stream not advanced")
                 if d.get("origin") != [p,args.word,0] or d["n"] > T:
                     raise RuntimeError("active XY checkpoint does not match enumerated candidate")
                 if args.evolve_rule is None and d["p"] != p:
@@ -159,7 +179,7 @@ def stream(args):
                 item["x"] = last["x"]
                 item["y"] = last["y"]
         # Atomic checkpoint before emitting; crashes may omit, never falsely advance.
-        state = {"protocol":PROTOCOL, "next":n+1, "config":config}
+        state = {"protocol":PROTOCOL, "next":n+1, "last_completed":n, "config":config}
         store(path, state)
         if xy_path.exists():
             xy_path.unlink()
