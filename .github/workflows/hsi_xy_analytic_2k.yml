@@ -41,7 +41,17 @@ jobs:
           assert len(rows)==4
           assert [r["step"] for r in rows]==list(range(4))
           assert all(r["xy_closed"]==1 and r["xy_D1_num"]==0 for r in rows)
-          print("verified: 4 continuous outer results, zero XY residual")
+          def decode(code):
+              n=int(code);b=[]
+              while n>1:
+                  n,r=divmod(n,257)
+                  assert 1<=r<=256
+                  b.append(r-1)
+              return json.loads(bytes(reversed(b)).decode())
+          assert decode(rows[0]["x"])==[0,0,1,1,"1"]
+          assert decode(rows[0]["y"])[0]==1
+          assert all(row["analytic_sample"]=="y/(1+y)" for row in rows)
+          print("verified: continuous original x to certified XY y and zero residual")
           PY
       - name: Guard against automatic live actions
         run: |
