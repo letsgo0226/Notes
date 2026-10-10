@@ -1,6 +1,6 @@
 {
   "protocol": "HSI-CORPUS-RENDER-POLICY/1.0",
-  "event_boost": 0,
+  "event_boost": 1,
   "fade_ms": 180,
   "gain_scale": 1
 }
