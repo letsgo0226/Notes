@@ -66,7 +66,7 @@ def microkernel_witness():
             require(p.returncode == 0, "CL-XY execution failed: " + p.stderr[-500:])
             o = json.loads(p.stdout)
             require(o.get("protocol") == "HSI-CL-XY/2K", "microkernel protocol mismatch")
-            require(o.get("D1_num") == 15 * (o.get("D0") == 0 and 0 or 0) or isinstance(o.get("D1_num"), int),
+            require(type(o.get("D0")) is int and type(o.get("D1_num")) is int,
                     "missing exact residual")
             y = decode_257(o["y"])
             d = load(state)
