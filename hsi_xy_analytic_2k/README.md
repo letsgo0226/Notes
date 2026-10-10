@@ -14,6 +14,38 @@ A reproducible prototype linking finite UTM candidate descriptions to certified 
 - `test_xy.py`: 7 additional x/y, Dirichlet, and size tests
 - `XY_SPEC.md`: mathematical formulation and explicit limitations
 
+## Continuous HSI_original → HSI_xy stream
+
+The original `hsi_cl_xy_2k.sh` remains **one verified microstep per call**.
+The new `hsi_stream.sh` wraps it with `HSI_original` triangular enumeration,
+a durable resume checkpoint and newline-delimited JSON records. The outer
+`x` is an exact E257 code of `[n,e,T,m,word]`; the output `y` is the
+exact E257 code of the final verified `[p,q,h,tape_ones]` configuration.
+The analytic sample is the exact rational `y/(1+y)`.
+
+Continuous output until interrupted:
+
+```sh
+sh hsi_xy_analytic_2k/hsi_stream.sh --sleep 0.2
+```
+
+Bounded preview and microstep audit:
+
+```sh
+sh hsi_xy_analytic_2k/hsi_stream.sh --state xy-stream-test.json --limit 12 --sleep 0 --emit-xy
+```
+
+`--limit 0` means continuous; `--max-budget 128` skips costly
+candidate budgets with an explicit `SKIPPED_BUDGET` result. To enumerate
+without the skip bound, use `--max-budget 0` with care (finite candidates
+can still demand impractically many computation steps). Ctrl+C stops the
+outer stream; invoking it again with the same checkpoint resumes.
+
+The values are exact integer certificates. The holomorphic interpolation
+through the normalized output samples is proved in `XY_SPEC.md` and is
+**not** numerically evaluated by the command on each step. No general
+halting decision or automatic deployment is claimed.
+
 ## Example
 
 In a new writable directory, use the full path to `hsi_cl_xy_2k.sh`:
