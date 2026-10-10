@@ -7,6 +7,10 @@ on:
       - "hsi-corpus.sh"
       - "hsi-corpus.ps1"
       - "hsi_open_corpus.py"
+      - "hsi_corpus_clxy_gate.py"
+      - "hsi_xy_analytic_2k/**"
+      - "hsi_corpus_clxy_gate.py"
+      - "hsi_xy_analytic_2k/**"
       - "hsi_search.py"
       - "hsi_net.py"
       - "HSI_OPEN_CORPUS.md"
@@ -32,7 +36,7 @@ jobs:
         run: |
           set -eu
           sh -n hsi-corpus.sh
-          python3 -m py_compile hsi_net.py hsi_search.py hsi_open_corpus.py
+          python3 -m py_compile hsi_net.py hsi_search.py hsi_open_corpus.py hsi_corpus_clxy_gate.py
           grep -q 'ai_model":False' hsi_open_corpus.py
           grep -q 'neural_renderer":False' hsi_open_corpus.py
           grep -q 'machine_learning":False' hsi_open_corpus.py
@@ -42,6 +46,11 @@ jobs:
           grep -q 'wikimedia_commons_audio' hsi_search.py
           test "$(grep 'TMP_SEARCH=' hsi-corpus.sh)" = 'TMP_SEARCH="$SEARCH.tmp.$$"'
           test "$(grep 'TMP_NET=' hsi-corpus.sh)" = 'TMP_NET="$NET.tmp.$$"'
+
+      - name: CL-XY microkernel regression tests
+        run: |
+          set -eu
+          python3 -m unittest discover -s hsi_xy_analytic_2k -p 'test_*.py' -q
 
       - name: Version mismatch fails closed
         run: |
@@ -220,6 +229,33 @@ jobs:
               out.reverse();return bytes(out)
           blocks=json.loads((p/"song.e257").read_text())
           assert b"".join(d257(x) for x in blocks)==(p/"song.wav").read_bytes()
+          PY
+
+      - name: Endogenous CL-XY deployment and actual WAV correspondence gate
+        run: |
+          set -eu
+          python3 hsi_corpus_clxy_gate.py --artifact /tmp/hsi-corpus-a
+          python3 - <<'PY'
+          import json, shutil, subprocess, sys, tempfile
+          from pathlib import Path
+          out=Path("/tmp/hsi-corpus-a")
+          proof=json.loads((out/"deployment.clxycert").read_text())
+          assert proof["protocol"]=="HSI-CORPUS-DEPLOY-CLXY/1.0"
+          assert proof["closed"]==1 and proof["status"]=="VERIFIED"
+          assert proof["clxy"]["step_D0"]==0 and proof["clxy"]["step_D1_num"]==0
+          assert proof["clxy"]["evolve_D0"]==0 and proof["clxy"]["evolve_D1_num"]==0
+          assert proof["clxy"]["bad_step_rejected"] is True
+          assert proof["clxy"]["bad_evolve_rejected"] is True
+          with tempfile.TemporaryDirectory() as td:
+              tampered=Path(td)
+              for name in ("song.wav","song.hsicert","correspondence.hsicert","manifest.json"):
+                  shutil.copy2(out/name,tampered/name)
+              wav=tampered/"song.wav"
+              with wav.open("r+b") as f:
+                  f.seek(-4,2); b=f.read(1); f.seek(-1,1); f.write(bytes([b[0]^1]))
+              fail=subprocess.run([sys.executable,"hsi_corpus_clxy_gate.py","--artifact",str(tampered)],
+                                  capture_output=True,text=True)
+              assert fail.returncode==3, fail.stdout+fail.stderr
           PY
 
       - name: Locked offline rerender
