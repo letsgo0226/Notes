@@ -286,6 +286,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            hsi-corpus.ps1
+            hsi-corpus.sh
+          sparse-checkout-cone-mode: false
       - name: Verify native PowerShell launcher syntax
         shell: pwsh
         run: |
