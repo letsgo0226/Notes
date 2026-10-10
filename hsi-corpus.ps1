@@ -10,6 +10,7 @@ $Dir = if ($env:HSI_CORPUS_HOME) { $env:HSI_CORPUS_HOME } else { Join-Path $HOME
 $App = Join-Path $Dir "hsi_open_corpus.py"
 $Search = Join-Path $Dir "hsi_search.py"
 $Net = Join-Path $Dir "hsi_net.py"
+$Policy = Join-Path $Dir "hsi_render_policy.json"
 New-Item -ItemType Directory -Force -Path $Dir | Out-Null
 
 function Resolve-HSIPython {
@@ -38,18 +39,21 @@ if ($null -eq $Py) {
 $TmpApp = "$App.tmp.$PID"
 $TmpSearch = "$Search.tmp.$PID"
 $TmpNet = "$Net.tmp.$PID"
+$TmpPolicy = "$Policy.tmp.$PID"
 try {
   Invoke-WebRequest -UseBasicParsing "$Base/hsi_open_corpus.py" -OutFile $TmpApp
   Invoke-WebRequest -UseBasicParsing "$Base/hsi_search.py" -OutFile $TmpSearch
   Invoke-WebRequest -UseBasicParsing "$Base/hsi_net.py" -OutFile $TmpNet
-  if ((Get-Item $TmpApp).Length -le 0 -or (Get-Item $TmpSearch).Length -le 0 -or (Get-Item $TmpNet).Length -le 0) {
+  Invoke-WebRequest -UseBasicParsing "$Base/hsi_render_policy.json" -OutFile $TmpPolicy
+  if ((Get-Item $TmpApp).Length -le 0 -or (Get-Item $TmpSearch).Length -le 0 -or (Get-Item $TmpNet).Length -le 0 -or (Get-Item $TmpPolicy).Length -le 0) {
     throw "Downloaded HSI program is empty."
   }
   Move-Item -Force $TmpApp $App
   Move-Item -Force $TmpSearch $Search
   Move-Item -Force $TmpNet $Net
+  Move-Item -Force $TmpPolicy $Policy
 } finally {
-  Remove-Item -Force -ErrorAction SilentlyContinue $TmpApp,$TmpSearch,$TmpNet
+  Remove-Item -Force -ErrorAction SilentlyContinue $TmpApp,$TmpSearch,$TmpNet,$TmpPolicy
 }
 
 Write-Host "HSI Open-Corpus Renderer: no AI / HSI-SEARCH / HSI NET CC0+PDM WAV / deterministic DSP"
