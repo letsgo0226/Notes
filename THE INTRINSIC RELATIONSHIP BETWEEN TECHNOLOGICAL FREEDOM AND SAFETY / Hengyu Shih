@@ -1,0 +1,150 @@
+THE INTRINSIC RELATIONSHIP BETWEEN TECHNOLOGICAL FREEDOM AND SAFETY
+A Thought Experiment Involving Two Possible Worlds: Technological Laissez-Faire, Rationalization, and Revisable Institutions
+
+ABSTRACT
+
+This paper seeks to answer an apparently paradoxical question: in an age when artificial intelligence may cause serious harm, might the protection of freedom in technological development itself be a necessary condition for achieving technological safety? It begins by suspending the empirical assumption that greater technological freedom necessarily produces greater safety. Rather than using mathematical functions or accident probabilities as the basis of its argument, it employs conceptual analysis, comparisons between possible worlds, and reductio-style reasoning to distinguish between unrestricted technological laissez-faire and institutionally protected technological freedom. Drawing on John Stuart Mill's defense of liberty, Isaiah Berlin's conceptions of freedom, republican freedom as non-domination, Karl Popper's critical rationalism, and Max Weber's analyses of rationalization and the ethics of responsibility, it develops a thought experiment entitled “Two Cities and a Visitor from the Future.”
+
+The paper argues that, insofar as technological knowledge is fallible and decisions about safety must be publicly justifiable and continually revisable, freedom of independent inquiry, criticism, testing, and appeal constitutes an internal condition of a defensible safety regime. This philosophical conclusion, however, does not imply that technological activities ought to be unrestricted, nor does it establish a necessary linear proportionality between technological freedom and safety outcomes in the real world. What the paper ultimately defends is a conditional principle: freedom helps make it possible for safety to be continuously understood, challenged, and improved.
+
+KEYWORDS: technological freedom; artificial intelligence; possible worlds; thought experiments; Max Weber; rationalization; ethics of responsibility; epistemic fallibilism; non-domination; technology governance
+
+1. INTRODUCTION: CAN RESTRICTING FREEDOM IN THE NAME OF SAFETY UNDERMINE SAFETY ITSELF?
+
+Suppose a new technology promises enormous benefits but also carries the possibility of unforeseen harm. Those favoring restrictions may argue that research or deployment should be delayed until the dangers are better understood. Those opposing broad prohibitions may respond: if certain safety problems can only be discovered and addressed through further research, might prohibiting that research also obstruct the path toward safety?
+
+This is not merely a question of whether safety or freedom should be given priority. The dispute concerns the very origin of safety knowledge. Early aircraft had to be tested before aerodynamics and operational reliability were fully understood. Today, artificial intelligence may likewise require continued research, red-teaming, and independent evaluation before its emerging capabilities and risks can be adequately identified. Although aircraft and artificial intelligence should not be treated as technologies with identical risk profiles, they pose a common question: might a regulatory system, in seeking to eliminate uncertainty, also eliminate opportunities essential to understanding that uncertainty?
+
+Recent discussions of restricting frontier AI training provide a concrete context. Published on October 9, 2026, The Feasibility of a Hardwired Pause of Frontier AI Training examines the feasibility of using hardware controls to implement an international pause of at least ten years on training new frontier models. A feasibility study does not, by itself, establish the ethical necessity or legitimacy of such a prohibition. This paper therefore neither endorses nor rejects that particular proposal in advance; instead, it treats the proposal as an occasion to examine the legitimacy of technological governance. [1]
+
+To address the question, we must first suspend two assumptions: that freedom necessarily produces safety and that regulation necessarily produces safety. The aim is not to demonstrate that either side must always prevail, but to establish a more fundamental proposition: must a system that acknowledges its own fallibility, while claiming to deliver continuously reasonable safety judgments, preserve the freedom through which errors can be exposed and corrected?
+
+2. CONCEPTUAL ANALYSIS: LAISSEZ-FAIRE, FREEDOM, AND SAFETY ARE NOT SIMPLE OPPOSITES
+
+By “technological laissez-faire,” I mean a situation in which technological actors may conduct research and deploy their inventions without effective shared mechanisms of accountability, independent review, or remedy. This describes a lack of constraint and answerability; it does not establish whether researchers genuinely enjoy equal access to knowledge, equipment, or opportunities for public criticism.
+
+“Technological freedom,” by contrast, has at least three interrelated but distinguishable dimensions. First, researchers have room to explore without arbitrary prohibition. Second, researchers and the wider public have the practical ability to question technological claims, reproduce findings, and demand reasons. Third, these freedoms cannot depend entirely on the temporary goodwill of a few powerful private or governmental actors. Technological freedom does not imply that every deployment capable of causing serious harm to others enjoys an unrestricted right to proceed.
+
+Berlin's distinction between negative and positive liberty reminds us that freedom from interference is not identical to the capacity for self-directed action. [2] The republican conception of liberty as non-domination further draws attention to the possibility that someone may remain unfree even when no direct interference is presently taking place, because another party possesses the arbitrary power to interfere. [3] If a few actors control nearly all significant computing resources, research infrastructure, or permissions for safety testing, ordinary researchers may lack meaningful freedom of inquiry even when no explicit legal ban has been imposed on them.
+
+Consequently, “fewer governmental restrictions” is not a sufficient description of “greater technological freedom throughout society.” A company might acquire virtually unrestricted control over critical research conditions and thereby enlarge its own freedom of action while diminishing the opportunities of others to criticize, compete, and correct errors.
+
+Safety, too, must be distinguished in two senses. The first is outcome-based safety: whether accidents or harms actually occur. The second is epistemic and institutional safety: whether claims of safety rest on adequate reasons, whether counterexamples can be examined, and whether judgments can be withdrawn or corrected when errors are identified. The purely philosophical argument developed here concerns primarily the second sense. The two are importantly related but cannot simply be equated. An open and transparent institution can still experience an accident, while an opaque institution may sometimes avoid one through good fortune.
+
+3. TWO POSSIBLE WORLDS: SIMILAR TECHNOLOGY, DIFFERENT STRUCTURES OF FREEDOM
+
+Imagine two possible worlds with approximately equivalent technological capacities and initial stocks of knowledge.
+
+In the “laissez-faire world,” research and deployment require no public explanation of safety, and there is no stable right to independent replication or scrutiny. Powerful companies may release new models rapidly while invoking trade secrecy to refuse outside review. When accidents occur, those affected may lack the information needed to challenge the decisions responsible. Less powerful researchers may also lack the computing resources and data required to question dominant technological narratives.
+
+In the “freedom-oriented world,” scientists enjoy broad freedom of research and criticism; established safety standards remain open to revision in light of evidence; and the distribution of research resources is subject to reasonable public scrutiny. Yet, for high-risk deployments capable of directly harming members of the public, institutions require explainable safeguards, independent assessment, opportunities for appeal, and mechanisms for temporary suspension. Regulators themselves are not immune from criticism. They must justify the necessity of restrictions and explain why less restrictive alternatives would not suffice.
+
+Which world is freer? If freedom is measured solely by the immediate absence of interference with individual companies, the laissez-faire world may provide a wider space for immediate action. If freedom is assessed in terms of whether everyone can continue to participate in, question, and revise the technological order, the second world may possess a more complete structure of freedom. This comparison does not establish in advance that the latter has a lower accident rate. It does, however, show that technological freedom and technological laissez-faire are not synonymous.
+
+4. THOUGHT EXPERIMENT: “TWO CITIES AND A VISITOR FROM THE FUTURE”
+
+Imagine two cities preparing to introduce artificial intelligence systems capable of autonomously operating rescue aircraft, coordinating traffic, and assisting in medical assessment. The two cities are broadly alike in population, resources, and technical capabilities, but one has adopted a laissez-faire arrangement while the other has established the freedom-oriented institutions described above.
+
+One day, a stranger appears and claims to have traveled back from ten years in the future. The visitor presents what purports to be a future accident-investigation report, warning that under rare conditions the existing AI systems may misjudge rescue priorities, leading to the deaths of innocent people. Yet neither the visitor's identity nor the alleged ability to travel through time has been verified. The report might also be a forgery. Everyone faces the same predicament: they have no sufficient grounds either to affirm the warning as true or to dismiss it as false.
+
+In the laissez-faire city, companies may decide for themselves whether to disclose testing data. They may also demand that critics first produce irrefutable proof. Although the municipal government does not prohibit technological research, it has not secured the right of outside researchers to verify important safety claims independently. Even researchers who regard the warning as plausible may be unable to obtain the information required to investigate it.
+
+In the freedom-oriented city, nobody is granted unquestionable authority merely by claiming to come from the future. Nevertheless, the warning can be treated as a legitimate research hypothesis. Independent investigators may propose experiments capable of reproducing the alleged failure; affected persons may demand explanations of the safeguards in place. If certain applications involve serious and irreversible risks, public authorities may temporarily suspend those deployments on the basis of publicly stated reasons and time limits, while permitting appropriately safeguarded research to continue. Should subsequent evidence discredit the warning, the restrictions must be reconsidered accordingly.
+
+For the moment, we need not decide whether the visitor really is a time traveler, nor need we assume that an accident will inevitably occur in either city. The crucial difference between the cities is not that one can foresee the future. It is that, when a claim cannot immediately be verified or refuted, their institutions differ in their capacity to keep competing judgments open to examination.
+
+The importance of this experiment lies partly in its refusal to write an ending in which the freedom-oriented city becomes absolutely safe. Even if that city eventually suffers an accident, the experiment does not automatically collapse. Its purpose is to ask whether, under conditions of limited knowledge, the freedom to investigate independently, object publicly, and revise decisions belongs among the constitutive conditions of reasonable safety judgment.
+
+The visitor's supposed journey from the future adds another dimension. It brings present safety standards into contact with a possible future state of knowledge. We must make decisions now, although we cannot possess all the knowledge that may become available later. Institutional legitimacy therefore cannot rest on the fantasy that present judgments are incapable of error. Rather, institutions must make room for the possibility that future discoveries will overturn their own conclusions.
+
+5. A PURELY PHILOSOPHICAL CONDITIONAL ARGUMENT: WHY IS FREEDOM INTERNAL TO DEFENSIBLE SAFETY?
+
+We can now formulate a conditional argument that does not depend on mathematical calculations.
+
+First, to judge the safety of a technology that is not yet fully understood is not simply to express a preference. It is to make a claim for which others may reasonably demand justification. If an institution describes its decision as rational, it must recognize that the decision rests on reasons that can in principle be explained, examined, and challenged.
+
+Second, wherever technological knowledge remains fallible, reasons may need to be revised in response to new evidence or stronger counterexamples. Popper's critical rationalism emphasizes the importance of exposing scientific claims to serious attempts at refutation rather than treating established theories as unquestionable final truths. [4]
+
+Third, if an institution systematically prevents independent researchers from accessing evidence through appropriate review procedures, from advancing counterexamples, or from proposing revisions to existing safety rules, it loses an important condition of self-correction. This does not entail that each of its judgments must be false. An institution may sometimes be correct by chance or by the competence of its officials. It does, however, make it difficult to justify why its decisions should remain rationally defensible as circumstances change.
+
+Fourth, independent testing, dissent, and demands for revision are not merely administrative steps. They are concrete expressions of freedoms to investigate, discuss, and exercise independent judgment. Mill's defense of free discussion in On Liberty, grounded in human fallibility, offers an important classical basis for this idea. [5]
+
+A conditional conclusion follows: every institution that claims to make publicly justifiable and revisable safety decisions in a technological field characterized by incomplete knowledge must safeguard sufficient freedom for independent scrutiny, criticism, and correction. An institution that simultaneously demands public trust in the continuing rationality of its decisions and excludes in principle every opportunity to challenge or revise them encounters a problem of normative self-undermining: it asks society to trust its rationality while removing the conditions under which that trust could be rationally examined.
+
+Here, “internal” means that freedom is not merely an instrument that happens, from the outside, to assist safety. Rather, a minimum degree of freedom is presupposed by the very practice of publicly defensible and revisable safety governance. This does not mean that increasing every kind of freedom invariably improves safety outcomes. Nor does it imply that dangerous activities must be exempt from all restrictions.
+
+5.1. FORMAL VALIDITY AND PHILOSOPHICAL JUSTIFICATION: DEFENDING THE NECESSARY CONDITION
+
+To prevent the preceding argument from remaining at the vague assertion that “freedom helps safety,” we must examine three bridging claims separately.
+
+First, if a governing system claims to remain publicly defensible under continuously changing conditions of knowledge, it cannot simply demand obedience to conclusions. It must supply reasons that others may question.
+
+Second, if the ability to object, obtain the evidence necessary for an appropriate examination, or request reconsideration depends entirely on permissions that the very parties under scrutiny may withdraw at will, the system may still happen to reach correct judgments, but it does not reliably protect the conditions of correction.
+
+Third, allowing researchers, affected persons, or suitably independent reviewers to make practical use of those channels already realizes a minimum degree of freedom of critical inquiry and research.
+
+Accordingly, the necessity defended here is conditional: publicly justifiable and revisable governance requires a minimum degree of critical freedom. It does not follow that every researcher must have unconditional access to all model weights, hazardous information, or high-risk deployment capabilities. Even when unrestricted public disclosure would be dangerous, independent, accountable, and contestable review procedures may preserve the critical opportunities that are needed.
+
+The strongest objection is that a completely benevolent and highly knowledgeable technical administrator could consistently make safe and correct decisions while prohibiting external criticism. This paper does not deny the logical possibility. Rather, it insists that “getting things right,” whether by chance or through sustained expertise, differs from “having a justification that others can examine.” If safety is defined solely as the absence of accidents, critical freedom cannot be deduced as a conceptual necessity. The conclusion follows only when we additionally accept that legitimate safety governance must provide reasons, allow challenges, and remain open to correction. That normative premise requires an explicit defense; it cannot simply be concealed within the definition of the word “safety.”
+
+Finally, Weber's ethics of responsibility reminds us that protecting critical freedom does not excuse indifference to harmful consequences. The freedom to investigate and criticize, the release of dangerous capabilities, and direct interventions affecting others' lives or property are different kinds of action. They may properly be subject to different safeguards, provided those safeguards can themselves withstand scrutiny under principles of proportionality. Thus, the paper can reject the identification of laissez-faire with freedom without invoking freedom as a reason to abandon responsibility.
+
+6. WEBER'S CONTRIBUTION: FROM THE IRON CAGE OF RATIONALIZATION TO THE ETHICS OF RESPONSIBILITY
+
+In The Protestant Ethic and the Spirit of Capitalism, Max Weber investigates historical relationships among religious ethics, disciplined ways of life, and the spirit of modern capitalism. His well-known image of the “iron cage” suggests how rationalized patterns of conduct can gradually harden into institutional orders that constrain individuals. [6] We must not mistake Weber for a commentator on artificial intelligence, nor should his metaphor be used as a slogan against all laws or professional administration.
+
+Extending Weber's line of inquiry, AI governance may undergo a comparable reversal. Procedures originally established to protect people can, after prolonged institutionalization, come to mistake their own continued existence for safety itself. A prohibition may initially be justified by sound reasons; later, however, it may confront advances in knowledge, new harms, or new safety techniques. If its rules cannot be challenged, procedural sophistication will not necessarily amount to substantive appropriateness.
+
+Yet a wholly laissez-faire private technological order can also become an iron cage. If markets and research infrastructure are highly concentrated, other researchers may find themselves dependent on the rules of a few resource holders. Weber's concern about the possible divergence between formal rationality and substantive values can thus illuminate both bureaucratized regulation and unchecked technological monopolies. [6]
+
+In Politics as a Vocation, Weber distinguishes an ethics of conviction from an ethics of responsibility. His discussion reminds political actors that declaring good intentions is not enough: they must also confront the foreseeable consequences of their actions. [7] Advocates of a pause in training must answer questions about its effects on safety research, concentration of power, and exceptional permissions. Advocates of broad openness must explain how their preferred research and deployment practices avoid imposing serious risks on people who have not consented to them. The ethics of responsibility does not automatically endorse either openness or prohibition. It asks both sides to accept responsibility for the costs of their positions.
+
+7. OBJECTIONS AND REPLIES
+
+First objection: If independent scrutiny is a form of freedom, why should the public release of every new technology not also count as an exercise of freedom?
+
+Reply: Freedom of thought, inquiry, and criticism has considerable value, but it does not follow that every deployment with foreseeable external harms must be unrestricted. Certain dangerous capabilities may be difficult to withdraw once released or connected to real-world infrastructure. Restrictions on such conduct may coexist with protected independent safety research. Nevertheless, restrictions require a clear scope, reasons, appropriate time limits, and avenues of appeal.
+
+Second objection: If regulators decide which research may proceed, is the so-called freedom-oriented world not still dominated by a small group of people?
+
+Reply: This is a powerful objection. It shows that “having passed regulatory review” must not simply be equated with “being free.” Independent oversight, procedural transparency, public justification, and rights of appeal must apply to regulators themselves. Otherwise, institutions intended to protect freedom may indeed degenerate into a new iron cage of rationalization.
+
+Third objection: Even if freedom increases knowledge, it may also allow dangerous capabilities to spread more rapidly. How can freedom and safety still be said to have an intrinsic relationship?
+
+Reply: We must distinguish the necessary connection between freedom and defensible safety governance from the empirical connection between freedom and actual accident rates. This paper advances a philosophical conditional argument for the former. The latter depends on the specific technology, social conditions, and empirical evidence; it cannot be settled by thought experiments alone.
+
+Fourth objection: Does the thought experiment covertly give the freedom-oriented city more resources or more benevolent officials than the laissez-faire city?
+
+Reply: To avoid this difficulty, the story stipulates approximately equal initial knowledge and resources. The relevant contrast lies in whether independent review, access to reasons, appeal, and institutional revision are secured. Even so, the thought experiment illustrates a normative and epistemic feature of governance; it does not constitute experimental proof that one city will experience fewer accidents.
+
+Final objection: Suppose a fully closed, finitely specified technological system has been formally verified. Would it not be reasonable to claim that continuing public criticism is unnecessary?
+
+Reply: This paper need not deny the validity of a formal proof under its stated assumptions. It is concerned with governance in real environments, where technologies evolve and human knowledge remains incomplete. An argument for revisable research institutions should not be inflated into a universal statement about every logically possible system.
+
+8. CONCLUSION: FREEDOM IS NOT THE OPPOSITE OF SAFETY BUT A CONDITION FOR EXAMINING IT
+
+Beginning with two possible worlds, this paper has distinguished unrestricted technological action from institutionally protected technological freedom. The former may leave some actors free from interference while failing to give everyone the ability to criticize, verify, or revise technologies. The latter seeks to safeguard exploration, non-domination, independent review, and responsibility for serious risks together.
+
+The thought experiment “Two Cities and a Visitor from the Future” does not stipulate that either city must be immune to disaster. Rather, it situates decisions amid incomplete information, temporal asymmetry, and knowledge that may become available only in the future. Where a safety claim can still be overturned by counterexamples, a reasonable institution cannot simultaneously demand trust in its rationality and prohibit the inquiry and criticism through which that rationality could be tested.
+
+The conclusion, then, is conditional: where technological knowledge is fallible and institutions aim to deliver continuously defensible and revisable judgments about safety, freedom of inquiry, questioning, testing, and institutional revision is an internal necessary condition of safety governance. This is a philosophical claim about the conditions of justified governance, not an empirical law asserting a strict mathematical proportionality between technological freedom and accident rates.
+
+The technological freedom worth defending is neither the license of some actors to dominate others nor the authority of regulators to determine everyone's future beyond question. It is the freedom that enables a technological community to advance new possibilities, recognize its own mistakes, and revise its institutions while respecting the rights of others.
+
+If the purpose of safety is to preserve the conditions under which human beings can continue to live, think, and explore, a safety regime that permanently refuses to submit itself to scrutiny may ultimately injure the very values it claims to protect. In this sense, technological freedom is not inherently opposed to safety. It can be among the necessary conditions through which the rational pursuit of safety remains possible.
+
+REFERENCES
+
+[1] Working Group on AI Pause Feasibility. (2026, October 9). The Feasibility of a Hardwired Pause of Frontier AI Training, Version 1.0. https://hardwired-pause.ai/paper
+
+[2] Berlin, Isaiah. (1958). Two Concepts of Liberty. See also Stanford Encyclopedia of Philosophy, “Isaiah Berlin” and “Positive and Negative Liberty.” https://plato.stanford.edu/entries/berlin/ ; https://plato.stanford.edu/entries/liberty-positive-negative/
+
+[3] Pettit, Philip. (1997). Republicanism: A Theory of Freedom and Government. Oxford University Press. See also Stanford Encyclopedia of Philosophy, “Republicanism.” https://plato.stanford.edu/entries/republicanism/
+
+[4] Popper, Karl R. (1963). Conjectures and Refutations: The Growth of Scientific Knowledge. Routledge & Kegan Paul. See also Stanford Encyclopedia of Philosophy, “Karl Popper.” https://plato.stanford.edu/entries/popper/
+
+[5] Mill, John Stuart. (1859). On Liberty, Chapter II, “Of the Liberty of Thought and Discussion.” Full text: https://en.wikisource.org/wiki/On_Liberty
+
+[6] Weber, Max. (1904–1905). Die protestantische Ethik und der Geist des Kapitalismus (The Protestant Ethic and the Spirit of Capitalism). See also Stanford Encyclopedia of Philosophy, “Max Weber.” https://plato.stanford.edu/entries/weber/
+
+[7] Weber, Max. (1919). Politik als Beruf (Politics as a Vocation). See also the discussion of the ethics of conviction and the ethics of responsibility in Stanford Encyclopedia of Philosophy, “Max Weber.” https://plato.stanford.edu/entries/weber/
