@@ -285,12 +285,14 @@ jobs:
   windows-launcher:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            hsi-corpus.ps1
-            hsi-corpus.sh
-          sparse-checkout-cone-mode: false
+      - name: Fetch launcher files without checking out incompatible repository paths
+        shell: pwsh
+        run: |
+          $Ref = "${{ github.event.pull_request.head.sha || github.sha }}"
+          $Repo = "${{ github.repository }}"
+          $Base = "https://raw.githubusercontent.com/$Repo/$Ref"
+          Invoke-WebRequest -Uri "$Base/hsi-corpus.ps1" -OutFile "hsi-corpus.ps1"
+          Invoke-WebRequest -Uri "$Base/hsi-corpus.sh" -OutFile "hsi-corpus.sh"
       - name: Verify native PowerShell launcher syntax
         shell: pwsh
         run: |
