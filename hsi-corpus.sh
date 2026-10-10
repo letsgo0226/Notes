@@ -52,8 +52,8 @@ fi
 
 TMP="$APP.tmp.$$"
 TMP_SEARCH="$SEARCH.tmp.$$"
-TMP_NET="$NET.tmp.$"
-TMP_POLICY="$POLICY.tmp.$"
+TMP_NET="$NET.tmp.$$"
+TMP_POLICY="$POLICY.tmp.$$"
 trap 'rm -f "$TMP" "$TMP_SEARCH" "$TMP_NET" "$TMP_POLICY"' EXIT HUP INT TERM
 
 if command -v wget >/dev/null 2>&1; then
