@@ -20,6 +20,43 @@ Each term is entire, and the Gaussian damping produces uniform convergence on ev
 
 For any prescribed sequence on the nonnegative integers, continuation is not unique just from those isolated values. The Gaussian-cardinal formula chooses a canonical *rule-dependent* interpolation; it should not be conflated with analytic continuation of the Riemann zeta function from Re(s)>1.
 
+## HSI_original as the independent coordinate, HSI_xy as dependent coordinate
+
+The optional continuous driver `hsi_stream.py` enumerates the exact legacy
+`(e_n,T_n,m_n)` triples with
+`(r_n,T_n)=Q(n)`, `(e_n,m_n)=Q(r_n)`, program `p_n=e_n+1`.
+For a fixed binary input `w` define the integer **input coordinate**
+
+    x_n = E257(JSON([n,e_n,T_n,m_n,w])) .
+
+It then checks every actual finite transition using the existing, unchanged
+CL-XY microkernel and defines the integer **output coordinate**
+
+    g_n = E257(JSON([p_final,q_final,h_final,sorted(tape_ones)])) .
+
+The `x` and `y` fields of the stream output are respectively `x_n`
+and `g_n` (as decimal strings), **not** the `x` coordinate of the last
+individual microkernel call. `xy_step_x` retains that last inner value.
+
+Let `b_n=g_n/(1+g_n)` as an **exact rational**, not a floating-point number.
+All `x_n` are distinct positive integers (the code includes n), so the
+following is an entire Gaussian-cardinal interpolation of the computed graph:
+
+    F(z) = sum_{n>=0} b_n * exp(-(z-x_n)^2) * sinc(pi*(z-x_n)) .
+
+For every legal input node `x_k` the cardinal factors vanish at other
+integer nodes, so `F(x_k)=b_k` and `g_k=F(x_k)/(1-F(x_k))`
+in exact mathematics. The values `b_n` are bounded by one and the
+distinct nonnegative integer centers escape to infinity, so Gaussian
+damping guarantees compact-uniform convergence.
+
+This analytically *represents* the finite-computation mapping; it does
+not supply a new oracle for undecidable behavior. Numerical evaluation
+at the immense Gödel nodes may lose all precision, so the actual
+certificate remains the exact integer E257 code plus persisted CL-XY
+history. The continuous driver does not attempt to compute the infinite
+complex sum on each step.
+
 ## Dirichlet compatibility
 
 The microkernel returns three nonnegative integer residuals r0,r1,r2 and exactly calculates
