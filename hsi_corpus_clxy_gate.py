@@ -155,15 +155,33 @@ def measure_wav(path):
             "stereo_balance": abs(ll-rr)/max(ll,rr,1e-12),
             "clip_ratio": clipped/frames}
 
-def artifact_witness(out):
+def artifact_witness(out,expected_policy=None):
     cert = load(out/"song.hsicert")
     rc = load(out/"correspondence.hsicert")
     manifest = load(out/"manifest.json")
-    require(cert["version"] == "1.8.0", "unexpected Open-Corpus version")
+    require(cert["version"] == "1.9.0", "unexpected Open-Corpus version")
     require(cert["closed"] == 1 and cert["technical_closed"] == 1
             and cert["correspondence_closed"] == 1 and manifest["closed"] == 1,
             "audio not technically and correspondentially closed")
     require(cert["correspondence"] == rc, "song and correspondence certificates disagree")
+    policy=cert["render_policy"]
+    require(set(policy)=={"event_boost","fade_ms","gain_scale"},"unexpected policy field")
+    require(type(policy["event_boost"]) is int and 0<=policy["event_boost"]<=4,
+            "invalid event_boost")
+    require(type(policy["fade_ms"]) is int and 100<=policy["fade_ms"]<=320,
+            "invalid fade_ms")
+    require(type(policy["gain_scale"]) in (int,float) and
+            math.isfinite(policy["gain_scale"]) and .7<=policy["gain_scale"]<=1.3,
+            "invalid gain_scale")
+    uid=hashlib.sha256(canon(policy).encode("utf-8")).hexdigest()
+    require(cert["render_policy_uid"]==uid and rc["render_policy_uid"]==uid
+            and manifest["render_policy_uid"]==uid,"policy hash not reflected in all certificates")
+    require(rc["render_policy"]==policy,"RC/render policies disagree")
+    if expected_policy:
+        expected=load(expected_policy)
+        require(expected["protocol"]=="HSI-CORPUS-RENDER-POLICY/1.0"
+                and {k:expected[k] for k in policy}==policy,
+                "accepted proposal is not the rendered and verified policy")
     require(rc["protocol"] == "HSI-RC/1.0" and rc["sigma"] == "1/2",
             "unexpected correspondence protocol")
     require(rc["residual"] == 0 and rc["closed"] == 1, "nonzero correspondence residual")
@@ -194,6 +212,7 @@ def artifact_witness(out):
     require(recomputed == 0, "recomputed WAV correspondence failed")
     require(cert.get("rights_closed") in (0,1), "invalid rights assurance")
     return {"wav_sha256": cert["audio_sha256"], "candidate_index": cert["candidate_index"],
+            "render_policy_uid":uid,
             "correspondence_residual": recomputed, "technical_closed": 1,
             "correspondence_closed": 1,
             "rights_independently_attested": bool(cert["rights_closed"])}
@@ -201,11 +220,12 @@ def artifact_witness(out):
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--artifact",required=True)
+    parser.add_argument("--expected-policy")
     args=parser.parse_args()
     out=Path(args.artifact)
     try:
         clxy=microkernel_witness()
-        artifact=artifact_witness(out)
+        artifact=artifact_witness(out,args.expected_policy)
         result={"protocol":PROTOCOL,"status":"VERIFIED","closed":1,
                 "scope":"finite CL-XY witness + actual WAV correspondence and provenance metadata",
                 "clxy":clxy,"artifact":artifact,
