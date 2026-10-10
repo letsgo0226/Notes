@@ -11,6 +11,15 @@ on:
       - "hsi_net.py"
       - "HSI_OPEN_CORPUS.md"
       - ".github/workflows/hsi_open_corpus.yml"
+  pull_request:
+    paths:
+      - "hsi-corpus.sh"
+      - "hsi-corpus.ps1"
+      - "hsi_open_corpus.py"
+      - "hsi_search.py"
+      - "hsi_net.py"
+      - "HSI_OPEN_CORPUS.md"
+      - ".github/workflows/hsi_open_corpus.yml"
   workflow_dispatch:
 
 jobs:
