@@ -1,6 +1,6 @@
 #!/bin/sh
 set -eu
-PIN="b944dab3ff77db1abad474c91d41c0754d6dfe33"
+PIN="0fedab0d92b1f91fcb6111e76bd15e4b8f8f49d5"
 RAW="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_xy_analytic_2k"
 DIR="${HSI_XY_HOME:-$HOME/.hsi-xy-stream}"
 ENGINE="$DIR/hsi_stream.py"
