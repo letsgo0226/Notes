@@ -1,0 +1,31 @@
+name: HSI CL XY 2K review checks
+on:
+  pull_request:
+    paths:
+      - 'hsi_xy_analytic_2k/**'
+      - '.github/workflows/hsi_xy_analytic_2k.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify portable shell, exact size, UTM behavior and replay
+        run: |
+          sh -n hsi_xy_analytic_2k/hsi_cl_xy_2k.sh
+          python3 -m unittest discover -s hsi_xy_analytic_2k -p 'test_*.py' -q
+      - name: Guard against automatic live actions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('hsi_xy_analytic_2k')
+          assert len((p/'command.txt').read_bytes())<2048
+          assert len((p/'hsi_cl_xy_2k.sh').read_bytes())<2048
+          print('review-only: no Railway deploy, no trade authorization')
+          PY
