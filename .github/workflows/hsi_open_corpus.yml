@@ -11,6 +11,15 @@ on:
       - "hsi_net.py"
       - "HSI_OPEN_CORPUS.md"
       - ".github/workflows/hsi_open_corpus.yml"
+  pull_request:
+    paths:
+      - "hsi-corpus.sh"
+      - "hsi-corpus.ps1"
+      - "hsi_open_corpus.py"
+      - "hsi_search.py"
+      - "hsi_net.py"
+      - "HSI_OPEN_CORPUS.md"
+      - ".github/workflows/hsi_open_corpus.yml"
   workflow_dispatch:
 
 jobs:
@@ -154,6 +163,7 @@ jobs:
           HSI_CORPUS_CACHE=/tmp/hsi-corpus-cache \
           HSI_CORPUS_SR=16000 \
           HSI_CORPUS_ITEMS=3 \
+          HSI_RC_MAX_CANDIDATES=8 \
           HSI_OUT=/tmp/hsi-corpus-a \
           python3 hsi_open_corpus.py "Blue Stars"
 
@@ -165,10 +175,15 @@ jobs:
           l=json.loads((p/"corpus.lock.json").read_text())
           sh=json.loads((p/"search.hsicert").read_text())
           assert c["protocol"]=="HSI-OPEN-CORPUS/1.0"
-          assert c["version"]=="1.7.0"
+          assert c["version"]=="1.8.0"
           assert c["hsi_search_version"]=="1.4.0"
           assert c["minimum_hsi_search_version"]=="1.4.0"
           assert c["closed"]==1 and c["technical_closed"]==1
+          assert c["correspondence_closed"]==1
+          assert c["correspondence"]["protocol"]=="HSI-RC/1.0"
+          assert c["correspondence"]["sigma"]=="1/2"
+          assert c["correspondence"]["residual"]==0
+          assert (p/"correspondence.hsicert").exists()
           assert c["rights_closed"]==0
           assert c["ai_model"] is False and c["neural_renderer"] is False and c["machine_learning"] is False
           assert c["search_status"]=="FOUND"
@@ -218,6 +233,7 @@ jobs:
           HSI_CORPUS_CACHE=/tmp/hsi-corpus-cache \
           HSI_CORPUS_SR=16000 \
           HSI_CORPUS_LOCK=/tmp/hsi-corpus-a/corpus.lock.json \
+          HSI_RC_MAX_CANDIDATES=8 \
           HSI_OUT=/tmp/hsi-corpus-b \
           python3 hsi_open_corpus.py "Blue Stars"
           cmp /tmp/hsi-corpus-a/song.wav /tmp/hsi-corpus-b/song.wav

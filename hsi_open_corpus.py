@@ -5,8 +5,9 @@ from pathlib import Path
 from hsi_search import run_search, VERSION as HSI_SEARCH_VERSION
 
 PROTOCOL="HSI-OPEN-CORPUS/1.0"
+CORRESPONDENCE_PROTOCOL="HSI-RC/1.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
-VERSION="1.7.0"
+VERSION="1.8.0"
 MIN_HSI_SEARCH_VERSION=(1,4,0)
 
 def _semver_tuple(v):
@@ -32,6 +33,17 @@ TARGET_SR=max(16000,min(48000,int(os.getenv("HSI_CORPUS_SR","32000"))))
 E257_ENABLED=os.getenv("HSI_E257","1")!="0"
 LOCK_ENV=os.getenv("HSI_CORPUS_LOCK","").strip()
 RIGHTS_ATTESTED=os.getenv("HSI_RIGHTS_VERIFIED","0")=="1"
+RC_ENABLED=os.getenv("HSI_CORRESPONDENCE","1")!="0"
+RC_MAX_CANDIDATES=max(0,int(os.getenv("HSI_RC_MAX_CANDIDATES","0")))
+RC_PROFILE={
+    "rms":(float(os.getenv("HSI_RC_RMS_MIN",".025")),float(os.getenv("HSI_RC_RMS_MAX",".30"))),
+    "peak":(float(os.getenv("HSI_RC_PEAK_MIN",".15")),float(os.getenv("HSI_RC_PEAK_MAX",".90"))),
+    "crest":(float(os.getenv("HSI_RC_CREST_MIN","1.1")),float(os.getenv("HSI_RC_CREST_MAX","12"))),
+    "silence_ratio":(0.0,float(os.getenv("HSI_RC_SILENCE_MAX",".85"))),
+    "stereo_balance":(0.0,float(os.getenv("HSI_RC_BALANCE_MAX",".55"))),
+    "clip_ratio":(0.0,float(os.getenv("HSI_RC_CLIP_MAX","0")))
+}
+RC_PRIMES={"rms":2,"peak":3,"crest":5,"silence_ratio":7,"stereo_balance":11,"clip_ratio":13}
 ALLOWED_LICENSES={"cc0","pdm"}
 ALLOWED_CATEGORIES={"music","sound_effect"}
 
@@ -256,8 +268,40 @@ def write_wav(path,left,right,sr):
     with wave.open(str(path),"wb") as w:
         w.setnchannels(2);w.setsampwidth(2);w.setframerate(sr);w.writeframes(pcm.tobytes())
 
-def render(items,text,out):
-    basis=e257(text.encode("utf-8"));rng=PRNG(basis)
+def audio_features(path):
+    with wave.open(str(path),"rb") as w:
+        if w.getnchannels()!=2 or w.getsampwidth()!=2:raise ValueError("quality verifier requires stereo 16-bit PCM WAV")
+        sr=w.getframerate();frames=w.getnframes();raw=w.readframes(frames)
+    pcm=array("h");pcm.frombytes(raw)
+    if sys.byteorder!="little":pcm.byteswap()
+    if frames<=0 or len(pcm)<2:raise ValueError("empty quality-verification WAV")
+    ss_l=ss_r=0.0;peak=0.0;silent=clip=0
+    for i in range(0,len(pcm)-1,2):
+        li=pcm[i];ri=pcm[i+1];l=li/32768.0;r=ri/32768.0
+        ss_l+=l*l;ss_r+=r*r;peak=max(peak,abs(l),abs(r))
+        silent+=int(abs(l)<.01 and abs(r)<.01)
+        clip+=int(abs(li)>=32760 or abs(ri)>=32760)
+    rms_l=math.sqrt(ss_l/frames);rms_r=math.sqrt(ss_r/frames)
+    rms=math.sqrt((ss_l+ss_r)/(2*frames))
+    return {
+        "rms":rms,"peak":peak,"crest":peak/max(rms,1e-12),
+        "silence_ratio":silent/frames,
+        "stereo_balance":abs(rms_l-rms_r)/max(rms_l,rms_r,1e-12),
+        "clip_ratio":clip/frames,
+        "duration_seconds":frames/sr
+    }
+
+def correspondence(features):
+    terms={};residual=0.0
+    for name,(lo,hi) in RC_PROFILE.items():
+        x=float(features[name]);d=lo-x if x<lo else x-hi if x>hi else 0.0
+        term=(d*d)/RC_PRIMES[name];terms[name]={"value":x,"range":[lo,hi],"distance":d,"prime":RC_PRIMES[name],"term":term}
+        residual+=term
+    return residual,terms,int(residual==0.0)
+
+def render(items,text,out,candidate_index=0):
+    seed_text=text if candidate_index==0 else text+"|candidate="+str(candidate_index)
+    basis=e257(seed_text.encode("utf-8"));rng=PRNG(basis)
     seconds=18+(rng.pick(23))
     total=int(seconds*TARGET_SR)
     left=array("f",[0.0])*total;right=array("f",[0.0])*total
@@ -368,13 +412,47 @@ def main():
         status=search_cert.get("status","UNRESOLVED")
         raise SystemExit("HSI SEARCH "+status+": no admitted network CC0/PDM WAV evidence within finite search budget")
 
-    wav,basis,seconds,events,decoded=render(items,text,out)
+    state_path=out/"correspondence.state.json"
+    candidate_index=0
+    if state_path.exists():
+        try:candidate_index=max(0,int(json.loads(state_path.read_text(encoding="utf-8")).get("next_candidate",0)))
+        except Exception:candidate_index=0
+    while True:
+        wav,basis,seconds,events,decoded=render(items,text,out,candidate_index)
+        features=audio_features(wav)
+        residual,rc_terms,rc_closed=correspondence(features)
+        effective_rc_closed=int((not RC_ENABLED) or rc_closed)
+        print("candidate>",candidate_index,"E_half>",format(residual,".12g"),"correspondence_closed>",effective_rc_closed)
+        if effective_rc_closed:break
+        candidate_index+=1
+        tmp=state_path.with_suffix(".tmp")
+        tmp.write_text(canon({"protocol":CORRESPONDENCE_PROTOCOL,"next_candidate":candidate_index,"last_residual":residual})+"\n",encoding="utf-8")
+        os.replace(tmp,state_path)
+        if RC_MAX_CANDIDATES and candidate_index>=RC_MAX_CANDIDATES:
+            raise SystemExit("HSI RC UNRESOLVED: no candidate satisfied the endogenous correspondence profile within finite search budget")
+    if state_path.exists():state_path.unlink()
+    rc_cert={
+        "protocol":CORRESPONDENCE_PROTOCOL,
+        "model":"prime-weighted-nonnegative-residual-at-sigma-1/2",
+        "sigma":"1/2",
+        "candidate_index":candidate_index,
+        "candidate_count":candidate_index+1,
+        "profile":{k:list(v) for k,v in RC_PROFILE.items()},
+        "features":features,
+        "terms":rc_terms,
+        "residual":residual,
+        "closed":effective_rc_closed,
+        "interpretation":"model correspondence certificate, not a Riemann-hypothesis claim"
+    }
+    (out/"correspondence.hsicert").write_text(canon(rc_cert)+"\n",encoding="utf-8")
     used_ids={e["source_id"] for e in events}
     used=[i for i,_,_ in decoded if i["openverse_id"] in used_ids]
     lock={
         "protocol":"HSI-OPEN-CORPUS-LOCK/1.0",
         "runtime_input":text,
         "generation_basis_e257":basis,
+        "candidate_index":candidate_index,
+        "correspondence_protocol":CORRESPONDENCE_PROTOCOL,
         "sources":used,
         "license_filter":["cc0","pdm"],
         "format_filter":["wav"],
@@ -396,10 +474,13 @@ def main():
 
     raw=wav.read_bytes();chunks=0;eok=True
     if E257_ENABLED:chunks,eok=write_e257(out/"song.e257",raw)
+    keyword_basis=e257(text.encode("utf-8"))
+    seed_text=text if candidate_index==0 else text+"|candidate="+str(candidate_index)
     checks={
         "wav":raw[:4]==b"RIFF" and raw[8:12]==b"WAVE",
         "audio_nonempty":len(raw)>1024,
-        "keywords_roundtrip":d257(basis)==text.encode("utf-8"),
+        "keywords_roundtrip":d257(keyword_basis)==text.encode("utf-8"),
+        "generation_seed_roundtrip":d257(basis)==seed_text.encode("utf-8"),
         "e257_audio_roundtrip":eok,
         "sources_present":len(used)>0,
         "all_indexed_cc0_or_pdm":all(str(x.get("license","")).lower() in ALLOWED_LICENSES for x in used),
@@ -417,6 +498,7 @@ def main():
     }
     technical_closed=int(all(checks.values()))
     rights_closed=int(RIGHTS_ATTESTED and all(x.get("landing_url") for x in used))
+    closed=int(technical_closed and effective_rc_closed)
     provenance=[{
         "openverse_id":x.get("openverse_id"),"title":x.get("title"),"creator":x.get("creator"),
         "license":x.get("license"),"license_version":x.get("license_version"),
@@ -437,8 +519,12 @@ def main():
     } for x in used]
     cert={
         "protocol":PROTOCOL,"version":VERSION,
-        "generation_input":"runtime-keywords-only",
+        "generation_input":"runtime-keywords-plus-candidate-index",
+        "runtime_keywords_basis_e257":keyword_basis,
         "generation_basis_e257":basis,
+        "candidate_index":candidate_index,
+        "candidate_count":candidate_index+1,
+        "correspondence":rc_cert,
         "renderer":"open-corpus-retrieval-dsp",
         "hsi_search_version":HSI_SEARCH_VERSION,
         "minimum_hsi_search_version":"1.4.0",
@@ -462,8 +548,9 @@ def main():
         "license_assurance":"USER_ATTESTED" if RIGHTS_ATTESTED else "OPENVERSE_INDEX_ASSERTED_NOT_INDEPENDENTLY_VERIFIED",
         "rights_review_recommended":not RIGHTS_ATTESTED,
         "technical_closed":technical_closed,
+        "correspondence_closed":effective_rc_closed,
         "rights_closed":rights_closed,
-        "closed":technical_closed,
+        "closed":closed,
         "sample_rate":TARGET_SR,"channels":2,"duration_seconds":seconds,
         "source_count":len(provenance),"event_count":len(events),
         "audio_bytes":len(raw),"audio_sha256":hashlib.sha256(raw).hexdigest(),
@@ -479,13 +566,14 @@ def main():
         "checks":checks,"sources":provenance
     }
     (out/"song.hsicert").write_text(canon(cert)+"\n",encoding="utf-8")
-    files=["keywords.txt","search.hsicert","corpus.lock.json","events.json","song.wav","song.hsicert"]
+    files=["keywords.txt","search.hsicert","corpus.lock.json","events.json","correspondence.hsicert","song.wav","song.hsicert"]
     if E257_ENABLED:files.append("song.e257")
-    (out/"manifest.json").write_text(canon({"protocol":PROTOCOL,"output":str(out),"files":files,"closed":technical_closed,"rights_closed":rights_closed})+"\n",encoding="utf-8")
+    (out/"manifest.json").write_text(canon({"protocol":PROTOCOL,"output":str(out),"files":files,"closed":closed,"technical_closed":technical_closed,"correspondence_closed":effective_rc_closed,"rights_closed":rights_closed})+"\n",encoding="utf-8")
     print("audio>",wav);print("sources>",len(provenance));print("events>",len(events))
-    print("technical_closed>",technical_closed);print("rights_closed>",rights_closed)
+    print("candidate_index>",candidate_index);print("E_half>",format(residual,".12g"))
+    print("technical_closed>",technical_closed);print("correspondence_closed>",effective_rc_closed);print("rights_closed>",rights_closed)
     if not RIGHTS_ATTESTED:
         print("rights> adapter metadata only; independently verify source landing pages before publication/commercial reuse")
-    raise SystemExit(0 if technical_closed else 3)
+    raise SystemExit(0 if closed else 3)
 
 if __name__=="__main__":main()

@@ -4,7 +4,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$Pin = "2ae6f50d007ac9414d2ca8e89073e2055f082130"
+$Pin = "a42d730b774752aa2dbad3751fce6f33a16d1f46"
 $Base = "https://raw.githubusercontent.com/letsgo0226/Notes/$Pin"
 $Dir = if ($env:HSI_CORPUS_HOME) { $env:HSI_CORPUS_HOME } else { Join-Path $HOME ".hsi-corpus" }
 $App = Join-Path $Dir "hsi_open_corpus.py"
