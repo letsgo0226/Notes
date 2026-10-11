@@ -1,0 +1,47 @@
+name: HSI Continuous Self-Review
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '10 2 * * *'
+  pull_request:
+    paths:
+      - 'hsi_continuous/**'
+      - '.github/workflows/hsi-continuous-review.yml'
+permissions:
+  contents: read
+concurrency:
+  group: hsi-continuous-review
+  cancel-in-progress: false
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile bounded review
+        run: python -m py_compile hsi_continuous/review.py
+      - name: Inspect immutable source and six domains
+        run: python hsi_continuous/review.py --out hsi_continuous/out
+      - name: Assert review-only safeguards
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('hsi_continuous/out/review.json').read_text())
+          assert r['mode']=='OFFLINE_REVIEW_ONLY'
+          assert len(r['notes_inventory'])==12
+          assert len(r['domains'])==6
+          g=r['guardrails']
+          assert not any(g[k] for k in ('source_mutation','automatic_git_push','automatic_pr_merge','arbitrary_program_execution','live_broker_orders','secrets_access','network_fetch'))
+          assert g['requires_human_review_for_deployment']
+          assert all(not x['auto_deploy'] for x in r['candidate_plan'])
+          PY
+      - name: Upload candidate diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: hsi-continuous-review-${{ github.run_id }}
+          path: hsi_continuous/out/review.json
+          retention-days: 90
