@@ -97,6 +97,18 @@ jobs:
           assert b['program']==2 and b['output']['state']==[1,-1,[]]
           assert a['native_originalxy_transition'] and not a['arbitrary_program_compiler']
           PY
+      - name: Verify OriginalXY two-symbol native compilation
+        run: |
+          python hsi_continuous/originalxy_two_symbol_compiler.py > hsi_continuous/out/two_symbol.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/two_symbol.json').read_text())
+          assert d['program']==1127
+          assert d['outcomes']['0']['state']==[1,1,[0]]
+          assert d['outcomes']['1']['state']==[1,-1,[]]
+          assert d['bounded_one_step'] and not d['general_arithmetic_compiler']
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
@@ -121,6 +133,7 @@ jobs:
             hsi_continuous/out/exact_integer.json
             hsi_continuous/out/originalxy_exact_coupled.json
             hsi_continuous/out/native_tiny_compiler.json
+            hsi_continuous/out/two_symbol.json
             hsi_continuous/out/*.oneline.sh
             hsi_continuous/out/*.oneline.json
           retention-days: 90
