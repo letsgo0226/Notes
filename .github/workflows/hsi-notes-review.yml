@@ -1,4 +1,4 @@
-name: HSI Notes read-only review
+name: HSI Notes local validation
 on:
   pull_request:
     paths:
@@ -8,7 +8,13 @@ on:
       - 'tests/test_hsi_notes_review.py'
       - 'tests/test_hsi_notes_domains.py'
       - 'hsi_notes_domains.py'
+      - 'hsi_notes_validate.py'
+      - 'hsi_notes_runtime.lock.json'
+      - 'hsi_native_renderer.py'
+      - 'validation_snapshots/**'
+      - 'tests/test_hsi_notes_validate.py'
       - 'docs/HSI_NOTES_FOUR_SYSTEM_REVIEW.md'
+      - 'docs/HSI_NOTES_LOCAL_VALIDATION_RESULT.md'
       - '.github/workflows/hsi-notes-review.yml'
   workflow_dispatch:
 
@@ -32,5 +38,11 @@ jobs:
         run: python3 hsi_notes_review.py --json-out "$RUNNER_TEMP/hsi-notes-review.json"
       - name: Produce deterministic cross-domain review candidates
         run: python3 hsi_notes_domains.py --out "$RUNNER_TEMP/hsi-notes-domains.json"
-      - name: Check finite 2KB release in isolated subprocesses
-        run: python3 Notes/HSI_Prime_Analytic_2KB_Release/verify_prime_analytic.py
+      - name: Render real audio twice and validate bounded TM plus three invariant gates
+        run: python3 hsi_notes_validate.py --out "$RUNNER_TEMP/notes-local-validation" --sr 8000 --bpm 120 --bars 4
+      - name: Upload local audio and separate validation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: notes-local-validation
+          path: ${{ runner.temp }}/notes-local-validation/
+          retention-days: 14

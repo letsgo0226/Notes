@@ -1,6 +1,6 @@
 # HSI Notes → Music / UTM / Trader_42 / Omega: review-only integration
 
-**Status:** REVIEW ONLY. This change does not authorize merging, deploying, remote command execution, music generation, external model calls, or trading.
+**Status:** LOCAL VALIDATION; production rollout remains separate. The opt-in stage 3 runner executes bounded local audio and formal checks. It has no remote deployment, external model, or broker interface.
 
 ## Inventory scope
 
@@ -41,8 +41,8 @@ The existing 'hsi_deploy.py --target all --plan' resolves the HSI core, UTM, Tra
 1. Approve source identity with the read-only inventory and finite tests; review content and provenance separately.
 2. Design and review domain adapters defining **exactly how** math texts become optional music themes, formal UTM inputs, paper-only trading review evidence, or Omega governance records. No automatic semantic inference is certified.
 3. Independently validate UTM, Trader_42, and Omega source gates. Never automatically apply existing Trader_42 staged changes.
-4. Only after separate user approval, canary-deploy each adapter in nonproduction, preserving rollback and evidence of real endpoint behavior.
-5. Require explicit human approval for production/paid API use. Do not activate live orders as part of this work.
+4. After inspecting local output, canary-deploy each adapter in the authorized environment, preserving rollback and evidence of real endpoint behavior.
+5. Review the concrete production/paid API scope before rollout. Live orders are outside this integration.
 
 Passing 'SOURCE_INVENTORY_VERIFIED' proves only presence and byte identity of the selected 12 files. All six domain gates remain 'NOT_TESTED_NOT_DEPLOYED'; it makes no claims about audio output, license rights, production correctness, universal problem solving, or ethical axioms.
 
@@ -75,4 +75,30 @@ python3 hsi_notes_domains.py --out /tmp/hsi-notes-domains.json
 python3 -m unittest discover -s tests -v
 ~~~
 
-Any mapping from prime numbers, formal correspondence, or mathematical continuation to musical choices remains an **editorial design decision** requiring human review. This stage changes no launcher, Railway project, paid provider, production branch, or trading mode.
+Any mapping from prime numbers, formal correspondence, or mathematical continuation to musical choices remains an **editorial design decision**. This stage changes no launcher, Railway project, paid provider, production branch, or trading mode.
+
+## Offline execution and independent verification (stage 3)
+
+`hsi_notes_validate.py` consumes the current locked 12-file plan, verifies the pinned local renderer and common invariant gate, and produces a new directory of real output and evidence:
+
+~~~sh
+python3 hsi_notes_validate.py --out "$HOME/Music/HSI-Notes/validation-01"
+~~~
+
+Use a new output directory each time; existing directories are preserved. Python 3.9+ and POSIX `sh`/Bash are required for the isolated finite release audit. No package installation is needed.
+
+| Output | Actual validation and remaining scope |
+|---|---|
+| Native `song.wav` | Rendered twice; WAV, score and lyrics bytes match on the same runtime. Independently check PCM format, frame completeness, duration, RMS, peak, clip/silence ratios, full E257 reconstruction and SHA-256. This does not assess artistic quality or intelligible human singing. |
+| 32 TM enumeration records | The 32-bit manifest-prefix word executes in the plaintext reference and 2KB core with per-candidate budget 8. Compare complete traces and checkpoints; independently recompute emitted transitions. `UNRESOLVED` is not proof of nonhalting. |
+| Three common invariant gates | Use an exact 5008-byte snapshot fetched from all three pinned repositories. Accept a valid finite request for each role and reject a forbidden halting-decider claim. Trader uses HOLD/FLAT with zero broker calls and orders. These tests do not execute the full three applications. |
+| Prime/analytic finite release | Run the existing seven-case audit in an isolated copy because that verifier rewrites its own certificate. Original locked sources stay unchanged. Finite replay and interpolation tests remain distinct from universal equivalence or unique analytic continuation. |
+| Corpus and AI Bridge | Remain unexecuted. Corpus discovery, source license review and rendered audio are still needed; AI Bridge requires a successful real provider request within the authorized cost scope. |
+
+All 12 files contribute to the exact manifest fingerprint appended to the Native prompt. Four documents also provide the previously declared creative keywords; the other eight remain reference/audit sources. Fingerprint conditioning is a deterministic input binding, not extraction of the full philosophical meaning of each document.
+
+The runtime lock records Native source commit and SHA-256, plus all three upstream commits whose `hsi_common/core.py` files match the stored snapshot. It is a versioned integrity check, not a signed attestation. The runner clears inherited HSI environment variables, sets finite subprocess timeouts, rejects source drift before execution, checks drift again after execution, and writes no output into the locked Notes tree.
+
+CI runs the real offline workflow at 8 kHz and uploads WAV and validation artifacts. The default local preview uses 24 kHz, 120 BPM and four bars. Floating point synthesis is only checked for repeatability on the same runtime; cross-platform byte equality is not asserted.
+
+The resulting status is `LOCAL_VALIDATION_PASSED_NOT_DEPLOYED`. The original `main/hsi-corpus.sh` command continues to launch the existing Corpus bundle; it does not invoke this runner or import the locked documents until the reviewed integration is rolled out.
