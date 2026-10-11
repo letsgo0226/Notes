@@ -311,7 +311,7 @@ def handler_for(runtime):
 
         def do_POST(self):
             path = urllib.parse.urlparse(self.path).path
-            order_routes = {'/orders/prepare', '/orders/test', '/orders/submit', '/orders/reconcile'}
+            order_routes = {'/orders/account-check', '/orders/prepare', '/orders/test', '/orders/submit', '/orders/reconcile'}
             if path not in {'/certify', '/notes/certify', '/render'} | order_routes:
                 return self.send(404, {'error': 'not_found'})
             if path in order_routes:
@@ -336,7 +336,7 @@ def handler_for(runtime):
                 if not isinstance(request, dict):
                     raise ValueError('request must be an object')
                 if path in order_routes:
-                    method = path.rsplit('/', 1)[1]
+                    method = path.rsplit('/', 1)[1].replace('-', '_')
                     result = getattr(runtime.orders, method)(request)
                     return self.send(202 if result['status'] == 'UNKNOWN' else 200, result)
                 if path in {'/certify', '/notes/certify'}:
