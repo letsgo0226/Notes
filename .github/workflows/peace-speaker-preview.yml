@@ -1,0 +1,92 @@
+name: Experimental English Speaking Portrait
+
+on:
+  workflow_dispatch:
+    inputs:
+      duration_seconds:
+        description: '20 for a quick preview; 953 for full-length experimental portrait animation'
+        required: true
+        default: '20'
+        type: string
+  pull_request:
+    paths:
+      - 'peace_av/experimental_speaker.py'
+      - 'peace_av/assets/speaker_original.jpg'
+      - '.github/workflows/peace-speaker-preview.yml'
+  workflow_run:
+    workflows: ['HSI English Peace AV Continuous Build']
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  animate:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && 'main' || github.ref }}
+      - name: Install offline motion tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg python3-opencv python3-numpy python3-pil
+      - name: Resolve archived source and preview duration
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_SECONDS: ${{ inputs.duration_seconds }}
+        run: |
+          set -euo pipefail
+          /usr/bin/python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          a=json.loads(Path('影音/index.json').read_text())
+          assert a['runs'], 'No verified audio-video archive run'
+          rid=a['runs'][0]['run_id']
+          src=Path('影音/runs')/rid
+          assert (src/'peace_address_english.mp4').is_file()
+          assert (src/'voiceover.en.mp3').is_file()
+          sec='953.64' if os.environ['EVENT_NAME']=='workflow_run' else (os.environ.get('REQUESTED_SECONDS') or '20')
+          sec=float(sec)
+          assert 1<=sec<=1200
+          Path('/tmp/speaker.env').write_text(f'SOURCE_DIR={src}\nSECONDS={sec}\n')
+          print(f'Using {src}, duration={sec}s')
+          PY
+      - name: Synthesize English speaking portrait
+        run: |
+          set -euo pipefail
+          source /tmp/speaker.env
+          mkdir -p dist/speaker
+          DRIVE_ARGS=()
+          if [[ "$SECONDS" == "20.0" ]]; then
+            DRIVE_ARGS=(--voice "$SOURCE_DIR/voiceover.en.mp3")
+          fi
+          /usr/bin/python3 peace_av/experimental_speaker.py \
+            --portrait peace_av/assets/speaker_original.jpg \
+            --movie "$SOURCE_DIR/peace_address_english.mp4" \
+            "${DRIVE_ARGS[@]}" \
+            --output dist/speaker/experimental_speaker_en.mp4 \
+            --seconds "$SECONDS" --fps 12
+      - name: Verify origin and duration
+        run: |
+          /usr/bin/python3 - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          p=Path('dist/speaker/experimental_speaker_en.provenance.json')
+          j=json.loads(p.read_text())
+          assert j['not_actual_political_event']
+          assert not j['phoneme_or_viseme_alignment_verified']
+          v=Path('dist/speaker/experimental_speaker_en.mp4')
+          assert v.stat().st_size > 10000
+          print(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration,size', '-of','default=noprint_wrappers=1',str(v)],text=True))
+          PY
+      - name: Upload experimental result and limitation metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: experimental-speaker-${{ github.run_id }}
+          path: dist/speaker/
+          if-no-files-found: error
+          retention-days: 90
