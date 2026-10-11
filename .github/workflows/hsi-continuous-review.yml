@@ -286,6 +286,25 @@ jobs:
           d=json.loads(Path('hsi_continuous/out/generic_compiler.json').read_text())
           assert d['exact_roundtrip'] and d['table_equivalence']
           PY
+      - name: Verify single-program OriginalXY native binary countdown
+        run: |
+          python hsi_continuous/originalxy_native_binary_countdown.py > hsi_continuous/out/native_binary_countdown.json
+          python - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'hsi_continuous')
+          from originalxy_native_binary_countdown import execute
+          for width in range(1,7):
+              for n in range(1<<width):
+                  r=execute(n,width)
+                  assert r['halted'] and r['terminal_mark']==1
+                  assert r['final_bits']=='1'*width
+                  assert r['head']==2*width+2
+                  assert r['steps']>=2*width
+          d=json.loads(Path('hsi_continuous/out/native_binary_countdown.json').read_text())
+          assert d['native_loop_control'] and d['underflow_halt']
+          assert not d['unbounded_halting_proof']
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
@@ -324,6 +343,7 @@ jobs:
             hsi_continuous/out/integrated_unary_loop.json
             hsi_continuous/out/crosscheck.json
             hsi_continuous/out/generic_compiler.json
+            hsi_continuous/out/native_binary_countdown.json
             hsi_continuous/out/*.oneline.sh
             hsi_continuous/out/*.oneline.json
           retention-days: 90
