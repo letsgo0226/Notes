@@ -10,10 +10,18 @@ on:
       - "hsi_net.py"
       - "HSI_DEPLOY.md"
       - ".github/workflows/hsi_deploy.yml"
+  pull_request:
+    paths:
+      - "hsi_deploy.py"
+      - "hsi-deploy.*"
+      - "hsi_bundle.lock.json"
+      - ".github/workflows/hsi_deploy.yml"
   workflow_dispatch:
 
 jobs:
   verify:
+    env:
+      HSI_CORE_REF: ${{ github.event.pull_request.head.sha || github.sha }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -128,22 +136,38 @@ jobs:
   windows-launcher:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Fetch launchers at the exact release commit
+        shell: pwsh
+        run: |
+          $Ref="${{ github.event.pull_request.head.sha || github.sha }}"
+          $Base="https://raw.githubusercontent.com/${{ github.repository }}/$Ref"
+          foreach($Name in @("hsi-deploy.ps1","hsi-native.ps1","hsi-corpus.ps1","hsi_bootstrap.py")){
+            Invoke-WebRequest -Uri "$Base/$Name" -OutFile $Name
+          }
       - name: Verify PowerShell launcher syntax
         shell: pwsh
         run: |
           $tokens=$null
           $errors=$null
-          [System.Management.Automation.Language.Parser]::ParseFile(
-            (Join-Path $PWD "hsi-deploy.ps1"),
-            [ref]$tokens,
-            [ref]$errors
-          ) | Out-Null
-          if($errors.Count -ne 0){
-            $errors | ForEach-Object { Write-Error $_.Message }
-            exit 1
+          foreach($Name in @("hsi-deploy.ps1","hsi-native.ps1","hsi-corpus.ps1")){
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Join-Path $PWD $Name), [ref]$tokens, [ref]$errors
+            ) | Out-Null
+            if($errors.Count -ne 0){
+              $errors | ForEach-Object { Write-Error $_.Message }
+              exit 1
+            }
           }
           $text=Get-Content -Raw "hsi-deploy.ps1"
           if($text -notmatch "hsi_bootstrap.py"){throw "missing deploy solver"}
           if($text -notmatch "HSI_BUNDLE_REF"){throw "missing HSI NET bootstrap"}
           if($text -notmatch "gh auth token"){throw "missing ephemeral GitHub auth bridge"}
+      - name: Install verified bundle and render actual Native audio on Windows
+        shell: pwsh
+        run: |
+          $env:HSI_BUNDLE_REF="${{ github.event.pull_request.head.sha || github.sha }}"
+          $env:HSI_BUNDLE_HOME=Join-Path $env:RUNNER_TEMP "notes-bundle"
+          $Output=Join-Path $env:RUNNER_TEMP "notes-native"
+          python hsi_bootstrap.py native --sr 8000 --bars 4 --out $Output "prime pulse"
+          if($LASTEXITCODE -ne 0){throw "Notes-bound Native render failed"}
+          if((Get-Item (Join-Path $Output "song.wav")).Length -le 10000){throw "missing actual audio"}

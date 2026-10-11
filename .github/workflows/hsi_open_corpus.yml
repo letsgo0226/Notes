@@ -333,9 +333,9 @@ jobs:
           ) | Out-Null
           if($errors.Count -ne 0){$errors|ForEach-Object{Write-Error $_.Message};exit 1}
           $text=Get-Content -Raw "hsi-corpus.ps1"
-          if($text -notmatch "hsi_open_corpus.py"){throw "missing corpus client"}
-          if($text -notmatch "hsi_search.py"){throw "missing HSI SEARCH client"}
-          if($text -notmatch "hsi_net.py"){throw "missing HSI NET client"}
+          if($text -notmatch "hsi_bootstrap.py"){throw "missing immutable bootstrap"}
+          if($text -notmatch "HSI_BUNDLE_REF"){throw "missing bundle source reference"}
+          if($text -notmatch "corpus"){throw "missing corpus engine"}
           if($text -match "ACE-Step|torch|tensorflow|transformers|diffusion|Suno|Runway|fal.ai"){
             throw "AI/neural dependency found in Windows launcher"
           }

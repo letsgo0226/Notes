@@ -252,7 +252,8 @@ def handler_for(runtime):
                 return self.send(200 if runtime.selftest['status'] == 'PASSED' else 503,
                     {'ok': runtime.selftest['status'] == 'PASSED', 'protocol': PROTOCOL, 'gate_protocol': 'HSI-3SYS/1.0',
                      'role': runtime.role, 'notes': runtime.provenance(), 'selftest': runtime.selftest['status'],
-                     'configured': bool(os.getenv('FAL_KEY') and os.getenv('HSI_BRIDGE_TOKEN')),
+                     'configured': bool(os.getenv('HSI_BRIDGE_TOKEN')),
+                     'paid_ai_enabled': os.getenv('HSI_ALLOW_PAID_AI', '0') == '1',
                      'provider': 'native', 'default_engine': os.getenv('HSI_RENDER_ENGINE', 'native'),
                      'optional_ai_provider': 'fal-mureka', 'model': os.getenv('HSI_MUREKA_MODEL', 'mureka-9.5'), 'accepts': 'HSI-MUSIC-2K/1'})
             if path == '/notes':
