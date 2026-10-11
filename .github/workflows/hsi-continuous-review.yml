@@ -305,6 +305,20 @@ jobs:
           assert d['native_loop_control'] and d['underflow_halt']
           assert not d['unbounded_halting_proof']
           PY
+      - name: Verify standalone 2KB OriginalXY binary one-liner
+        run: |
+          test "$(wc -c < hsi_continuous/hsi_ox_binary_2kb.sh)" -le 2048
+          python - <<'PY'
+          import json,os,subprocess
+          for width in range(1,7):
+              for n in range(1<<width):
+                  env={**os.environ,'HSI_N':str(n),'HSI_WIDTH':str(width)}
+                  result=subprocess.check_output(['sh','hsi_continuous/hsi_ox_binary_2kb.sh'],env=env,text=True)
+                  d=json.loads(result)
+                  assert d['halted'] and d['terminal_mark']==1
+                  assert d['final_bits']=='1'*width
+                  assert d['input']==n and d['width']==width
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
