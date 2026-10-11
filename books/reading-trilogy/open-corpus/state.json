@@ -1,0 +1,17 @@
+{
+  "protocol": "HSI-TM-OPEN-CORPUS-WRITER/1.0",
+  "completed": [
+    {
+      "book": "02_Hu_Mantra_如何閱讀自己",
+      "chapter": 6,
+      "folder": "02_Hu_Mantra_如何閱讀自己/06_反例與限制"
+    }
+  ],
+  "tm_word": "1010100000110100",
+  "tm_checkpoint": {
+    "n": 16,
+    "t": 0,
+    "w": "1010100000110100",
+    "v": 2
+  }
+}

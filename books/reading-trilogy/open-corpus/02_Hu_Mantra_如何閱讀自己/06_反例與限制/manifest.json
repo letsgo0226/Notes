@@ -1,0 +1,163 @@
+{
+  "protocol": "HSI-TM-OPEN-CORPUS-WRITER/1.0",
+  "status": "RULE_GENERATED_RESEARCH_UNREVIEWED",
+  "model_calls": 0,
+  "full_text_read": false,
+  "publication_ready": false,
+  "source_commit": "5084ffadcce34d6460d313eb7b6a0c4451d9a5e6",
+  "verified_source_count": 12,
+  "source_fingerprint_sha256": "a83480e0123a927d325e452b705d49163f29ce65456b042487bab0d046cca7b9",
+  "source_inventory": {
+    "Notes/1": {
+      "bytes": 24549,
+      "git_blob_sha1": "c8bbc0aa969ff27892ccc7739ccebcdadcebfff7",
+      "sha256": "67cca4014a2dda6a1328eee68679bef8111bff1442bc94de3ffcd452eb94d03a"
+    },
+    "Notes/2": {
+      "bytes": 64343,
+      "git_blob_sha1": "696a345df866b2ef374bed2fdef03af7ba22490e",
+      "sha256": "eb8a25bf4203756fe287506a652bd0e1f2dc87c0b0a7f6878e35f68cb26c18e0"
+    },
+    "Notes/3": {
+      "bytes": 44561,
+      "git_blob_sha1": "77d46387871c72eb4d4007ce2dafeeac44fab52a",
+      "sha256": "6b2a92addfecad366e77c869aa498c44f25f0e531393c3978c06cac11c8e4ee2"
+    },
+    "Notes/4": {
+      "bytes": 38042,
+      "git_blob_sha1": "f51c80a27404426ab8c85d3ca414a5d248e1e9ef",
+      "sha256": "84f761ab888ff24e422f1a82a472d76525a32d93fce85aecac5fd700f081a1f5"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_POSIX_2KB_OneLiner.sh": {
+      "bytes": 2043,
+      "git_blob_sha1": "0201324b31756ea3c800f29cc5f368a406892fb6",
+      "sha256": "679f8118985635ea7eeb963ac92839acd4c97a4d3ada5607339aa2766c189e7d"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_2KB_OneLiner.sh": {
+      "bytes": 2027,
+      "git_blob_sha1": "eac7a28f9d138d2c44a7550cb67130176ab7fbe9",
+      "sha256": "2b032922bc09019bd55e454d9143e0755c1c7b51d6d4f12f8e315c687c363c31"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_Core.py": {
+      "bytes": 1983,
+      "git_blob_sha1": "ccce79783ab2bffe10292d7e6926fec48878badd",
+      "sha256": "b89d0709b161c291c0fb1d9371058b107c735bbfd28212a1a66353ee6523ba7b"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/HSI_PRIME_ANALYTIC_PLAINTEXT_2KB_BILINGUAL_SPEC.txt": {
+      "bytes": 20600,
+      "git_blob_sha1": "f5e654fadb7f34a88f17f4efda23161f1a00a3d3",
+      "sha256": "641c0a9fcdff92c068aedfdbabaaa7d92a73c5410e42952ca4eef6b30ce2fc8b"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/OriginalXY_reference.py": {
+      "bytes": 3072,
+      "git_blob_sha1": "62800e278d79cfed52eafe87a01e24bfccbd2edb",
+      "sha256": "62bb72a9cdcbbcf1d4f529aaa74fc371b02a91f7a2245f38c93a6a8a62174b7c"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/README.md": {
+      "bytes": 2018,
+      "git_blob_sha1": "c23b5a353e87ec9736c1327a205fc9da71c8ee32",
+      "sha256": "a098e36848e66bf9f7a8a00d2131016791a05d847bd70c22b097ab4041bc2317"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/verification_certificate.json": {
+      "bytes": 5009,
+      "git_blob_sha1": "469412329d12227804c339c7f39bdce73f1cc5de",
+      "sha256": "2753d7ff2247bfb7b90ca5a6042b7cf5e2285fd2eabe8fcf1b52d5544653cdc1"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/verify_prime_analytic.py": {
+      "bytes": 9705,
+      "git_blob_sha1": "ec3528c55c8a5c5dc0075eade392e0ada165105e",
+      "sha256": "58fda9f5a404c3a58c7f3a4aefdc49396e4c5212c6c2d0e9d7e5af80a7a99f68"
+    }
+  },
+  "tm_source": "Notes/HSI_Prime_Analytic_2KB_Release/OriginalXY_reference.py",
+  "tm_trace_sha256": "c76ef2c5453de411b40f5d42655c82251a53ea5c2661dad9b5665ff52e4d8e7d",
+  "tm_statuses": [
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "HALTED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "HALTED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "UNRESOLVED"
+  ],
+  "tm_steps": 16,
+  "tm_selected_mode": "概念澄清",
+  "chapter": 6,
+  "book": "02_Hu_Mantra_如何閱讀自己",
+  "web_research": {
+    "status": "FOUND",
+    "query": "self transformation habit reflective practice philosophy 反例與限制",
+    "request_url": "https://api.crossref.org/works?query.bibliographic=self+transformation+habit+reflective+practice+philosophy+%E5%8F%8D%E4%BE%8B%E8%88%87%E9%99%90%E5%88%B6&rows=4&select=DOI%2Ctitle%2Cauthor%2Cpublished%2CURL%2Ctype",
+    "records": [
+      {
+        "doi": "10.53106/1684739328405",
+        "title": "專利侵權分析之均等論與其限制──禁反言與先前技術阻卻",
+        "authors": [
+          "陳秉訓 陳秉訓"
+        ],
+        "year": 2026,
+        "url": "https://doi.org/10.53106/1684739328405",
+        "verified_scope": "depositor bibliographic metadata only"
+      },
+      {
+        "doi": "10.5422/fordham/9780823223138.003.0003",
+        "title": "Habit, Habit Change, and Conversion in C. S. Peirce",
+        "authors": [
+          "Roger A. Ward",
+          "Roger A. Ward"
+        ],
+        "year": 2004,
+        "url": "https://doi.org/10.5422/fordham/9780823223138.003.0003",
+        "verified_scope": "depositor bibliographic metadata only"
+      },
+      {
+        "doi": "10.2307/j.ctvh4zgc3.7",
+        "title": "Habit, Habit Change, and Conversion in C. S. Peirce",
+        "authors": [],
+        "year": 2019,
+        "url": "https://doi.org/10.2307/j.ctvh4zgc3.7",
+        "verified_scope": "depositor bibliographic metadata only"
+      },
+      {
+        "doi": "10.4135/9781036233099.n10",
+        "title": "The habit of reflective practice",
+        "authors": [],
+        "year": 2025,
+        "url": "https://doi.org/10.4135/9781036233099.n10",
+        "verified_scope": "depositor bibliographic metadata only"
+      }
+    ]
+  },
+  "source_excerpts": [
+    {
+      "path": "Notes/1",
+      "line": 14,
+      "excerpt": "本文建立一套「精確可計算」的質數公式框架。核心目標不是宣稱存在一個只由有限次"
+    },
+    {
+      "path": "Notes/2",
+      "line": 14,
+      "excerpt": "本文建立一套關於「解析延拓方程」的精確框架。核心目標是形式化下列問題："
+    },
+    {
+      "path": "Notes/3",
+      "line": 17,
+      "excerpt": "「自變數／應變數」、「持續枚舉」、「保守演化」、「零殘差證書」及「系統延續」"
+    },
+    {
+      "path": "Notes/4",
+      "line": 17,
+      "excerpt": "能否由同一位元集合建構一致且完備的邏輯系統，並連結圖靈機執行、唯一性編碼、"
+    }
+  ],
+  "dossier_sha256": "1a35039b49a86b2f5aca869def046c6f0e7da5fa9d587a7beeda93e3ee0cf782"
+}
