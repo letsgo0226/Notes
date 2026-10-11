@@ -1,0 +1,88 @@
+name: HSI English Peace AV Continuous Build
+
+on:
+  schedule:
+    # Every Monday 09:30 Asia/Taipei (UTC+8); scheduled runs require default branch.
+    - cron: '30 1 * * 1'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'Notes/peace_speech/**'
+      - '影音/**'
+      - '.github/workflows/peace-speech-continuous.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hsi-peace-av-archive
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Read exact project version
+        uses: actions/checkout@v4
+      - name: Install media tools and system fonts
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg espeak fonts-dejavu-core python3-pil python3-venv
+          python3 -m venv --system-site-packages .venv
+          .venv/bin/python -m pip install --disable-pip-version-check 'edge-tts>=7,<8'
+      - name: Render over 10-minute English film, score, and correspondence evidence
+        env:
+          HSI_RUN_ID: ${{ github.run_id }}
+        run: |
+          mkdir -p "影音/runs/${HSI_RUN_ID}"
+          .venv/bin/python Notes/peace_speech/render_long.py \
+            --script Notes/peace_speech/long_speech.en.json \
+            --engine edge \
+            --voice en-US-AndrewNeural \
+            --rate=-13% \
+            --min-seconds 600 \
+            --output "影音/runs/${HSI_RUN_ID}"
+      - name: Validate actual video length and all media digests
+        env:
+          HSI_RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          cd "影音/runs/${HSI_RUN_ID}"
+          sha256sum -c SHA256SUMS
+          ffprobe -v error -show_entries format=duration,size \
+            -of default=noprint_wrappers=1 peace_address_english.mp4
+      - name: Generate verifiable archive manifest and library index
+        env:
+          HSI_RUN_ID: ${{ github.run_id }}
+        run: .venv/bin/python Notes/peace_speech/archive.py --run-id "${HSI_RUN_ID}"
+      - name: Upload complete run as downloadable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: peace-av-${{ github.run_id }}
+          path: |
+            影音/runs/${{ github.run_id }}/peace_address_english.mp4
+            影音/runs/${{ github.run_id }}/voiceover.en.mp3
+            影音/runs/${{ github.run_id }}/captions.en.srt
+            影音/runs/${{ github.run_id }}/transcript.en.md
+            影音/runs/${{ github.run_id }}/correspondence.json
+            影音/runs/${{ github.run_id }}/frame_correspondence.jsonl
+            影音/runs/${{ github.run_id }}/SHA256SUMS
+            影音/runs/${{ github.run_id }}/manifest.json
+          if-no-files-found: error
+          retention-days: 90
+      - name: Commit archived output into persistent 影音 folder
+        if: >-
+          github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          HSI_RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          rm -rf "影音/runs/${HSI_RUN_ID}/segments"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 影音/index.json "影音/runs/${HSI_RUN_ID}"
+          if ! git diff --cached --quiet; then
+            git commit -m "Archive original English peace AV run ${HSI_RUN_ID} [skip ci]"
+            git push origin HEAD:main
+          fi
