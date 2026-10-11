@@ -37,6 +37,17 @@ jobs:
           assert not p['claims']['real_world_deployment']
           assert all(z['residual'] >= 0 for z in p['feedback'])
           PY
+      - name: Translate audited HSI entrypoints into bounded one-line launchers
+        run: |
+          for entry in originalxy feedback review; do
+            python hsi_continuous/one_liner.py --entrypoint "$entry"
+          done
+          python - <<'PY'
+          from pathlib import Path
+          for p in Path('hsi_continuous/out').glob('*.oneline.sh'):
+              b=p.read_bytes()
+              assert len(b)<=2048 and b.count(b'\n')==1 and b.endswith(b'\n')
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
@@ -58,4 +69,6 @@ jobs:
           path: |
             hsi_continuous/out/review.json
             hsi_continuous/out/feedback.json
+            hsi_continuous/out/*.oneline.sh
+            hsi_continuous/out/*.oneline.json
           retention-days: 90
