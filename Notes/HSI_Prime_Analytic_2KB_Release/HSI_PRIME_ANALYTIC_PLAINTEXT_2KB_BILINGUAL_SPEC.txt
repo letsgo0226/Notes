@@ -1,0 +1,442 @@
+HSI 純明文 2 KB One-Liner：由質數公式、位元後設理論與解析延拓方程建構的有限可驗證系統
+HSI Plaintext Sub-2KB One-Liner: A Finite Verifiable System from Prime Formulas, Bitwise Metatheory, and Analytic Continuation
+
+版本 / Version: 1.0, 2026-10-11
+形式 / Format: UTF-8 Traditional Chinese + English, plain text
+狀態 / Status: Executable prototypes + measured size + finite regression and exact symbolic proofs;
+               NOT a global source-equivalence proof or a halting/analytic-continuation oracle.
+
+============================================================================
+0. 研究問題與成果的準確範圍
+0. Research Question and Exact Scope
+============================================================================
+
+【中文】
+研究兩份核心附件：
+  PRIME_FORMULA_BILINGUAL_DERIVATION(10).txt
+  ANALYTIC_CONTINUATION_EQUATION_BILINGUAL_DERIVATION(6).txt
+並引用：
+  HSI_PURE_TURING_LANGUAGE_UNIVERSAL_CORRESPONDENCE_BILINGUAL(3).txt
+  HSI_BITWISE_METATHEORY_2KB_CONSISTENCY_COMPLETENESS_BILINGUAL(1).txt
+
+所要求的是把既有 HSI_original/HSI_xy 的 Base85+zlib 載荷以明文形式
+表示成真正小於 2048 bytes 的 One-Liner，並用上述數學文件建立其編碼和
+對應驗證的清楚規格。
+
+本次實際提供：
+  HSI_OriginalXY_Plaintext_Core.py                1983 bytes，明文 Python 語意核
+  HSI_OriginalXY_Plaintext_2KB_OneLiner.sh       2027 bytes，Bash 單行命令
+  HSI_OriginalXY_POSIX_2KB_OneLiner.sh           2043 bytes，POSIX sh 單行命令
+  OriginalXY_reference.py                        3072 bytes，原始解壓縮 Python
+  verify_prime_analytic.py                       編碼、插值和有限運算驗證器
+  verification_certificate.json                  已執行的驗證結果
+
+兩條命令都只有一個實體行；明文核心中沒有 zlib、base64、Base85 或 exec()。
+檔案大小是實際 UTF-8 bytes，不把外部驗證器的大小算入 One-Liner，
+也不將外部驗證器偽稱為核心的一部分。
+
+【English】
+We provide two actual single-physical-line shell commands under 2048 bytes and
+one readable Python implementation under 2048 bytes. The compressed loader is
+not executed. A separate, explicitly identified audit utility performs prime,
+Gödel, Dirichlet and exact finite analytic checks. The byte limit applies to
+each self-contained command, not to the optional external mathematical audit.
+
+============================================================================
+1. 數學語意：外層 HSI_original 與內層 HSI_xy
+1. Operational Semantics: Outer Original and Inner XY
+============================================================================
+
+【中文】
+採用三角數配對：w=floor((sqrt(8n+1)-1)/2)，
+  Q(n)=(n-w(w+1)/2,  w+1-[n-w(w+1)/2]).
+得到：
+  (r,T)=Q(n),  (e,m)=Q(r),  p=e+1.
+令 w0 表示有限二進位初始字串。輸入記錄：
+  X_n=[n,e,T,m,w0].
+
+固定模擬組態 C=(p,q,h,M)，其中 M 為有限的非零紙帶位置集合。
+令 Step_p(C) 為原版 2-symbol TM 的明確確定性轉移。
+在至多 T 步內交替運行 Step、驗證候選、原子更換 checkpoint；
+中途 HALTED 指的是被模擬機器的狀態，而非外層流停止。
+
+實際有限驗證量：
+  r_j = 0 or 1,  j=0,1,2
+  D0 = r0+r1+r2
+  D1_num = 15*r0+10*r1+6*r2
+  Ehalf_num30 = 15*r0^2+10*r1^2+6*r2^2.
+
+若 D0=0，三個被列出的有限欄位與該步預期值相符。
+若 D0>0，拒絕候選。此結果不證明所有未列出的程式性質。
+
+【English】
+The outer scheduler enumerates finite machine descriptions and time budgets.
+The inner XY kernel checks individual finite transition candidates. The
+nonnegative residuals certify exactly the three compared fields. Observing
+UNRESOLVED at a finite horizon does not establish nonhalting.
+
+============================================================================
+2. 何以在 2 KB 內保持主要語意？
+2. What Is Retained Within the Byte Budget?
+============================================================================
+
+【中文】
+保留：
+  三角枚舉、有限確定性 TM 轉移、逐步追蹤 HSI_TRACE、HSI_CAND 候選比較、
+  零殘差及質數冪 residual_godel、E257 輸入／組態數碼、狀態檔續跑、
+  HSI_BUDGET 略過、HALTED／UNRESOLVED、JSON 輸出。
+
+尚未逐項保持：
+  原版對非法 word、非法環境參數、checkpoint schema、恢復步數的所有防護；
+  原版保存檔案時的 fsync 持久化保證、執行期資源耗盡防護，以及完整
+  Decode257(Encode257(x)) 的執行期內建反解檢查。
+  這些可由較大的安全封裝層檢查，卻不能因此宣稱 2 KB 版本在所有邊界
+  條件下與原版完全等價。
+
+【English】
+Main operational pathways are retained and regression-tested. Selected input,
+checkpoint and fsync checks from the 3072-byte reference are not all retained;
+accordingly these prototypes are not claimed universally observationally
+equivalent on all malformed states or failure schedules.
+
+============================================================================
+3. PRIME_FORMULA：精確質數生成與質數序數
+3. PRIME_FORMULA: Exact Prime Generation and Rank
+============================================================================
+
+【中文】
+對 n>=2，Wilson 定理提供：
+  chi_P(n)=[ n divides ((n-1)!+1) ].
+可等價使用單位根的精確整除投影：
+  delta_n(m)=1/n * sum_{j=0}^{n-1} exp(2*pi*i*j*m/n),
+  chi_P(n)=delta_n((n-1)!+1).
+因此：
+  pi(N)=sum_{n=2}^N chi_P(n),
+  p_r=min{N>=2:pi(N)=r}.
+
+驗證器對 2<=n<30 使用 Wilson 的整數模運算，核對前 10 個質數。
+實務上對較長位元資料使用效率較好的質數枚舉方式；該方式與上述
+數學定義算出相同 p_r，並非宣稱使用 factorial 是最佳的電腦演算法。
+
+【English】
+The prime/rank equations follow the attached derivation. Wilson's finite
+integer test is verified on a small range. Efficient enumerators are used for
+larger finite lists; the prime-index specification remains unchanged.
+
+============================================================================
+4. 任意位元的質數冪哥德爾編碼
+4. Prime-Power Gödel Encoding of All Bits
+============================================================================
+
+【中文】
+令 K 為明文 One-Liner 的位元組串，依 MSB-first 順序展開：
+  bits(K)=(b0,b1,...,b_{N-1}), bj in {0,1}, N=8*len(K).
+
+定義：
+  G_P(K)=product_{j=0}^{N-1} p_{j+1}^{bj+1}.
+
+由唯一質因數分解：
+  bj=v_{p_{j+1}}(G_P(K))-1.
+
+對長度 N 可從最後使用的質數索引辨認；若要求額外穩健性，也可以另行
+將 N 以版本及長度前綴編碼。此處指數 bj+1 全為 1 或 2。
+
+注意：G_P(K) 是非常巨大的整數，並不必強制在 One-Liner 的執行期間
+展開它。驗證器對前 16 個位元實際求出質數冪乘積、進行逐個 p-adic
+valuation 並反解；完整 2027-byte/2043-byte 檔案的質數冪譜則以明確
+定義的係數串表示，而非聲稱已經物化巨大的數值。
+
+【English】
+Assign each bit to the exponent of its unique indexed prime. Unique
+factorization makes the finite bit sequence recoverable. Materializing the
+entire huge integer is unnecessary for a coefficient-spectrum audit. Prefix
+round trips are executed as an independent check of the formulas.
+
+============================================================================
+5. PRIME_FORMULA 中的 prime-index pair
+5. The Prime-Index Pair Example
+============================================================================
+
+【中文】
+附件使用：
+  G_r=2^{p_r+1} 3^{r+1},
+  p_r=v_2(G_r)-1, r=v_3(G_r)-1.
+例如 r=5, p_5=11：
+  G_5=2^{12}*3^6.
+驗證器計算 G_5 並實際用除法還原 (11,5)。
+
+【English】
+The supplied prime-index encoding is implemented as a concrete finite
+round-trip example; it is a representation of a prime and its rank, not a
+universal shortcut for computing arbitrary program outcomes.
+
+============================================================================
+6. 類 Dirichlet 函數、對數恆等式與殘差
+6. Dirichlet-Type Functions, Logarithmic Identity and Residuals
+============================================================================
+
+【中文】
+對 G=prod_p p^{k_p} 定義：
+  D_G(s)=sum_{p|G} k_p * p^{-s}.
+形式求導：
+  D'_G(s)=-sum_{p|G} k_p (log p) p^{-s}.
+在 s=0：
+  -D'_G(0)=sum_p k_p log p=log G.
+
+此恆等式對有限質數冪乘積精確成立，並且 D_G 是整函數。
+但它不等於黎曼 ζ(s) 或 ζ'(s)^2。
+
+對非負的三項殘差 r=(r0,r1,r2)：
+  R_r(s)=r0*2^{-s}+r1*3^{-s}+r2*5^{-s}.
+則：
+  30R_r(1)=15r0+10r1+6r2=D1_num.
+  30E_r(1/2)=15r0²+10r1²+6r2²=Ehalf_num30,
+  E_r(sigma)=sum_{j=0}^2 rj²*p_j^{-2*sigma}.
+
+由于 rj 是非負整數，D1_num=0 iff r0=r1=r2=0。
+E_r(1/2)=0 亦有相同的有限零殘差條件。
+不能將此「sigma=1/2」自動連結至 ζ 的非平凡零點或黎曼猜想。
+
+【English】
+The finite Dirichlet polynomial yields an exact derivative/log-product
+identity. The finite residual polynomial has an exactly computable zero test.
+Neither construction proves a statement about zeta zeros or global halting.
+
+============================================================================
+7. E257 與 prime-power coding 為兩種不同表示
+7. E257 and Prime-Power Coding Are Different Representations
+============================================================================
+
+【中文】
+原核心對規範化 JSON 字節串 (a1,...,aL) 使用：
+  E0=1; Ei+1=257Ei+(a_i+1), 0<=a_i<=255.
+
+反解由 divmod(Ei,257) 還原位元組（合法餘數在 1..256）。
+
+這個 E257 的每個數碼是位元組（非直接的質數指數），因此不可以把
+E257 的 257 進位數碼直接誤當作 G_P 的質數分解係數。
+要建立雙向轉換，必須先由 E257 解出同一個有限 bytes，再編碼成質數冪。
+
+【English】
+E257 is a positional injection on canonical bytes. Prime-power Gödel coding
+is a separate injection through valuations. Convert by decoding finite bytes,
+not by treating radix-257 digits as prime exponents.
+
+============================================================================
+8. ANALYTIC_CONTINUATION：核心方程
+8. ANALYTIC_CONTINUATION: The Exact Equation
+============================================================================
+
+【中文】
+附件對非空開集 D⊂Ω⊂C、f∈Hol(D) 定義：
+  AC_{D→Ω}(F;f)=(∂bar F, F|_D-f).
+
+當 F∈C¹(Ω) 時，
+  AC_{D→Ω}(F;f)=(0,0)
+等價於 F 在 Ω 上全純且 F 在 D 上等於 f。
+若 Ω 連通且 D 非空開集，則一旦存在延拓即唯一（恆等定理）。
+
+注意：在一串離散的樣本 (n,b_n) 上，沒有預先給定任何開集 D 或
+f∈Hol(D)。因此「從離散資料選擇全純插值」與「將既有全純 f 解析延拓」
+是兩個不同問題。
+
+【English】
+Analytic continuation requires an already holomorphic function defined on a
+nonempty open domain. The identity theorem guarantees uniqueness for a fixed
+connected target domain, *after* that original open-set function is specified.
+Sparse or discrete computational records alone do not fix a unique entire
+function.
+
+============================================================================
+9. 精確有限插值：真正可檢驗的解析部分
+9. Exact Finite Interpolation: The Computable Analytic Layer
+============================================================================
+
+【中文】
+將每個成功產生的有限 JSON 結果 record_n 使用規範化 J 序列化，定義：
+  g_n=E257(J(record_n).encode('utf-8')),
+  b_n=g_n/(1+g_n) in Q ∩ (0,1).
+
+即使 record_n 表示 SKIPPED_BUDGET，g_n 仍存在，故選定 n 的有限記錄
+總有一個值。但這個編碼只是該條完整記錄，不是未知機器未來的答案。
+
+對 N 個不同的節點 0,...,N-1，定義 Lagrange 基底：
+  L_j(z)=product_{0<=k<N, k!=j} (z-k)/(j-k).
+  P_N(z)=sum_{j=0}^{N-1} b_j L_j(z).
+
+定理：P_N 是唯一的 degree < N 之多項式，且：
+  P_N(j)=b_j for j=0,...,N-1.
+
+證明：L_j(k)=delta_jk，故 P_N 逐點插值；若另有 Q_N degree<N
+亦符合，則 P_N-Q_N 擁有 N 個互異零點，然而次數 <N，故為零多項式。
+
+驗證器以完全精確的 fractions.Fraction（非浮點）對 8 筆獨立運算記錄
+驗證 P_N(j)=b_j，并檢驗一個非整數 z=1/2：
+  P_N(z) != P_N(z)+product_{j=0}^{N-1}(z-j).
+
+後式說明：兩個不同的整函數完全符合相同的 N 個樣本。
+因此「唯一」只在限制多項式次數 <N 時成立；在全部整函數中不成立。
+
+【English】
+The finite Lagrange polynomial is the unique interpolant within degree < N.
+Exact rational arithmetic checks the finite data. The polynomial plus a
+nonzero multiple of the product ∏(z-j) is a different entire interpolant with
+the same samples, proving that finite discrete observations do not determine
+a unique holomorphic extension.
+
+============================================================================
+10. 從有限多項式到解析延拓：正確先後順序
+10. From a Finite Polynomial to Legitimate Analytic Continuation
+============================================================================
+
+【中文】
+先選定 P_N，令 D={z:|z|<1}，f=P_N|_D，Ω=C，F=P_N。
+因 P_N 為多項式，∂bar P_N=0，且 F|_D=f，因此：
+  AC_{D→C}(F;f)=(0,0).
+
+固定這個 f 之後，任何另一個全純 G:C→C 若在開圓盤 D 上等於 f，
+必依恆等定理 G≡P_N。
+
+然而在「尚未選定 P_N|D」的階段，另有插值多項式
+  Q_N(z)=P_N(z)+c*∏(z-j),  c!=0,
+同樣通過 N 個離散點。Q_N 在 D 上一般不等於 P_N，因此不是同一 f
+的解析延拓，而是對原離散樣本的另一種初始選擇。不存在矛盾。
+
+【English】
+Once f=P_N restricted to a nonempty open disk is fixed, P_N is the unique
+entire continuation of f. But another interpolant Q_N does not agree with f on
+the open disk; it only agrees at finitely many sampled integers. Thus the
+identity theorem and nonuniqueness of finite-data interpolation coexist.
+
+============================================================================
+11. 無限離散流的全純插值：條件下存在，仍非判定神諭
+11. An Entire Interpolant for the Infinite Stream, Not an Oracle
+============================================================================
+
+【中文】
+若每個 n 均有規範化有限記錄，且 b_n∈(0,1)，可數學上定義：
+
+  F_inf(z)=sum_{n=0}^∞ b_n * exp(-(z-n)^2) * sinc(pi*(z-n)),
+  sinc(u)=sin(u)/u, sinc(0)=1.
+
+對任一複平面緊集合，|exp(-(z-n)^2)| 隨 n 具有 Gaussian 衰減，
+其餘 sinc 因子在固定緊集合上有可控制的上界，b_n∈(0,1)，
+故該級數局部一致收斂，形成一個整函數。
+在整數 m，各項的 sinc(pi*(m-n)) 除 n=m 外皆為 0，所以：
+  F_inf(m)=b_m.
+
+但對任意整函數 H(z)，
+  F_inf(z)+sin(pi*z)*H(z)
+在每一個整數 n 仍等於 b_n；插值因此並不唯一。
+更重要的是：計算一個尚未枚舉完成的 b_n，仍然需要執行指定的
+有限運算，不能僅憑公式在有限步內求得任意未來輸出。
+
+【English】
+Bounded values b_n admit a Gaussian-cardinal entire interpolant with locally
+uniform convergence. Its integer samples recover the data, but adding
+sin(pi*z)*H(z) produces infinitely many other entire interpolants. The formula
+is a representation of computational observations, not a universal evaluation
+oracle for uncomputed or undecidable behavior.
+
+============================================================================
+12. 位元命題理論的一致性／完備性與其界線
+12. Bitwise Propositional Consistency and Completeness
+============================================================================
+
+【中文】
+對任何固定長度 N 的檔案位元 K，令 A_K 恰包含 P_j 或 ¬P_j，
+依照 bj=1 或 0 指定。取古典命題推論閉包：
+  T_K=Cn_PL(A_K).
+
+指定完整賦值 v_K(P_j)=bj 同時滿足所有 A_K；由可靠性可證一致。
+對任意由有限原子 P_j 組成的布林公式 φ，v_K 決定其真假；
+由古典命題邏輯完備性可得 T_K ⊢φ 或 T_K⊢¬φ。
+
+這是一個固定有限原子命題理論的 negation-completeness，
+不等於算術真理的全部可證性，也不等於任意圖靈機的無界停機判定。
+
+本次兩個不同位元數的 One-Liner（2027 bytes、2043 bytes）具有
+不同的 K、T_K、G_P(K)；不能只因運作行為相同就說位元編碼相同。
+
+【English】
+The complete Boolean theory of a fixed finite bit vector is consistent and
+negation-complete. That theorem is separate from the operational correctness
+of the interpreted program and does not conflict with incompleteness theorems
+for sufficiently strong effectively axiomatized arithmetic theories.
+
+============================================================================
+13. 獨立驗證協議與結果
+13. Independent Audit Protocol and Results
+============================================================================
+
+【中文】
+執行指令：
+  python3 verify_prime_analytic.py
+
+實測涵蓋：
+  - 真實 one-liner 檔案大小、實體行數、無壓縮載荷；
+  - 前 26 個原版候選與兩種明文命令輸出／checkpoint 位元組比對；
+  - 改變 HSI_WORD、HSI_TRACE、HSI_BUDGET；
+  - 錯誤候選及無效 JSON 候選拒絕；
+  - split-resume 儲存狀態延續；
+  - Wilson 與前 10 個質數；
+  - p_5=11 的 prime-index pair 反解；
+  - 前 16 個程序位元的 prime-power round-trip；
+  - 原版輸入／輸出 E257 反解；
+  - 8 筆 finite Lagrange 插值與非唯一性反例；
+  - 篡改 finite JSON 記錄會改變其 E257 身分。
+
+檢查範圍為有限回歸測試，不宣稱證明所有可能配置的程式等價。
+證書記錄規格、來源 SHA256、實際 bytes、測試結果及未完成證明義務。
+
+【English】
+The verifier executes bounded subprocesses in isolated temporary checkpoint
+paths, comparing reference, Bash one-line, and POSIX one-line output bytes and
+checkpoint bytes. It separately checks prime and analytic identities by exact
+arithmetic. The resulting certificate is a finite experimental record, not a
+formal universal correctness proof.
+
+============================================================================
+14. 未解的證明義務與系統部署界線
+14. Remaining Proof Obligations and Deployment Boundaries
+============================================================================
+
+【中文】
+若要使本成果升級為完整的形式編譯定理，仍需：
+  (a) 形式化 Python 子語言與 HSI-ML 的完整操作語意；
+  (b) 證明 source-to-source 轉換保存全部可觀察行為（含異常、故障）；
+  (c) 程式碼身份、Git commit、SHA256、證書與部署權限的安全串接；
+  (d) 將 2 KB 核心未收錄的所有失敗即 HOLD 的必要防護置於可信驗證層；
+  (e) 確定數學插值或數值音訊模型不會自動取得部署或交易授權。
+
+本次沒有更新 GitHub、沒有遠端部署、沒有生成商用音樂、沒有開啟
+Trader_42 實盤交易，也不宣稱解決黎曼假說或一般停機問題。
+
+【English】
+The present deliverable is a locally executable prototype and finite audit,
+not a deployed service, live trader, universal theorem prover, RH proof,
+unrestricted decompressor or analytic-continuation oracle.
+
+============================================================================
+15. 核心結論
+15. Final Formal Statement
+============================================================================
+
+【中文】
+「2 KB 明文核心」可以承載 HSI_original/XY 的主要有限計算規則；
+質數公式提供程式位元的唯一性編碼及可逆描述；解析延拓方程則提供
+對已選定全純函數的嚴格存在性與唯一性判準。
+
+但三件事情不應混淆：
+  程式可以有限驗證  != 任意無界命題可判定；
+  有限位元可以唯一編碼 != 所有程式都能無損壓縮至 2 KB；
+  離散資料可以插值   != 未給定開集 f 時已存在唯一解析延拓。
+
+【English】
+A plaintext sub-2KB kernel can preserve and test the main finite HSI original/XY
+paths. Prime formulas provide reversible bitwise identity; the analytic
+continuation equation supplies a precise uniqueness theorem once an open-set
+holomorphic function has been chosen. None of these facts alone settles
+unbounded program behavior or arbitrary software compression.
+
+END / 結束

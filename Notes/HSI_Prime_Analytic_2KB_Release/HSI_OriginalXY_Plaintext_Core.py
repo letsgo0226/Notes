@@ -1,0 +1,29 @@
+import os,json,sys,time
+from math import isqrt
+from functools import reduce
+J=lambda x:json.dumps(x,separators=(',',':'))
+E=lambda x:reduce(lambda n,b:n*257+b+1,J(x).encode(),1)
+Q=lambda n:(n-(w:=(isqrt(8*n+1)-1)//2)*(w+1)//2,w+1-n+w*(w+1)//2)
+Z='HSI-ORIGINAL-XY/2K';g=os.getenv;P=g('HSI_STATE','hsi.original-xy.state');W=g('HSI_WORD','1');L=int(g('HSI_LIMIT','0'));B=int(g('HSI_BUDGET','128'));S=float(g('HSI_SLEEP','.2'));A=g('HSI_TRACE')=='1';H=g('HSI_CAND');N=0
+def F(d):
+ with open(P+'.tmp','w')as f:f.write(J(d))
+ os.replace(P+'.tmp',P)
+d=json.load(open(P))if os.path.exists(P)else dict(n=0,t=0,w=W,v=2)
+while not L or N<L:
+ n=d['n'];r,T=Q(n);e,m=Q(r);p=e+1;c,k=Q(p);K=k+1;b=4*K;x=str(E([n,e,T,m,W]))
+ if 0<B<T:
+  o=dict(protocol=Z,step=n,status='SKIPPED_BUDGET',budget=T,x=x,y=None,verified=0)
+ else:
+  if not d['t']:d.update(q=0,h=0,M=[i for i,v in enumerate(W)if v=='1'])
+  q=d['q'];h=d['h'];M=set(d['M']);t=d['t']
+  while t<T and q!=k:
+   a=h in M;v=c//b**(2*q+a)%b;u=v%K;v//=K;hh=h+2*(v%2)-1;v//=2;mm=set(M);mm.add(h)if v%2 else mm.discard(h);exp=[u,hh,sorted(mm)]
+   try:obs=exp if not H or t else json.loads(H)
+   except:obs=None
+   rr=[J(x)!=J(y)for x,y in zip(obs,exp)]if isinstance(obs,list)and len(obs)==3 else[1,0,0]
+   D0=sum(rr);D1=15*rr[0]+10*rr[1]+6*rr[2];EH=15*rr[0]**2+10*rr[1]**2+6*rr[2]**2
+   if D0:print(J(dict(protocol=Z,step=n,kind='REJECT',D0=D0,D1_num=D1,Ehalf_num30=EH,residual_godel=2**(rr[0]+1)*3**(rr[1]+1)*5**(rr[2]+1),accepted=0)),flush=True);sys.exit(3)
+   if A:print(J(dict(step=n,xy_step=t,x=str(E([p,q,h,sorted(M),obs])),y=str(E([p,*exp])),D0=D0,D1_num=D1,Ehalf_num30=EH,residual_godel=30,accepted=1)),flush=True)
+   q,h,M=u,hh,mm;t+=1;d.update(t=t,q=q,h=h,M=sorted(M));F(d)
+  o=dict(protocol=Z,step=n,branch=e,budget=T,order=m,status='HALTED'if q==k else'UNRESOLVED',xy_steps=t,x=x,y=str(E([p,q,h,sorted(M)])),D0=0,D1_num=0,Ehalf_num30=0,verified=1,sample='y/(1+y)')
+ d=dict(n=n+1,t=0,w=W,v=2);F(d);print(J(o),flush=True);N+=1;time.sleep(S)

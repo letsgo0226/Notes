@@ -1,0 +1,209 @@
+{
+  "protocol": "HSI-PRIME-ANALYTIC-2KB/1.0",
+  "status": "FINITE_TESTS_PASSED",
+  "candidate": {
+    "bytes": 2027,
+    "physical_lines": 1,
+    "sha256": "2b032922bc09019bd55e454d9143e0755c1c7b51d6d4f12f8e315c687c363c31",
+    "plaintext_no_compression": true,
+    "self_contained": true,
+    "shell_requirement": "Bash ANSI-C $-quoting",
+    "posix_shell_bytes": 2043,
+    "posix_sha256": "679f8118985635ea7eeb963ac92839acd4c97a4d3ada5607339aa2766c189e7d",
+    "portable_shell_requirement": "POSIX sh + printf + python3"
+  },
+  "decoded_core": {
+    "bytes": 1983,
+    "sha256": "b89d0709b161c291c0fb1d9371058b107c735bbfd28212a1a66353ee6523ba7b"
+  },
+  "prime_formula": {
+    "wilson_tested_n": "2..29",
+    "first_10_primes": [
+      2,
+      3,
+      5,
+      7,
+      11,
+      13,
+      17,
+      19,
+      23,
+      29
+    ],
+    "prime_ordinal_example": {
+      "rank": 5,
+      "prime": 11,
+      "godel_code": "2985984"
+    },
+    "bit_prefix": {
+      "length": 16,
+      "bits": "0111000001111001",
+      "primes": [
+        2,
+        3,
+        5,
+        7,
+        11,
+        13,
+        17,
+        19,
+        23,
+        29,
+        31,
+        37,
+        41,
+        43,
+        47,
+        53
+      ],
+      "exponents": [
+        1,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        2
+      ],
+      "godel_code": "247333866855744537846255628350",
+      "roundtrip": true,
+      "dirichlet_coefficients": [
+        {
+          "prime": 2,
+          "coefficient": 1
+        },
+        {
+          "prime": 3,
+          "coefficient": 2
+        },
+        {
+          "prime": 5,
+          "coefficient": 2
+        },
+        {
+          "prime": 7,
+          "coefficient": 2
+        },
+        {
+          "prime": 11,
+          "coefficient": 1
+        },
+        {
+          "prime": 13,
+          "coefficient": 1
+        },
+        {
+          "prime": 17,
+          "coefficient": 1
+        },
+        {
+          "prime": 19,
+          "coefficient": 1
+        },
+        {
+          "prime": 23,
+          "coefficient": 1
+        },
+        {
+          "prime": 29,
+          "coefficient": 2
+        },
+        {
+          "prime": 31,
+          "coefficient": 2
+        },
+        {
+          "prime": 37,
+          "coefficient": 2
+        },
+        {
+          "prime": 41,
+          "coefficient": 2
+        },
+        {
+          "prime": 43,
+          "coefficient": 1
+        },
+        {
+          "prime": 47,
+          "coefficient": 1
+        },
+        {
+          "prime": 53,
+          "coefficient": 2
+        }
+      ],
+      "formal_identity": "-D'(0)=sum_j (bit_j+1)*log(p_j)=log(G)"
+    },
+    "full_bit_count": 16216,
+    "whole_file_godel_product_materialized": false
+  },
+  "analytic_continuation": {
+    "sample_count": 8,
+    "finite_lagrange_interpolation_exact": true,
+    "polynomial_degree_lt_sample_count": true,
+    "nonunique_entire_interpolant_witness": true,
+    "chosen_domain": "f = selected interpolation polynomial restricted to open unit disk; Ω = C",
+    "open_set_identity_theorem_applies_only_after_f_chosen": true,
+    "not_a_general_analytic_continuation_solver": true
+  },
+  "bounded_semantic_replay": {
+    "26_candidates": {
+      "pass": true,
+      "exit_code": 0,
+      "stdout_sha256": "0f602f7fee7776b17c9a8a208192f0482f20107b86757d181e4a5b89fd9f045f",
+      "emitted_lines": 26
+    },
+    "alternate_word": {
+      "pass": true,
+      "exit_code": 0,
+      "stdout_sha256": "09db606fb3755be9444bacad098518d02b7879e7af9824c3351751c74e5760f3",
+      "emitted_lines": 24
+    },
+    "trace": {
+      "pass": true,
+      "exit_code": 0,
+      "stdout_sha256": "ea75224201771b510d72c49bad8fa4e258e7686d64b140b28ab8bc53b1e88d6f",
+      "emitted_lines": 72
+    },
+    "budget_skip": {
+      "pass": true,
+      "exit_code": 0,
+      "stdout_sha256": "991ac92e33453ecb88c0211c8e15fbf2bdbe49caa9fddd5cff1b0740e5e984e5",
+      "emitted_lines": 30
+    },
+    "reject": {
+      "pass": true,
+      "exit_code": 3,
+      "stdout_sha256": "97128eed1467e604c75978bd9594ca8201a0100ddba8427b6ae60c81ca9abbcf",
+      "emitted_lines": 1
+    },
+    "malformed_candidate": {
+      "pass": true,
+      "exit_code": 3,
+      "stdout_sha256": "58fae952605d9e57c37d0b5b83e3841f64b3070f76705c99f152bdf6dcb415dc",
+      "emitted_lines": 1
+    },
+    "resume": {
+      "pass": true,
+      "emitted_lines": 89,
+      "checkpoint_sha256": "f1fb30cf753da4dede73e45de9decc1dbe60e870e15169307928015c3cf57a59"
+    }
+  },
+  "limitations": [
+    "The small kernel omits selected input/checkpoint validation and fsync/durable checkpoint guarantees of reference.",
+    "Finite tests do not establish full program equivalence.",
+    "The analytic interpolant does not decide unsimulated TM halting.",
+    "No claim of Riemann Hypothesis or zeta zeros.",
+    "Prime-prefix encoding is not a byte-budget reduction of arbitrary source programs."
+  ]
+}
