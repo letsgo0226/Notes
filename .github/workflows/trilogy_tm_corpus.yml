@@ -1,0 +1,35 @@
+name: HSI TM Open-Corpus Trilogy (No AI)
+on:
+  schedule:
+    # Daily 11:23 Asia/Taipei; GitHub may delay or skip execution.
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: hsi-tm-open-corpus-trilogy
+  cancel-in-progress: false
+jobs:
+  compile-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify the entire locked Notes inventory
+        run: python3 hsi_notes_review.py --json-out "$RUNNER_TEMP/source-audit.json"
+      - name: Build one TM-driven research dossier
+        run: python3 trilogy_tm_corpus.py --build
+      - name: Commit dossier and finite TM checkpoint
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add books/reading-trilogy/open-corpus/
+          if git diff --cached --quiet; then
+            echo "Completed; no changes to save"
+            exit 0
+          fi
+          git commit -m 'docs: add HSI TM model-free research dossier [skip ci]'
+          git push origin HEAD:main
