@@ -1,0 +1,32 @@
+name: HSI Notes read-only review
+on:
+  pull_request:
+    paths:
+      - 'Notes/**'
+      - 'hsi_notes_review.py'
+      - 'hsi_notes_review.lock.json'
+      - 'tests/test_hsi_notes_review.py'
+      - 'docs/HSI_NOTES_FOUR_SYSTEM_REVIEW.md'
+      - '.github/workflows/hsi-notes-review.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  notes-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Unit tests (synthetic fixtures)
+        run: python3 -m unittest discover -s tests -v
+      - name: Verify all locked Notes files (no remote deploy)
+        run: python3 hsi_notes_review.py --json-out "$RUNNER_TEMP/hsi-notes-review.json"
+      - name: Check finite 2KB release in isolated subprocesses
+        run: python3 Notes/HSI_Prime_Analytic_2KB_Release/verify_prime_analytic.py

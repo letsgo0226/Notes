@@ -1,0 +1,69 @@
+{
+  "protocol": "HSI-NOTES-FOUR-SYSTEM-REVIEW/0.1",
+  "source_repo": "letsgo0226/Notes",
+  "source_ref": "main",
+  "source_commit": "5084ffadcce34d6460d313eb7b6a0c4451d9a5e6",
+  "snapshot_date": "2026-10-11",
+  "entries": [
+    {
+      "path": "Notes/1",
+      "bytes": 24549,
+      "git_blob_sha1": "c8bbc0aa969ff27892ccc7739ccebcdadcebfff7"
+    },
+    {
+      "path": "Notes/2",
+      "bytes": 64343,
+      "git_blob_sha1": "696a345df866b2ef374bed2fdef03af7ba22490e"
+    },
+    {
+      "path": "Notes/3",
+      "bytes": 44561,
+      "git_blob_sha1": "77d46387871c72eb4d4007ce2dafeeac44fab52a"
+    },
+    {
+      "path": "Notes/4",
+      "bytes": 38042,
+      "git_blob_sha1": "f51c80a27404426ab8c85d3ca414a5d248e1e9ef"
+    },
+    {
+      "path": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_POSIX_2KB_OneLiner.sh",
+      "bytes": 2043,
+      "git_blob_sha1": "0201324b31756ea3c800f29cc5f368a406892fb6"
+    },
+    {
+      "path": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_2KB_OneLiner.sh",
+      "bytes": 2027,
+      "git_blob_sha1": "eac7a28f9d138d2c44a7550cb67130176ab7fbe9"
+    },
+    {
+      "path": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_Core.py",
+      "bytes": 1983,
+      "git_blob_sha1": "ccce79783ab2bffe10292d7e6926fec48878badd"
+    },
+    {
+      "path": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_PRIME_ANALYTIC_PLAINTEXT_2KB_BILINGUAL_SPEC.txt",
+      "bytes": 20600,
+      "git_blob_sha1": "f5e654fadb7f34a88f17f4efda23161f1a00a3d3"
+    },
+    {
+      "path": "Notes/HSI_Prime_Analytic_2KB_Release/OriginalXY_reference.py",
+      "bytes": 3072,
+      "git_blob_sha1": "62800e278d79cfed52eafe87a01e24bfccbd2edb"
+    },
+    {
+      "path": "Notes/HSI_Prime_Analytic_2KB_Release/README.md",
+      "bytes": 2018,
+      "git_blob_sha1": "c23b5a353e87ec9736c1327a205fc9da71c8ee32"
+    },
+    {
+      "path": "Notes/HSI_Prime_Analytic_2KB_Release/verification_certificate.json",
+      "bytes": 5009,
+      "git_blob_sha1": "469412329d12227804c339c7f39bdce73f1cc5de"
+    },
+    {
+      "path": "Notes/HSI_Prime_Analytic_2KB_Release/verify_prime_analytic.py",
+      "bytes": 9705,
+      "git_blob_sha1": "ec3528c55c8a5c5dc0075eade392e0ada165105e"
+    }
+  ]
+}
