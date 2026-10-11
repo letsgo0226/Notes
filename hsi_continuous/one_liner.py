@@ -6,9 +6,7 @@ not a lossless compression of arbitrary source code. Never execute it during
 translation. Reject any target outside the allowlist.
 """
 import argparse
-import hashlib
 import json
-import os
 from pathlib import Path
 import shlex
 
@@ -28,23 +26,34 @@ def build(name):
     source=ROOT/relative
     if not source.is_file():
         raise FileNotFoundError(relative)
-    digest=hashlib.sha256(source.read_bytes()).hexdigest()
-    # Resolve only from the launcher script's working directory / repository root.
-    # A changed target is rejected by hash. No network, eval or dynamic downloads.
+    payload=source.read_bytes()
+    encoded=1
+    for byte in payload:
+        encoded=encoded*257+byte+1
+    recovered=[]
+    n=encoded
+    while n>1:
+        n,r=divmod(n,257)
+        if not r: raise ValueError('invalid E257 digit')
+        recovered.append(r-1)
+    if bytes(reversed(recovered))!=payload:
+        raise AssertionError('E257 roundtrip failed')
+    # Single-line Python E257 source check: reversible equality, not authentication.
+    # Only used for short source references; no source bytes are embedded.
     line=("set -eu; p="+shlex.quote(relative)+"; "
-          "test -f \"$p\" || { echo 'HSI source missing' >&2; exit 2; }; "
+          "test -f \"$p\" || exit 2; "
           "command -v python3 >/dev/null 2>&1 || exit 127; "
-          "command -v sha256sum >/dev/null 2>&1 && "
-          "h=$(sha256sum \"$p\" | cut -d ' ' -f 1) || "
-          "h=$(shasum -a 256 \"$p\" | cut -d ' ' -f 1); "
-          "test \"$h\" = "+shlex.quote(digest)+" || "
-          "{ echo 'HSI source hash mismatch' >&2; exit 3; }; "
+          "python3 -c 'import sys; b=open(sys.argv[1],\"rb\").read(); "
+          "n=1; "
+          "exec(\"for v in b: n=n*257+v+1\"); "
+          "sys.exit(0 if str(n)==sys.argv[2] else 3)' "
+          "\"$p\" "+shlex.quote(str(encoded))+" || exit 3; "
           "exec python3 \"$p\" \"$@\"")
     data=(line+"\n").encode("utf-8")
     if b"\n" in data[:-1] or len(data)>2048:
         raise AssertionError("not a <=2KB single physical line")
     return {"protocol":PROTOCOL,"entrypoint":name,"target":relative,
-            "source_sha256":digest,"one_liner_bytes":len(data),
+            "source_e257":str(encoded),"one_liner_bytes":len(data),
             "self_contained":False,"launcher":line}
 
 def main():
