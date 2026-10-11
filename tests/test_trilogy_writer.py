@@ -2,6 +2,9 @@
 import copy
 from pathlib import Path
 import unittest
+from unittest import mock
+import tempfile
+import os
 import trilogy_writer as w
 
 
@@ -27,6 +30,30 @@ class TrilogyWriterTests(unittest.TestCase):
             st = w.advance(st, sec, sec[-1].relative_to(w.ROOT), 1400, "mock")
         self.assertIsNone(w.next_section(st))
         self.assertEqual(len(st["completed"]), expected)
+
+    def test_mock_generation_then_daily_cap(self):
+        with tempfile.TemporaryDirectory() as dirname:
+            root = Path(dirname)
+            destination = root / "books" / "reading-trilogy"
+            with mock.patch.object(w, "ROOT", root), \
+                 mock.patch.object(w, "OUTPUT", destination), \
+                 mock.patch.object(w, "STATE_PATH", destination / "state.json"), \
+                 mock.patch.object(w, "request_model", return_value=("哲" * 1400, "mock-model")), \
+                 mock.patch.dict(os.environ, {"TRILOGY_ENABLED": "true"}):
+                self.assertEqual(w.main(["--write"]), 0)
+                self.assertTrue((destination / "state.json").exists())
+                self.assertEqual(len(w.load_state()["completed"]), 1)
+                self.assertEqual(w.main(["--write"]), 0)
+                self.assertEqual(len(w.load_state()["completed"]), 1)
+
+    def test_custom_url_requires_own_token(self):
+        with mock.patch.dict(os.environ, {
+            "WRITER_API_URL": "https://api.example.org/chat/completions",
+            "GITHUB_TOKEN": "fake-github-token",
+            "WRITER_API_KEY": "",
+        }):
+            with self.assertRaises(RuntimeError):
+                w.request_model("test")
 
     def test_status_and_gating(self):
         self.assertEqual(w.main(["--plan"]), 0)
