@@ -5,6 +5,12 @@ on:
     # Every Monday 09:30 Asia/Taipei (UTC+8); scheduled runs require default branch.
     - cron: '30 1 * * 1'
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'peace_av/**'
+      - '.github/workflows/peace-speech-continuous.yml'
+    # Archive-only commits under 影音/ deliberately do not retrigger rendering.
   pull_request:
     paths:
       - 'peace_av/**'
