@@ -160,6 +160,19 @@ jobs:
           assert d['integer_exact'] and d['python_loop_control']
           assert d['originalxy_transitions']>0
           PY
+      - name: Verify OriginalXY tape-level borrow and exact subtraction
+        run: |
+          python hsi_continuous/originalxy_exact_subtraction.py > hsi_continuous/out/exact_subtraction.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/exact_subtraction.json').read_text())
+          for r in d['results']:
+              assert int(r['difference'])==int(r['a'])-int(r['b'])
+              assert r['decrement_calls']==int(r['b'])
+          assert d['exact_integer'] and d['originalxy_tape_borrow']
+          assert d['python_loop_control']
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
@@ -189,6 +202,7 @@ jobs:
             hsi_continuous/out/binary_increment.json
             hsi_continuous/out/exact_addition.json
             hsi_continuous/out/e257_bounded.json
+            hsi_continuous/out/exact_subtraction.json
             hsi_continuous/out/*.oneline.sh
             hsi_continuous/out/*.oneline.json
           retention-days: 90
