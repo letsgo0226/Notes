@@ -109,6 +109,20 @@ jobs:
           assert d['outcomes']['1']['state']==[1,-1,[]]
           assert d['bounded_one_step'] and not d['general_arithmetic_compiler']
           PY
+      - name: Verify multi-state OriginalXY two-step program
+        run: |
+          python hsi_continuous/originalxy_multistate_compiler.py > hsi_continuous/out/multistate.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/multistate.json').read_text())
+          t=d['output']['trace']
+          assert len(t)==2
+          assert t[0]['state']==[1,1,[0]]
+          assert t[1]['state']==[2,0,[0,1]]
+          assert d['output']['status']=='HALTED'
+          assert d['native_originalxy_transition'] and not d['general_arithmetic_compiler']
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
@@ -134,6 +148,7 @@ jobs:
             hsi_continuous/out/originalxy_exact_coupled.json
             hsi_continuous/out/native_tiny_compiler.json
             hsi_continuous/out/two_symbol.json
+            hsi_continuous/out/multistate.json
             hsi_continuous/out/*.oneline.sh
             hsi_continuous/out/*.oneline.json
           retention-days: 90
