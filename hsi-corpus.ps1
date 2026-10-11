@@ -1,69 +1,20 @@
-param(
-  [Parameter(ValueFromRemainingArguments=$true)]
-  [string[]]$HSIArgs
-)
-
-$ErrorActionPreference = "Stop"
-$Pin = "7ab944d924efa03cc15bb4722d9db3e5d25980b5"
-$Base = "https://raw.githubusercontent.com/letsgo0226/Notes/$Pin"
-$Dir = if ($env:HSI_CORPUS_HOME) { $env:HSI_CORPUS_HOME } else { Join-Path $HOME ".hsi-corpus" }
-$App = Join-Path $Dir "hsi_open_corpus.py"
-$Search = Join-Path $Dir "hsi_search.py"
-$Net = Join-Path $Dir "hsi_net.py"
-$Policy = Join-Path $Dir "hsi_render_policy.json"
+param([Parameter(ValueFromRemainingArguments=$true)][string[]]$HSIArgs)
+$ErrorActionPreference="Stop"
+$Ref=if($env:HSI_BUNDLE_REF){$env:HSI_BUNDLE_REF}else{"main"}
+$Dir=if($env:HSI_BOOTSTRAP_HOME){$env:HSI_BOOTSTRAP_HOME}else{Join-Path $HOME ".hsi-bootstrap"}
 New-Item -ItemType Directory -Force -Path $Dir | Out-Null
-
-function Resolve-HSIPython {
-  $candidates = @(
-    @{Cmd="py"; Prefix=@("-3")},
-    @{Cmd="python3"; Prefix=@()},
-    @{Cmd="python"; Prefix=@()}
-  )
-  foreach ($c in $candidates) {
-    $cmd = Get-Command $c.Cmd -ErrorAction SilentlyContinue
-    if ($null -ne $cmd) {
-      try {
-        & $c.Cmd @($c.Prefix) --version *> $null
-        if ($LASTEXITCODE -eq 0) { return $c }
-      } catch {}
-    }
-  }
-  return $null
-}
-
-$Py = Resolve-HSIPython
-if ($null -eq $Py) {
-  throw "Python 3 is required. Install it from python.org or with: winget install Python.Python.3.13"
-}
-
-$TmpApp = "$App.tmp.$PID"
-$TmpSearch = "$Search.tmp.$PID"
-$TmpNet = "$Net.tmp.$PID"
-$TmpPolicy = "$Policy.tmp.$PID"
+$Py=$null
+if(Get-Command py -ErrorAction SilentlyContinue){$Py=@{Cmd="py";Prefix=@("-3")}}
+elseif(Get-Command python3 -ErrorAction SilentlyContinue){$Py=@{Cmd="python3";Prefix=@()}}
+elseif(Get-Command python -ErrorAction SilentlyContinue){$Py=@{Cmd="python";Prefix=@()}}
+if($null -eq $Py){throw "Python 3.9+ required. Install Python 3 and rerun."}
+$App=Join-Path $Dir "hsi_bootstrap.py"
+$Tmp="$App.tmp.$PID"
 try {
-  Invoke-WebRequest -UseBasicParsing "$Base/hsi_open_corpus.py" -OutFile $TmpApp
-  Invoke-WebRequest -UseBasicParsing "$Base/hsi_search.py" -OutFile $TmpSearch
-  Invoke-WebRequest -UseBasicParsing "$Base/hsi_net.py" -OutFile $TmpNet
-  Invoke-WebRequest -UseBasicParsing "$Base/hsi_render_policy.json" -OutFile $TmpPolicy
-  if ((Get-Item $TmpApp).Length -le 0 -or (Get-Item $TmpSearch).Length -le 0 -or (Get-Item $TmpNet).Length -le 0 -or (Get-Item $TmpPolicy).Length -le 0) {
-    throw "Downloaded HSI program is empty."
-  }
-  Move-Item -Force $TmpApp $App
-  Move-Item -Force $TmpSearch $Search
-  Move-Item -Force $TmpNet $Net
-  Move-Item -Force $TmpPolicy $Policy
-} finally {
-  Remove-Item -Force -ErrorAction SilentlyContinue $TmpApp,$TmpSearch,$TmpNet,$TmpPolicy
-}
-
-Write-Host "HSI Open-Corpus Renderer: no AI / HSI-SEARCH / HSI NET CC0+PDM WAV / deterministic DSP"
-Write-Host "bundle_commit> $Pin"
-Write-Host "note> YouTube audio is not downloaded or sampled."
-Write-Host "note> Adapter license metadata is indexed metadata; verify landing pages before publication/commercial reuse."
-
-$invoke = @()
-$invoke += $Py.Prefix
-$invoke += $App
-$invoke += $HSIArgs
+  Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/letsgo0226/Notes/$Ref/hsi_bootstrap.py" -OutFile $Tmp
+  if((Get-Item $Tmp).Length -le 0){throw "Downloaded bootstrap is empty."}
+  Move-Item -Force $Tmp $App
+} finally {Remove-Item -Force -ErrorAction SilentlyContinue $Tmp}
+$invoke=@();$invoke+=$Py.Prefix;$invoke+=$App;$invoke+="corpus";$invoke+=$HSIArgs
 & $Py.Cmd @invoke
 exit $LASTEXITCODE

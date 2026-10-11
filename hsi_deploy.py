@@ -5,7 +5,7 @@ from pathlib import Path
 from hsi_net import projection_request, projection_certificate, VERSION as HSI_NET_VERSION
 
 PROTOCOL="HSI-DEPLOY/1.0"
-VERSION="1.0.0"
+VERSION="1.1.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
 USER_AGENT="HSI-DEPLOY/1.0 (https://github.com/letsgo0226/Notes)"
 MAX_FILE_BYTES=4*1024*1024
@@ -64,6 +64,14 @@ TARGETS={
         }
     }
 }
+
+# The complete verified Notes bundle is the shared deployment input. Domain
+# repositories retain their own commit pins and formal behavior.
+NOTES_ROOT=Path(__file__).resolve().parent
+_bundle=json.loads((NOTES_ROOT/"hsi_bundle.lock.json").read_text(encoding="utf-8"))
+TARGETS["self"]["ref"]=os.getenv("HSI_CORE_REF",os.getenv("HSI_BUNDLE_REF","main"))
+TARGETS["self"]["files"]={row["path"]:row["path"] for row in _bundle["files"]}
+TARGETS["self"]["files"]["hsi_bundle.lock.json"]="hsi_bundle.lock.json"
 
 ALIASES={
     "core":"self","hsi":"self","self":"self",
@@ -143,12 +151,23 @@ def validate_target(name,root):
         return (root/rel).read_text(encoding="utf-8")
     for p in root.rglob("*.py"):
         try:
-            py_compile.compile(str(p),doraise=True)
+            # Verify syntax without creating bytecode inside locked Notes/.
+            compile(p.read_bytes(),str(p),"exec")
             checks["py_compile:"+p.name]=True
         except Exception:
             checks["py_compile:"+p.name]=False
 
     if name=="self":
+        sys.path.insert(0,str(root))
+        try:
+            from hsi_notes_review import audit
+            from hsi_notes_domains import make_plan
+            lock=json.loads(read("hsi_notes_review.lock.json"))
+            plan=make_plan(root,lock)
+            checks["complete_notes_inventory"]=plan["source_count"]==12
+            checks["bundle_hashes"]=all(sha256_bytes((root/r["path"]).read_bytes())==r["sha256"] for r in _bundle["files"])
+        finally:
+            sys.path.pop(0)
         net=read("hsi_net.py")
         search=read("hsi_search.py")
         corpus=read("hsi_open_corpus.py")
@@ -322,13 +341,13 @@ def _write_atomic(path,text):
 
 def make_dispatcher(root,current):
     script=f'''#!/usr/bin/env python3
-import json, os, sys
+import json, os, sys, subprocess
 from pathlib import Path
 ROOT=Path({str(root)!r})
 STATE=json.loads((ROOT/"current.json").read_text(encoding="utf-8"))
 TARGETS=STATE["targets"]
 ALIASES={{"deploy":("self","hsi_deploy.py"),"net":("self","hsi_net.py"),"search":("self","hsi_search.py"),
-         "corpus":("self","hsi_open_corpus.py"),"native":("self","hsi_native_renderer.py"),
+         "corpus":("self","hsi_notes_run.py"),"native":("self","hsi_notes_run.py"),
          "update":("self","hsi_update.py"),
          "utm":("utm","hsi_blue_native.py"),"trader":("trader_42","hsi_blue_native.py"),
          "trader_42":("trader_42","hsi_blue_native.py"),"omega":("omega","hsi_blue_native.py")}}
@@ -338,7 +357,8 @@ target,file=ALIASES[sys.argv[1]]
 if target not in TARGETS:
     raise SystemExit("target not deployed: "+target)
 path=Path(TARGETS[target])/file
-os.execv(sys.executable,[sys.executable,str(path)]+sys.argv[2:])
+extra=[sys.argv[1]] if sys.argv[1] in {{"corpus","native"}} else []
+raise SystemExit(subprocess.call([sys.executable,str(path)]+extra+sys.argv[2:]))
 '''
     _write_atomic(root/"hsi.py",script)
     try:
@@ -375,6 +395,22 @@ def commit_plan(plan,root):
                 "checks":checks,
                 "status":"VERIFIED"
             }
+        notes_lock=json.loads((NOTES_ROOT/"hsi_notes_review.lock.json").read_text())
+        from hsi_notes_domains import make_plan as notes_make_plan
+        notes_plan=notes_make_plan(NOTES_ROOT,notes_lock)
+        for name in results:
+            _write_atomic(payload/name/"notes-plan.json",canon(notes_plan)+"\n")
+            results[name]["notes_manifest_sha256"]=notes_plan["manifest_sha256"]
+            results[name]["notes_source_count"]=notes_plan["source_count"]
+            if name!="self":
+                for row in _bundle["files"]:
+                    source=NOTES_ROOT/row["path"]
+                    if sha256_bytes(source.read_bytes())!=row["sha256"]:
+                        raise RuntimeError("local Notes runtime differs from bundle lock")
+                    destination=payload/name/"notes-runtime"/row["path"]
+                    destination.parent.mkdir(parents=True,exist_ok=True)
+                    shutil.copyfile(source,destination)
+                shutil.copyfile(NOTES_ROOT/"hsi_bundle.lock.json",payload/name/"notes-runtime/hsi_bundle.lock.json")
         releases.mkdir(parents=True,exist_ok=True)
         shutil.move(str(payload),str(final))
     finally:

@@ -1,0 +1,67 @@
+name: HSI Notes local validation
+on:
+  pull_request:
+    paths:
+      - 'Notes/**'
+      - 'hsi_notes_review.py'
+      - 'hsi_notes_review.lock.json'
+      - 'tests/test_hsi_notes_review.py'
+      - 'tests/test_hsi_notes_domains.py'
+      - 'hsi_notes_domains.py'
+      - 'hsi_notes_validate.py'
+      - 'hsi_notes_runtime.lock.json'
+      - 'hsi_notes_service.py'
+      - 'hsi_notes_run.py'
+      - 'hsi_bootstrap.py'
+      - 'hsi_bundle.lock.json'
+      - 'Dockerfile.notes'
+      - 'hsi-corpus.*'
+      - 'hsi-native.*'
+      - 'hsi-deploy.*'
+      - 'hsi_deploy.py'
+      - 'hsi_open_corpus.py'
+      - 'tests/test_hsi_notes_service.py'
+      - 'tests/test_hsi_bootstrap.py'
+      - 'tests/test_hsi_binance_orders.py'
+      - 'hsi_binance_orders.py'
+      - 'docs/HSI_NOTES_DEPLOYMENT.md'
+      - 'hsi_native_renderer.py'
+      - 'validation_snapshots/**'
+      - 'tests/test_hsi_notes_validate.py'
+      - 'docs/HSI_NOTES_FOUR_SYSTEM_REVIEW.md'
+      - 'docs/HSI_NOTES_LOCAL_VALIDATION_RESULT.md'
+      - '.github/workflows/hsi-notes-review.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  notes-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Unit tests (synthetic fixtures)
+        run: python3 -m unittest discover -s tests -v
+      - name: Verify all locked Notes files (no remote deploy)
+        run: python3 hsi_notes_review.py --json-out "$RUNNER_TEMP/hsi-notes-review.json"
+      - name: Verify deployed bundle bytes and shell syntax
+        run: |
+          python3 -c 'import hashlib,json,pathlib; root=pathlib.Path("."); lock=json.loads((root/"hsi_bundle.lock.json").read_text()); assert all(hashlib.sha256((root/r["path"]).read_bytes()).hexdigest()==r["sha256"] and (root/r["path"]).stat().st_size==r["bytes"] for r in lock["files"])'
+          sh -n hsi-corpus.sh hsi-native.sh hsi-deploy.sh
+      - name: Produce deterministic cross-domain review candidates
+        run: python3 hsi_notes_domains.py --out "$RUNNER_TEMP/hsi-notes-domains.json"
+      - name: Render real audio twice and validate bounded TM plus three invariant gates
+        run: python3 hsi_notes_validate.py --out "$RUNNER_TEMP/notes-local-validation" --sr 8000 --bpm 120 --bars 4
+      - name: Upload local audio and separate validation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: notes-local-validation
+          path: ${{ runner.temp }}/notes-local-validation/
+          retention-days: 14

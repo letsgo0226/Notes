@@ -392,12 +392,22 @@ def main():
     ap.add_argument("keywords",nargs="*")
     ap.add_argument("--out",default=os.getenv("HSI_OUT"))
     ap.add_argument("--lock",default=LOCK_ENV)
+    ap.add_argument("--notes-root",help="Verify and bind the complete versioned Notes snapshot")
     a=ap.parse_args()
+    notes_plan=None
+    if a.notes_root:
+        from hsi_notes_domains import make_plan
+        notes_root=Path(a.notes_root).expanduser()
+        notes_plan=make_plan(notes_root,json.loads((notes_root/"hsi_notes_review.lock.json").read_text(encoding="utf-8")))
     text=" ".join(a.keywords).strip()
     if not text:text=input("keywords> ").strip()
     if not text:raise SystemExit("keywords required")
     out=Path(a.out).expanduser() if a.out else Path.home()/"Music"/"HSI-Corpus"/(time.strftime("%Y%m%d-%H%M%S")+"-"+str(os.getpid()))
     out.mkdir(parents=True,exist_ok=True)
+    if notes_plan:
+        (out/"notes-plan.json").write_text(canon(notes_plan)+"\n",encoding="utf-8")
+        print("notes_manifest>",notes_plan["manifest_sha256"])
+    search_input=text
     print("protocol>",PROTOCOL);print("output>",out)
     print("versions> open_corpus="+VERSION+" hsi_search="+HSI_SEARCH_VERSION)
     print("ai> false")
@@ -436,6 +446,9 @@ def main():
     if not items:
         status=search_cert.get("status","UNRESOLVED")
         raise SystemExit("HSI SEARCH "+status+": no admitted network CC0/PDM WAV evidence within finite search budget")
+
+    if notes_plan:
+        text += " |notes| " + notes_plan["domain_plans"]["music_native"]["candidate_keywords"] + " notes-manifest-" + notes_plan["manifest_sha256"]
 
     state_path=out/"correspondence.state.json"
     candidate_index=0
@@ -548,6 +561,9 @@ def main():
     } for x in used]
     cert={
         "protocol":PROTOCOL,"version":VERSION,
+        "notes_manifest_sha256":notes_plan["manifest_sha256"] if notes_plan else None,
+        "notes_source_count":notes_plan["source_count"] if notes_plan else 0,
+        "search_input":search_input,
         "generation_input":"runtime-keywords-plus-candidate-index",
         "runtime_keywords_basis_e257":keyword_basis,
         "generation_basis_e257":basis,

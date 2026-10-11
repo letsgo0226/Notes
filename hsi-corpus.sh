@@ -1,93 +1,23 @@
 #!/bin/sh
 set -eu
-
-PIN="7ab944d924efa03cc15bb4722d9db3e5d25980b5"
-RAW="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_open_corpus.py"
-RAW_SEARCH="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_search.py"
-RAW_NET="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_net.py"
-RAW_POLICY="https://raw.githubusercontent.com/letsgo0226/Notes/$PIN/hsi_render_policy.json"
-DIR="${HSI_CORPUS_HOME:-$HOME/.hsi-corpus}"
-APP="$DIR/hsi_open_corpus.py"
-SEARCH="$DIR/hsi_search.py"
-NET="$DIR/hsi_net.py"
-POLICY="$DIR/hsi_render_policy.json"
+DIR="${HSI_BOOTSTRAP_HOME:-$HOME/.hsi-bootstrap}"
+REF="${HSI_BUNDLE_REF:-main}"
+RAW="https://raw.githubusercontent.com/letsgo0226/Notes/$REF/hsi_bootstrap.py"
 mkdir -p "$DIR"
-
-resolve_python() {
-  if command -v python3 >/dev/null 2>&1; then
-    PY=python3
-    return 0
-  fi
-  if command -v python >/dev/null 2>&1; then
-    PY=python
-    return 0
-  fi
-  return 1
-}
-
-if ! resolve_python; then
-  case "$(uname -s 2>/dev/null || true)" in
-    Darwin)
-      if command -v brew >/dev/null 2>&1; then
-        echo "setup> installing Python with Homebrew"
-        brew install python
-      else
-        echo "python3 required. Install Python 3 (or Homebrew) first." >&2
-        exit 127
-      fi ;;
-    *)
-      if command -v pkg >/dev/null 2>&1; then
-        echo "setup> installing Python in Termux"
-        pkg install -y python >/dev/null
-      elif command -v apk >/dev/null 2>&1; then
-        echo "setup> installing Python 3"
-        apk add --no-cache python3 >/dev/null
-      else
-        echo "Python 3 required. Install python3 with your system package manager and rerun." >&2
-        exit 127
-      fi ;;
-  esac
-  resolve_python || { echo "Python installation was not found after setup." >&2; exit 127; }
+if command -v python3 >/dev/null 2>&1; then PY=python3
+elif command -v python >/dev/null 2>&1; then PY=python
+else echo "Python 3.9+ required. Install Python 3 and rerun." >&2; exit 127
 fi
-
-TMP="$APP.tmp.$$"
-TMP_SEARCH="$SEARCH.tmp.$$"
-TMP_NET="$NET.tmp.$$"
-TMP_POLICY="$POLICY.tmp.$$"
-trap 'rm -f "$TMP" "$TMP_SEARCH" "$TMP_NET" "$TMP_POLICY"' EXIT HUP INT TERM
-
-if command -v wget >/dev/null 2>&1; then
-  wget -qO "$TMP" "$RAW"
-  wget -qO "$TMP_SEARCH" "$RAW_SEARCH"
-  wget -qO "$TMP_NET" "$RAW_NET"
-  wget -qO "$TMP_POLICY" "$RAW_POLICY"
-elif command -v curl >/dev/null 2>&1; then
-  curl -fsSL "$RAW" -o "$TMP"
-  curl -fsSL "$RAW_SEARCH" -o "$TMP_SEARCH"
-  curl -fsSL "$RAW_NET" -o "$TMP_NET"
-  curl -fsSL "$RAW_POLICY" -o "$TMP_POLICY"
-else
-  echo "wget or curl required" >&2
-  exit 127
+TMP="$DIR/hsi_bootstrap.py.tmp.$$"
+trap 'rm -f "$TMP"' EXIT HUP INT TERM
+if command -v curl >/dev/null 2>&1; then curl -fsSL "$RAW" -o "$TMP"
+elif command -v wget >/dev/null 2>&1; then wget -qO "$TMP" "$RAW"
+else "$PY" -c 'import sys,urllib.request;open(sys.argv[2],"wb").write(urllib.request.urlopen(sys.argv[1],timeout=30).read())' "$RAW" "$TMP"
 fi
-
 test -s "$TMP"
-test -s "$TMP_SEARCH"
-test -s "$TMP_NET"
-test -s "$TMP_POLICY"
-mv "$TMP" "$APP"
-mv "$TMP_SEARCH" "$SEARCH"
-mv "$TMP_NET" "$NET"
-mv "$TMP_POLICY" "$POLICY"
+mv "$TMP" "$DIR/hsi_bootstrap.py"
 trap - EXIT HUP INT TERM
-chmod 700 "$APP" "$SEARCH" "$NET"
-
-echo "HSI Open-Corpus Renderer: no AI / HSI-SEARCH / HSI NET CC0+PDM WAV / deterministic DSP"
-echo "bundle_commit> $PIN"
-echo "note> YouTube audio is not downloaded or sampled."
-echo "note> Adapter license metadata is indexed metadata; verify landing pages before publication/commercial reuse."
-
-if [ "$#" -eq 0 ] && [ -r /dev/tty ]; then
-  exec "$PY" "$APP" </dev/tty
+if [ "$#" -eq 0 ] && ( : </dev/tty ) 2>/dev/null; then
+  exec "$PY" "$DIR/hsi_bootstrap.py" corpus </dev/tty
 fi
-exec "$PY" "$APP" "$@"
+exec "$PY" "$DIR/hsi_bootstrap.py" corpus "$@"
