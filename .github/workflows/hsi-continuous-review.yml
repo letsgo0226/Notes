@@ -71,6 +71,19 @@ jobs:
           x=json.load(open('hsi_continuous/out/exact_integer.json'))
           assert x['result']==82 and x['roundtrip'] and x['exact_integer']
           PY
+      - name: Verify coupled OriginalXY and exact integer translator
+        run: |
+          python hsi_continuous/originalxy_exact_coupled.py --program 2 --word 1 --steps 16 > hsi_continuous/out/originalxy_exact_coupled.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('hsi_continuous/out/originalxy_exact_coupled.json').read_text())
+          s=a['utm']['state']
+          assert a['substituted_expression']==['add',s[1],['mul',s[0],2]]
+          assert a['translation']['result']==s[1]+s[0]*2
+          assert a['translation']['roundtrip'] and a['exact_integer']
+          assert not a['native_originalxy_compiler']
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
@@ -93,6 +106,7 @@ jobs:
             hsi_continuous/out/review.json
             hsi_continuous/out/feedback.json
             hsi_continuous/out/exact_integer.json
+            hsi_continuous/out/originalxy_exact_coupled.json
             hsi_continuous/out/*.oneline.sh
             hsi_continuous/out/*.oneline.json
           retention-days: 90
