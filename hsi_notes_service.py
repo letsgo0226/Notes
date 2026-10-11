@@ -73,6 +73,7 @@ class Runtime:
         self.preview = None
         self.provider_probe = {'status': 'NOT_REQUESTED'}
         self.corpus_probe = {'status': 'NOT_REQUESTED'}
+        self.corpus_preview = None
         self.jobs = {}
         self.orders = None
         if self.role == 'TRADER_42':
@@ -138,7 +139,7 @@ class Runtime:
         if self.role == 'MUSIC' and os.getenv('HSI_CORPUS_PROBE_ONCE') == '1':
             import subprocess
             env = os.environ.copy()
-            env.update(HSI_RC_MAX_CANDIDATES='2', HSI_CORPUS_ITEMS='2', HSI_OPENVERSE_RETRIES='1',
+            env.update(HSI_RC_MAX_CANDIDATES='8', HSI_CORPUS_ITEMS='2', HSI_OPENVERSE_RETRIES='1',
                        HSI_OPENVERSE_TIMEOUT='8', HSI_CORPUS_SR='16000', HSI_E257='0')
             destination = self.directory / 'corpus-probe'
             self.corpus_probe = {'status': 'RUNNING'}
@@ -151,6 +152,20 @@ class Runtime:
                                      'exit_code': process.returncode, 'audio_verified': bool(cert and cert.get('technical_closed')),
                                      'rights_verified': bool(cert and cert.get('rights_closed')),
                                      'reason': process.stderr.decode('utf-8', 'replace')[-800:]}
+                self.corpus_probe['candidate_budget'] = 8
+                self.corpus_probe['trace'] = process.stdout.decode('utf-8', 'replace')[-1600:]
+                search_path = destination / 'search.hsicert'
+                if search_path.is_file():
+                    search = json.loads(search_path.read_text())
+                    self.corpus_probe['search_status'] = search.get('status')
+                    self.corpus_probe['sources'] = [{k: row.get(k) for k in ('title', 'license', 'landing_url', 'source', 'assertion_basis')}
+                                                   for row in search.get('results', [])[:2]]
+                wav_path = destination / 'song.wav'
+                if wav_path.is_file():
+                    from hsi_open_corpus import audio_features
+                    self.corpus_probe['wave_metrics'] = audio_features(wav_path)
+                    if self.corpus_probe['audio_verified']:
+                        self.corpus_preview = wav_path
                 if cert:
                     self.corpus_probe['audio_sha256'] = cert.get('audio_sha256')
             except subprocess.TimeoutExpired:
@@ -265,6 +280,8 @@ def handler_for(runtime):
                 return self.send(200, runtime.orders.status())
             if path == '/preview.wav' and runtime.preview:
                 return self.send(200, runtime.preview.read_bytes(), 'audio/wav')
+            if path == '/corpus-preview.wav' and runtime.corpus_preview:
+                return self.send(200, runtime.corpus_preview.read_bytes(), 'audio/wav')
             parts = path.strip('/').split('/')
             if len(parts) == 3 and parts[0] == 'audio' and len(parts[1]) == 32 and all(c in '0123456789abcdef' for c in parts[1]) and parts[2] == 'song.wav':
                 audio = runtime.directory / parts[1] / 'song.wav'

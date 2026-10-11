@@ -51,6 +51,7 @@ Set `HSI_SYSTEM` to `MUSIC`, `UTM`, `TRADER_42` or `OMEGA`.
 | `POST /certify` | Existing HSI-3SYS/1.0 API plus Notes provenance |
 | `POST /notes/certify` | Requires the exact `notes_manifest_sha256` |
 | `GET /preview.wav` | Actual startup Native WAV on Music |
+| `GET /corpus-preview.wav` | Network-corpus WAV only after technical verification |
 | `POST /render` | Existing bearer token; `native` default, `corpus` explicit |
 
 Music accepts `{"p":"HSI-MUSIC-2K/1","q":"prime pulse","engine":"native"}`.
