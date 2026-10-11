@@ -1,0 +1,55 @@
+name: Fictional Peace Address Video
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'peace_av/**'
+      - '.github/workflows/peace-speech.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'peace_av/**'
+      - '.github/workflows/peace-speech.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install offline video tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg espeak fonts-noto-cjk python3-pil python3-venv
+      - name: Install optional Microsoft Edge TTS integration
+        run: |
+          python3 -m venv --system-site-packages .venv
+          .venv/bin/python -m pip install --disable-pip-version-check 'edge-tts>=7,<8'
+      - name: Generate speech MP4 with English natural voice and integrity manifest
+        run: .venv/bin/python peace_av/render.py --tts edge --voice en-US-AndrewNeural --rate=-8% --output dist/peace_speech
+      - name: Check render
+        run: |
+          test -s dist/peace_speech/peace_speech.mp4
+          test -s dist/peace_speech/captions.zh-TW.srt
+          test -s dist/peace_speech/captions.en.srt
+          test -s dist/peace_speech/voiceover.en.mp3
+          (cd dist/peace_speech && sha256sum -c SHA256SUMS)
+          ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 dist/peace_speech/peace_speech.mp4
+      - name: Upload video and documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: fictional-peace-address-video
+          path: |
+            dist/peace_speech/peace_speech.mp4
+            dist/peace_speech/captions.zh-TW.srt
+            dist/peace_speech/captions.en.srt
+            dist/peace_speech/voiceover.en.mp3
+            dist/peace_speech/transcript.md
+            dist/peace_speech/provenance.json
+            dist/peace_speech/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 30
