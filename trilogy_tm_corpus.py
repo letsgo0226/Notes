@@ -154,8 +154,22 @@ def crossref_metadata(query,offline=False,fetcher=None):
             title=(item.get("title") or [""])[0]
             if not doi.startswith("10.") or not isinstance(title,str) or not title.strip():
                 continue
-            names=[(" ".join(filter(None,(a.get("given"),a.get("family"))))).strip()
-                   for a in (item.get("author") or [])[:3] if isinstance(a,dict)]
+            # Crossref queries sometimes match unrelated records via generic words.
+            # Exact lexical overlap is a conservative, model-free relevance gate.
+            focus={term for term in re.findall(r"[a-z]{4,}",query.lower())
+                   if term not in {"with","from","into","that","this","about"}}
+            if focus and not any(term in title.lower() for term in focus):
+                continue
+            names=[]
+            for a in (item.get("author") or [])[:8]:
+                if not isinstance(a,dict):
+                    continue
+                given=(a.get("given") or "").strip()
+                family=(a.get("family") or "").strip()
+                author=given if given.casefold()==family.casefold() else " ".join(filter(None,(given,family)))
+                if author and author not in names:
+                    names.append(author)
+            names=names[:3]
             dates=(item.get("published") or {}).get("date-parts") or []
             year=dates[0][0] if dates and dates[0] else None
             refs.append({"doi":doi[:200],"title":title.strip()[:400],
@@ -168,8 +182,38 @@ def crossref_metadata(query,offline=False,fetcher=None):
         return {"status":"UNAVAILABLE","query":query,"request_url":url,
                 "error":str(exc)[:180],"records":[]}
 
+def source_profiles(inv):
+    """Actually read and lexically characterize all 12 pinned file contents."""
+    categories={
+        "finite_computation":("有限","finite","bounded","limit","budget"),
+        "encoding":("gödel","哥德爾","e257","encode","編碼"),
+        "verification":("verify","verified","驗證","certificate","sha256"),
+        "analytic_methods":("analytic","解析","dirichlet","prime","質數"),
+        "state_and_time":("state","狀態","時間","resume","checkpoint"),
+    }
+    profiles=[]
+    for rel in sorted(inv["observed"]):
+        raw=(ROOT/rel).read_bytes()
+        source=raw.decode("utf-8",errors="replace")
+        lines=source.splitlines()
+        lowered=source.casefold()
+        hits={label:sum(lowered.count(term.casefold()) for term in terms)
+              for label,terms in categories.items()}
+        focus=next((line.strip() for line in lines
+                    if 14<=len(line.strip())<=180 and
+                    any(word in line.casefold() for word in ("有限","框架","系統","原理","gödel","verify","certificate","state"))),
+                   next((line.strip() for line in lines if line.strip()), ""))
+        profiles.append({
+            "file":rel,"bytes":len(raw),"sha256":digest(raw),
+            "line_count":len(lines),"concept_counts":hits,
+            "text_excerpt":focus[:100],
+            "summarization":"MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS",
+        })
+    return profiles
+
+
 def quotes():
-    """Four short, exact source excerpts; remaining eight files are hashed."""
+    """Four short verbatim quotations from research texts, separately labelled."""
     results=[]
     for label in ("1","2","3","4"):
         path=ROOT/"Notes"/label
@@ -181,7 +225,7 @@ def quotes():
         results.append({"path":"Notes/"+label,"line":found[0],"excerpt":found[1][:120]})
     return results
 
-def make_text(ch,mode,excerpts,research,fingerprint):
+def make_text(ch,mode,excerpts,research,fingerprint,profiles):
     slug,title,thesis,num,heading,_=ch
     s=[
       "# %s｜第 %d 章：%s"%(title,num,heading),"",
@@ -210,9 +254,16 @@ def make_text(ch,mode,excerpts,research,fingerprint):
     ]
     for x in excerpts:
         s.append("- %s 第 %d 行：「%s」"%(x["path"],x["line"],x["excerpt"]))
-    s+=["","鎖定清單中全部 12 個檔案均納入雜湊檢查。除上述四份文字材料之外，"
-        "程式、證書與規格檔保留為可追溯的計算背景，不複製其程式碼為哲學論述。","",
-        "## 公開學術資源題錄（尚待閱讀全文）",""]
+    s+=["","鎖定清單中全部 12 個檔案均納入雜湊檢查。上述四份文本節錄為研究線索；"
+         "其餘八個程式、證書與規格檔亦逐檔讀取並統計下列概念字詞的出現次數，"
+         "但字詞計數不等於對檔案內容的理解或論證。","",
+         "## 全部 12 份來源的機械內容索引",""]
+    for source in profiles:
+        flags=", ".join(label+":"+str(count) for label,count in source["concept_counts"].items()
+                        if count>0) or "無關鍵字匹配"
+        s.append("- "+source["file"]+"（"+str(source["line_count"])+" 行）｜"+flags+
+                 "｜擷取："+source["text_excerpt"])
+    s+=["","## 公開學術資源題錄（尚待閱讀全文）",""]
     if research["records"]:
         for i,x in enumerate(research["records"],1):
             s.append("%d. %s（%s），《%s》，%s。此處僅使用 Crossref 題錄資料，不聲稱已閱讀或引用全文。"
@@ -253,9 +304,10 @@ def build(offline=False,output=OUT):
     path=output/slug/dirname
     if path.exists():
         raise RuntimeError("Cannot overwrite existing research: "+str(path))
-    research=crossref_metadata(query+" "+heading,offline=offline)
+    research=crossref_metadata(query,offline=offline)
     excerpts=quotes()
-    content=make_text(chapter,mode,excerpts,research,fingerprint)
+    profiles=source_profiles(inv)
+    content=make_text(chapter,mode,excerpts,research,fingerprint,profiles)
     path.mkdir(parents=True)
     (path/"dossier.md").write_text(content,encoding="utf-8")
     (path/"tm_trace.json").write_text(json.dumps(rows,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
@@ -267,7 +319,7 @@ def build(offline=False,output=OUT):
        "tm_source":TM_SOURCE,"tm_trace_sha256":digest(canon(rows)),
        "tm_statuses":[r["status"] for r in rows],"tm_steps":len(rows),
        "tm_selected_mode":MODES[mode],"chapter":number,"book":slug,
-       "web_research":research,"source_excerpts":excerpts,
+       "web_research":research,"source_excerpts":excerpts,"source_profiles":profiles,
        "dossier_sha256":digest(content.encode("utf-8"))
     }
     (path/"manifest.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
