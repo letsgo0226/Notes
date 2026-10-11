@@ -48,11 +48,9 @@ jobs:
           ! grep -Eiq 'torch|tensorflow|transformers|diffusion|openai|suno|runway|fal.ai' hsi_open_corpus.py
           grep -q 'source="network_audio"' hsi_open_corpus.py
           test -s hsi_render_policy.json
-          grep -q 'RAW_POLICY=' hsi-corpus.sh
-          grep -q '\$TmpPolicy = ' hsi-corpus.ps1
+          grep -q 'hsi_bootstrap.py' hsi-corpus.sh
+          grep -q 'hsi_bootstrap.py' hsi-corpus.ps1
           grep -q 'wikimedia_commons_audio' hsi_search.py
-          test "$(grep 'TMP_SEARCH=' hsi-corpus.sh)" = 'TMP_SEARCH="$SEARCH.tmp.$$"'
-          test "$(grep 'TMP_NET=' hsi-corpus.sh)" = 'TMP_NET="$NET.tmp.$$"'
 
       - name: CL-XY microkernel regression tests
         run: |
@@ -77,14 +75,11 @@ jobs:
           test "$code" -ne 0
           grep -q "requires HSI-SEARCH >= 1.4.0" /tmp/version.out
 
-      - name: Launcher bundle pin
+      - name: Immutable Notes bundle verification
         run: |
-          set -eu
-          grep -q '^PIN="[0-9a-f]\{40\}"' hsi-corpus.sh
-          grep -q '^\$Pin = "[0-9a-f]\{40\}"' hsi-corpus.ps1
-          grep -q 'Notes/\$PIN/hsi_open_corpus.py' hsi-corpus.sh
-          grep -q 'Notes/\$PIN/hsi_search.py' hsi-corpus.sh
-          grep -q 'Notes/\$PIN/hsi_net.py' hsi-corpus.sh
+          python3 -c 'import hashlib,json,pathlib; root=pathlib.Path("."); lock=json.loads((root/"hsi_bundle.lock.json").read_text()); assert all(hashlib.sha256((root/r["path"]).read_bytes()).hexdigest()==r["sha256"] for r in lock["files"])'
+          grep -q 'commit = meta' hsi_bootstrap.py
+          grep -q 'bundle verification failed' hsi_bootstrap.py
 
       - name: Start mock HSI NET audio sources
         run: |

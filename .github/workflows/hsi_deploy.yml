@@ -144,6 +144,6 @@ jobs:
             exit 1
           }
           $text=Get-Content -Raw "hsi-deploy.ps1"
-          if($text -notmatch "hsi_deploy.py"){throw "missing deploy solver"}
-          if($text -notmatch "hsi_net.py"){throw "missing HSI NET bootstrap"}
+          if($text -notmatch "hsi_bootstrap.py"){throw "missing deploy solver"}
+          if($text -notmatch "HSI_BUNDLE_REF"){throw "missing HSI NET bootstrap"}
           if($text -notmatch "gh auth token"){throw "missing ephemeral GitHub auth bridge"}

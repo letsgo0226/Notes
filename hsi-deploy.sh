@@ -1,34 +1,25 @@
 #!/bin/sh
 set -eu
-BASE="https://raw.githubusercontent.com/letsgo0226/Notes/main"
-DIR="${HSI_DEPLOY_BOOTSTRAP_HOME:-$HOME/.hsi-bootstrap}"
-APP="$DIR/hsi_deploy.py"
-NET="$DIR/hsi_net.py"
+DIR="${HSI_BOOTSTRAP_HOME:-$HOME/.hsi-bootstrap}"
+REF="${HSI_BUNDLE_REF:-main}"
+RAW="https://raw.githubusercontent.com/letsgo0226/Notes/$REF/hsi_bootstrap.py"
 mkdir -p "$DIR"
-
 if command -v python3 >/dev/null 2>&1; then PY=python3
 elif command -v python >/dev/null 2>&1; then PY=python
-else echo "Python 3.9+ required; bootstrap does not install packages automatically." >&2; exit 127
+else echo "Python 3.9+ required. Install Python 3 and rerun." >&2; exit 127
 fi
-
-get(){
-  u="$1"; f="$2"; t="$f.tmp.$$"
-  if command -v wget >/dev/null 2>&1; then wget -qO "$t" "$u"
-  elif command -v curl >/dev/null 2>&1; then curl -fsSL "$u" -o "$t"
-  else echo "wget or curl required" >&2; exit 127
-  fi
-  test -s "$t"; mv "$t" "$f"
-}
-
-get "$BASE/hsi_net.py" "$NET"
-get "$BASE/hsi_deploy.py" "$APP"
+TMP="$DIR/hsi_bootstrap.py.tmp.$$"
+trap 'rm -f "$TMP"' EXIT HUP INT TERM
+if command -v curl >/dev/null 2>&1; then curl -fsSL "$RAW" -o "$TMP"
+elif command -v wget >/dev/null 2>&1; then wget -qO "$TMP" "$RAW"
+else "$PY" -c 'import sys,urllib.request;open(sys.argv[2],"wb").write(urllib.request.urlopen(sys.argv[1],timeout=30).read())' "$RAW" "$TMP"
+fi
+test -s "$TMP"
+mv "$TMP" "$DIR/hsi_bootstrap.py"
+trap - EXIT HUP INT TERM
 if [ -z "${GITHUB_TOKEN:-}" ] && [ -z "${GH_TOKEN:-}" ] && command -v gh >/dev/null 2>&1; then
-  TKN="$(gh auth token 2>/dev/null || true)"
-  if [ -n "$TKN" ]; then export GITHUB_TOKEN="$TKN"; fi
-  unset TKN
+  HSI_GH_TOKEN="$(gh auth token 2>/dev/null || true)"
+  if [ -n "$HSI_GH_TOKEN" ]; then export GITHUB_TOKEN="$HSI_GH_TOKEN"; fi
+  unset HSI_GH_TOKEN
 fi
-
-cd "$DIR"
-echo "HSI Deploy Solver: self + UTM + Trader_42 + Omega"
-echo "policy> solve first; immutable commit resolution; no domain execution during deployment"
-exec "$PY" "$APP" "$@"
+exec "$PY" "$DIR/hsi_bootstrap.py" deploy "$@"
