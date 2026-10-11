@@ -25,3 +25,5 @@ jobs:
           python3 -m py_compile trilogy_writer.py
           python3 -m unittest discover -s tests -p 'test_trilogy_writer.py' -v
           python3 trilogy_writer.py --plan
+          python3 hsi_notes_review.py --json-out "$RUNNER_TEMP/hsi-notes-review.json"
+          python3 -m unittest discover -s tests -v
