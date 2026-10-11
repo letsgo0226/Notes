@@ -18,7 +18,7 @@ import urllib.error
 import urllib.request
 
 ROOT = Path(__file__).resolve().parent
-OUTPUT = ROOT / "Notes" / "reading-trilogy"
+OUTPUT = ROOT / "books" / "reading-trilogy"
 STATE_PATH = OUTPUT / "state.json"
 PARTS_PER_CHAPTER = 8
 MIN_HAN = 800
