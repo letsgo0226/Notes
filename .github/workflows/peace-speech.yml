@@ -1,0 +1,47 @@
+name: Fictional Peace Address Video
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'Notes/peace_speech/**'
+      - '.github/workflows/peace-speech.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Notes/peace_speech/**'
+      - '.github/workflows/peace-speech.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install offline video tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg espeak fonts-noto-cjk python3-pil
+      - name: Generate fictitious speech MP4 and integrity manifest
+        run: python3 Notes/peace_speech/render.py --output dist/peace_speech
+      - name: Check render
+        run: |
+          test -s dist/peace_speech/peace_speech.mp4
+          test -s dist/peace_speech/captions.zh-TW.srt
+          (cd dist/peace_speech && sha256sum -c SHA256SUMS)
+          ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 dist/peace_speech/peace_speech.mp4
+      - name: Upload video and documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: fictional-peace-address-video
+          path: |
+            dist/peace_speech/peace_speech.mp4
+            dist/peace_speech/captions.zh-TW.srt
+            dist/peace_speech/transcript.md
+            dist/peace_speech/provenance.json
+            dist/peace_speech/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 30
