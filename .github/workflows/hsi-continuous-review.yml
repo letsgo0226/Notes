@@ -213,6 +213,19 @@ jobs:
           assert d['bit_scan']=='OriginalXY transitions'
           assert not d['fully_native_zero_decider']
           PY
+      - name: Verify self-delimiting OriginalXY native tape scan
+        run: |
+          python hsi_continuous/originalxy_self_delimiting_tape.py > hsi_continuous/out/self_delimiting_tape.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/self_delimiting_tape.json').read_text())
+          for r in d['results']:
+              assert r['halted'] and r['native_boundary_detection']
+              assert r['steps']==r['expected_steps']
+              assert r['head']==r['steps']
+          assert d['native_delimiter_scan'] and not d['native_integer_zero_test']
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
@@ -246,6 +259,7 @@ jobs:
             hsi_continuous/out/unary_counter.json
             hsi_continuous/out/binary_borrow_machine.json
             hsi_continuous/out/zero_scan.json
+            hsi_continuous/out/self_delimiting_tape.json
             hsi_continuous/out/*.oneline.sh
             hsi_continuous/out/*.oneline.json
           retention-days: 90
