@@ -11,7 +11,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 PROTOCOL = "HSI-CONTINUOUS-REVIEW/1.0"
 DOMAIN_FILES = {
     "mathematical_core": ["Notes/1", "Notes/2", "Notes/3", "Notes/4",
