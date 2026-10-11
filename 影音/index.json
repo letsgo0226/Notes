@@ -2,6 +2,14 @@
   "protocol": "HSI-PEACE-AV-LIBRARY/1.0",
   "runs": [
     {
+      "run_id": "38134705567",
+      "directory": "影音/runs/38134705567",
+      "manifest": "影音/runs/38134705567/manifest.json",
+      "film": "影音/runs/38134705567/peace_address_english.mp4",
+      "duration_seconds": 953.642,
+      "lang": "en"
+    },
+    {
       "run_id": "38131789251",
       "directory": "影音/runs/38131789251",
       "manifest": "影音/runs/38131789251/manifest.json",
