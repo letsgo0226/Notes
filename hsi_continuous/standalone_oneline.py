@@ -31,7 +31,7 @@ def main():
  p=argparse.ArgumentParser()
  p.add_argument("--out",default="hsi_continuous/out")
  a=p.parse_args()
- line="python3 -c "+shlex.quote(CORE)
+ line="python3 -c "+shlex.quote("exec("+repr(CORE)+")")
  b=(line+"\n").encode()
  if len(b)>2048 or b.count(b"\n")!=1:
   raise ValueError("2KB single-line bound failed")
