@@ -25,6 +25,18 @@ jobs:
         run: python -m py_compile hsi_continuous/review.py
       - name: Inspect immutable source and six domains
         run: python hsi_continuous/review.py --out hsi_continuous/out
+      - name: Run bounded HSI UTM spectral feedback
+        run: |
+          python hsi_continuous/riemann_feedback.py --program 2 --word 1 --steps 16 --terms 16 --rounds 8
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('hsi_continuous/out/feedback.json').read_text())
+          assert p['bounded'] and len(p['feedback'])==8
+          assert not p['claims']['ai_equivalent']
+          assert not p['claims']['real_world_deployment']
+          assert all(z['residual'] >= 0 for z in p['feedback'])
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
@@ -43,5 +55,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: hsi-continuous-review-${{ github.run_id }}
-          path: hsi_continuous/out/review.json
+          path: |
+            hsi_continuous/out/review.json
+            hsi_continuous/out/feedback.json
           retention-days: 90
