@@ -48,6 +48,19 @@ jobs:
               b=p.read_bytes()
               assert len(b)<=2048 and b.count(b'\n')==1 and b.endswith(b'\n')
           PY
+      - name: Generate and execute SHA-free standalone HSI feedback one-liner
+        run: |
+          python hsi_continuous/standalone_oneline.py
+          sh hsi_continuous/out/feedback_standalone.oneline.sh > /tmp/hsi-one-line-feedback.jsonl
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=Path('/tmp/hsi-one-line-feedback.jsonl').read_text().splitlines()
+          assert len(a)==8
+          assert all('residual' in json.loads(x) for x in a)
+          b=Path('hsi_continuous/out/feedback_standalone.oneline.sh').read_bytes()
+          assert len(b)<=2048 and b.count(b'\n')==1
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
