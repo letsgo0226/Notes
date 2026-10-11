@@ -136,6 +136,18 @@ jobs:
               assert r['halted'] and r['steps']>=1
           assert d['native_tape_arithmetic'] and not d['general_integer_arithmetic']
           PY
+      - name: Verify exact integer addition by OriginalXY tape transitions
+        run: |
+          python hsi_continuous/originalxy_exact_addition.py > hsi_continuous/out/exact_addition.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/exact_addition.json').read_text())
+          for r in d['results']:
+              assert int(r['sum'])==int(r['a'])+int(r['b'])
+              assert r['increment_calls']==int(r['b'])
+          assert d['exact_integer'] and not d['pure_originalxy_loop_control']
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
@@ -163,6 +175,7 @@ jobs:
             hsi_continuous/out/two_symbol.json
             hsi_continuous/out/multistate.json
             hsi_continuous/out/binary_increment.json
+            hsi_continuous/out/exact_addition.json
             hsi_continuous/out/*.oneline.sh
             hsi_continuous/out/*.oneline.json
           retention-days: 90
