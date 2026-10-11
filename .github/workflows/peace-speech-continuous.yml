@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - 'Notes/peace_speech/**'
+      - 'peace_av/**'
       - '影音/**'
       - '.github/workflows/peace-speech-continuous.yml'
 
@@ -36,8 +36,8 @@ jobs:
           HSI_RUN_ID: ${{ github.run_id }}
         run: |
           mkdir -p "影音/runs/${HSI_RUN_ID}"
-          .venv/bin/python Notes/peace_speech/render_long.py \
-            --script Notes/peace_speech/long_speech.en.json \
+          .venv/bin/python peace_av/render_long.py \
+            --script peace_av/long_speech.en.json \
             --engine edge \
             --voice en-US-AndrewNeural \
             --rate=-13% \
@@ -55,7 +55,7 @@ jobs:
       - name: Generate verifiable archive manifest and library index
         env:
           HSI_RUN_ID: ${{ github.run_id }}
-        run: .venv/bin/python Notes/peace_speech/archive.py --run-id "${HSI_RUN_ID}"
+        run: .venv/bin/python peace_av/archive.py --run-id "${HSI_RUN_ID}"
       - name: Upload complete run as downloadable artifact
         uses: actions/upload-artifact@v4
         with:

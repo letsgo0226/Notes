@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - 'Notes/peace_speech/**'
+      - 'peace_av/**'
       - '.github/workflows/peace-speech.yml'
   push:
     branches: [main]
     paths:
-      - 'Notes/peace_speech/**'
+      - 'peace_av/**'
       - '.github/workflows/peace-speech.yml'
 
 permissions:
@@ -30,7 +30,7 @@ jobs:
           python3 -m venv --system-site-packages .venv
           .venv/bin/python -m pip install --disable-pip-version-check 'edge-tts>=7,<8'
       - name: Generate speech MP4 with English natural voice and integrity manifest
-        run: .venv/bin/python Notes/peace_speech/render.py --tts edge --voice en-US-AndrewNeural --rate=-8% --output dist/peace_speech
+        run: .venv/bin/python peace_av/render.py --tts edge --voice en-US-AndrewNeural --rate=-8% --output dist/peace_speech
       - name: Check render
         run: |
           test -s dist/peace_speech/peace_speech.mp4

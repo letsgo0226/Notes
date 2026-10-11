@@ -22,7 +22,7 @@ import wave
 from PIL import Image, ImageDraw, ImageFont
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parent.parent
+REPO = HERE.parent
 FPS = 12
 W, H = 960, 540
 RATE = 16000
@@ -221,7 +221,7 @@ def notes_inventory():
     return [
         {"source": str(p.relative_to(REPO)), "sha256": file_sha(p)}
         for p in sorted(root.rglob("*"))
-        if p.is_file() and "peace_speech" not in p.parts and "__pycache__" not in p.parts
+        if p.is_file() and "__pycache__" not in p.parts
     ]
 
 

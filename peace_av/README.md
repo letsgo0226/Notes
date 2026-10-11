@@ -9,7 +9,7 @@
 執行（Ubuntu；安裝 `python3-pil`, `fonts-noto-cjk`, `ffmpeg`, `espeak`；若用 Microsoft Edge 英語語音，另外安裝 `edge-tts`）：
 
 ```sh
-python3 Notes/peace_speech/render.py --output dist/peace_speech
+python3 peace_av/render.py --output dist/peace_speech
 ```
 
 也可在 GitHub **Actions → Fictional Peace Address Video → Run workflow**，取得 `fictional-peace-address-video` Artifact，其中包含 MP4、繁體中文字幕 SRT、雙語文字、來源證明及 SHA-256 校驗和。

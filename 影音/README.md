@@ -17,7 +17,7 @@ The above folders are written to `main` only when the new GitHub Actions workflo
 
 ## The philosophical correspondence is scoped
 
-This is a finite, explicit input/output specification informed by `Notes/1`, `Notes/2`, `Notes/3`, `Notes/4` and the seven-file `Notes/HSI_Prime_Analytic_2KB_Release` collection. Each run fingerprints these sources, without executing them. Scene-to-peace-goal associations, musical keys, and emotional cues are **editorial choices**, not deductions from Gödel coding or proofs that conflict has ended. World peace cannot be verified by a successful video render.
+This is a finite, explicit input/output specification informed by `Notes/1`, `Notes/2`, `Notes/3`, `Notes/4` and the eight-file `Notes/HSI_Prime_Analytic_2KB_Release` collection. Each run fingerprints these sources, without executing them. Scene-to-peace-goal associations, musical keys, and emotional cues are **editorial choices**, not deductions from Gödel coding or proofs that conflict has ended. World peace cannot be verified by a successful video render.
 
 **Video limitations:** Today the renderer outputs original English title scenes and optional still-speaker artwork. It DOES NOT synthesize a natural moving human mouth, generate authentic facial motion, or validate phoneme-to-lip synchronization. Photorealistic speaking video requires separately licensed source footage or a properly configured video/lip-sync generator plus independent quality checks; neither is silently assumed. No public official is impersonated. If a speaker still is provided, it is clearly documented as a still image.
 
@@ -29,7 +29,7 @@ This is a finite, explicit input/output specification informed by `Notes/1`, `No
 
 ```sh
 python3 -m pip install edge-tts pillow
-python3 Notes/peace_speech/render_long.py --engine edge --output 影音/manual
+python3 peace_av/render_long.py --engine edge --output 影音/manual
 ```
 
 On GitHub, view *Actions → HSI English Peace AV Continuous Build*. Actual duration must be at least 600 seconds. The first PR build can be retrieved from its workflow artifact before any merge.

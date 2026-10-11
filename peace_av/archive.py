@@ -10,7 +10,7 @@ import json
 import re
 import subprocess
 
-REPO=Path(__file__).resolve().parent.parent.parent
+REPO=Path(__file__).resolve().parent.parent
 ARCHIVE=REPO/"影音"
 REQUIRED=("peace_address_english.mp4","voiceover.en.mp3","captions.en.srt",
           "transcript.en.md","correspondence.json","frame_correspondence.jsonl","SHA256SUMS")
@@ -34,7 +34,7 @@ def main():
     if not str(folder).startswith(str(ARCHIVE.resolve())+"/"):
         raise ValueError("unsafe archive directory")
     import sys
-    sys.path.insert(0,str(REPO/"Notes"/"peace_speech"))
+    sys.path.insert(0,str(REPO/"peace_av"))
     from render_long import duration
     entries=[]
     for name in REQUIRED:
