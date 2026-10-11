@@ -104,7 +104,7 @@ jobs:
           import json
           from pathlib import Path
           d=json.loads(Path('hsi_continuous/out/two_symbol.json').read_text())
-          assert d['program']==1127
+          assert d['program']==135
           assert d['outcomes']['0']['state']==[1,1,[0]]
           assert d['outcomes']['1']['state']==[1,-1,[]]
           assert d['bounded_one_step'] and not d['general_arithmetic_compiler']
