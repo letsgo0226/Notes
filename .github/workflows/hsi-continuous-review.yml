@@ -255,6 +255,16 @@ jobs:
           assert not d['python_loop_control']
           assert not d['binary_counter']
           PY
+      - name: Cross-check bounded OriginalXY components
+        run: |
+          python hsi_continuous/originalxy_crosscheck.py > hsi_continuous/out/crosscheck.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/crosscheck.json').read_text())
+          assert d['all_passed'] and d['checks']==512
+          assert not d['general_correctness_proof']
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
@@ -291,6 +301,7 @@ jobs:
             hsi_continuous/out/self_delimiting_tape.json
             hsi_continuous/out/native_zero_decider.json
             hsi_continuous/out/integrated_unary_loop.json
+            hsi_continuous/out/crosscheck.json
             hsi_continuous/out/*.oneline.sh
             hsi_continuous/out/*.oneline.json
           retention-days: 90
