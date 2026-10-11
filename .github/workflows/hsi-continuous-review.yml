@@ -187,6 +187,19 @@ jobs:
           assert d['halt_condition']=='OriginalXY state transition'
           assert not d['binary_integer_counter']
           PY
+      - name: Verify native OriginalXY binary borrow machine
+        run: |
+          python hsi_continuous/originalxy_binary_borrow_machine.py > hsi_continuous/out/binary_borrow_machine.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/binary_borrow_machine.json').read_text())
+          for r in d['results']:
+              assert int(r['output'])==int(r['input'])-1
+              assert r['halted'] and r['steps']>=1
+          assert d['branching']=='OriginalXY tape transition'
+          assert not d['zero_test_for_outer_loop']
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
@@ -218,6 +231,7 @@ jobs:
             hsi_continuous/out/e257_bounded.json
             hsi_continuous/out/exact_subtraction.json
             hsi_continuous/out/unary_counter.json
+            hsi_continuous/out/binary_borrow_machine.json
             hsi_continuous/out/*.oneline.sh
             hsi_continuous/out/*.oneline.json
           retention-days: 90
