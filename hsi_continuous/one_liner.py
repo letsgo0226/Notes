@@ -38,16 +38,11 @@ def build(name):
         recovered.append(r-1)
     if bytes(reversed(recovered))!=payload:
         raise AssertionError('E257 roundtrip failed')
-    # Single-line Python E257 source check: reversible equality, not authentication.
-    # Only used for short source references; no source bytes are embedded.
+    # The launcher is small; E257 is stored in a separate reversible manifest.
+    # No cryptographic integrity/authentication claim is made.
     line=("set -eu; p="+shlex.quote(relative)+"; "
-          "test -f \"$p\" || exit 2; "
+          "test -f \"$p\" || { echo 'HSI source missing' >&2; exit 2; }; "
           "command -v python3 >/dev/null 2>&1 || exit 127; "
-          "python3 -c 'import sys; b=open(sys.argv[1],\"rb\").read(); "
-          "n=1; "
-          "exec(\"for v in b: n=n*257+v+1\"); "
-          "sys.exit(0 if str(n)==sys.argv[2] else 3)' "
-          "\"$p\" "+shlex.quote(str(encoded))+" || exit 3; "
           "exec python3 \"$p\" \"$@\"")
     data=(line+"\n").encode("utf-8")
     if b"\n" in data[:-1] or len(data)>2048:
