@@ -29,3 +29,14 @@ manual-only and outside the authority of this review service.
 
 The system must never execute untrusted repository programs merely because
 they were found in an inventory. Preserve the Notes 12-file source lock.
+
+## Bounded 2KB one-line entrypoint translator
+
+`python hsi_continuous/one_liner.py --entrypoint originalxy` (or `feedback`/`review`)
+creates a POSIX one-line launcher of at most 2048 UTF-8 bytes plus a JSON
+manifest. The launcher requires the **reviewed source file to remain present**
+in the repository working directory; it checks the file SHA-256 before
+executing. This is **not** a self-contained source-to-source compiler and is
+not equivalent to compressing all Notes/ programs into 2KB. Translation does
+not execute its generated launcher. No arbitrary path or downloaded code is
+accepted. All three launchers are produced as CI artifacts for review.
