@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """OriginalXY-native bounded-width binary zero detector.
 
-Tape layout: a binary word occupying positions [0,width), with an explicit
-sentinel bit 1 at position width. q0 scans without seeing a set bit;
-q1 scans after seeing a set bit; q2=halt. The sentinel is detected by
-position only in the Python harness, NOT by OriginalXY itself. Therefore
-this is a bounded scan prototype, not a fully native zero decider.
+Tape layout: a binary word occupying positions [0,width). q0 scans
+without seeing a set bit; q1 scans after seeing a set bit; q2 is an
+unused halt state. The scan boundary is enforced by the Python harness,
+NOT by OriginalXY itself. This is not a fully native zero decider.
 """
 import argparse
 import json
