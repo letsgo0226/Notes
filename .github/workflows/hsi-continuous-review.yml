@@ -239,6 +239,22 @@ jobs:
               assert r['halted'] and r['steps']==2*len(r['input_bits'])+1
           assert d['native_end_detection'] and not d['python_zero_decision']
           PY
+      - name: Verify integrated OriginalXY unary loop and terminal output
+        run: |
+          python hsi_continuous/originalxy_integrated_unary_loop.py > hsi_continuous/out/integrated_unary_loop.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/integrated_unary_loop.json').read_text())
+          for r in d['results']:
+              n=r['initial_count']
+              assert r['steps']==n+1
+              assert r['completion_marker_at']==n
+              assert r['final_marks']==[n]
+              assert r['halted']
+          assert not d['python_loop_control']
+          assert not d['binary_counter']
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
@@ -274,6 +290,7 @@ jobs:
             hsi_continuous/out/zero_scan.json
             hsi_continuous/out/self_delimiting_tape.json
             hsi_continuous/out/native_zero_decider.json
+            hsi_continuous/out/integrated_unary_loop.json
             hsi_continuous/out/*.oneline.sh
             hsi_continuous/out/*.oneline.json
           retention-days: 90
