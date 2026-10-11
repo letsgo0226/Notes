@@ -52,7 +52,7 @@ jobs:
           sec='953.64' if os.environ['EVENT_NAME']=='workflow_run' else (os.environ.get('REQUESTED_SECONDS') or '20')
           sec=float(sec)
           assert 1<=sec<=1200
-          Path('/tmp/speaker.env').write_text(f'SOURCE_DIR={src}\nSECONDS={sec}\n')
+          Path('/tmp/speaker.env').write_text(f'SOURCE_DIR={src}\nFILM_SECONDS={sec}\n')
           print(f'Using {src}, duration={sec}s')
           PY
       - name: Synthesize English speaking portrait
@@ -61,7 +61,7 @@ jobs:
           source /tmp/speaker.env
           mkdir -p dist/speaker
           DRIVE_ARGS=()
-          if [[ "$SECONDS" == "20.0" ]]; then
+          if [[ "$FILM_SECONDS" == "20.0" ]]; then
             DRIVE_ARGS=(--voice "$SOURCE_DIR/voiceover.en.mp3")
           fi
           /usr/bin/python3 peace_av/experimental_speaker.py \
@@ -69,7 +69,7 @@ jobs:
             --movie "$SOURCE_DIR/peace_address_english.mp4" \
             "${DRIVE_ARGS[@]}" \
             --output dist/speaker/experimental_speaker_en.mp4 \
-            --seconds "$SECONDS" --fps 12
+            --seconds "$FILM_SECONDS" --fps 12
       - name: Verify origin and duration
         run: |
           /usr/bin/python3 - <<'PY'
