@@ -200,6 +200,19 @@ jobs:
           assert d['branching']=='OriginalXY tape transition'
           assert not d['zero_test_for_outer_loop']
           PY
+      - name: Verify bounded OriginalXY binary zero scan
+        run: |
+          python hsi_continuous/originalxy_bounded_zero_scan.py > hsi_continuous/out/zero_scan.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/zero_scan.json').read_text())
+          for r in d['results']:
+              assert r['is_zero']==(int(r['input'])==0)
+              assert r['steps']==r['width']
+          assert d['bit_scan']=='OriginalXY transitions'
+          assert not d['fully_native_zero_decider']
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
@@ -232,6 +245,7 @@ jobs:
             hsi_continuous/out/exact_subtraction.json
             hsi_continuous/out/unary_counter.json
             hsi_continuous/out/binary_borrow_machine.json
+            hsi_continuous/out/zero_scan.json
             hsi_continuous/out/*.oneline.sh
             hsi_continuous/out/*.oneline.json
           retention-days: 90
