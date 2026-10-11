@@ -84,6 +84,19 @@ jobs:
           assert a['translation']['roundtrip'] and a['exact_integer']
           assert not a['native_originalxy_compiler']
           PY
+      - name: Verify native OriginalXY tiny compiler
+        run: |
+          python hsi_continuous/originalxy_native_tiny_compiler.py --op write1_right > hsi_continuous/out/native_tiny_compiler.json
+          python hsi_continuous/originalxy_native_tiny_compiler.py --op write0_left > /tmp/native_tiny_write0.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('hsi_continuous/out/native_tiny_compiler.json').read_text())
+          b=json.loads(Path('/tmp/native_tiny_write0.json').read_text())
+          assert a['program']==35 and a['output']['state']==[1,1,[0]]
+          assert b['program']==2 and b['output']['state']==[1,-1,[]]
+          assert a['native_originalxy_transition'] and not a['arbitrary_program_compiler']
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
@@ -107,6 +120,7 @@ jobs:
             hsi_continuous/out/feedback.json
             hsi_continuous/out/exact_integer.json
             hsi_continuous/out/originalxy_exact_coupled.json
+            hsi_continuous/out/native_tiny_compiler.json
             hsi_continuous/out/*.oneline.sh
             hsi_continuous/out/*.oneline.json
           retention-days: 90
