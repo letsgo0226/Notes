@@ -265,6 +265,27 @@ jobs:
           assert d['all_passed'] and d['checks']==512
           assert not d['general_correctness_proof']
           PY
+      - name: Verify generic OriginalXY compiler against transition tables
+        run: |
+          python hsi_continuous/originalxy_generic_compiler.py > hsi_continuous/out/generic_compiler.json
+          python - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'hsi_continuous')
+          from originalxy_generic_compiler import compile_table,decode_program,run_table,run_program
+          for k in range(1,5):
+              base=[[q,d,w] for q in range(k+1) for d in (0,1) for w in (0,1)]
+              for seed in range(16):
+                  rules=[base[(seed+3*i)%len(base)] for i in range(2*k)]
+                  p=compile_table(k,rules)
+                  assert decode_program(p)==(k,rules)
+                  for word in ('','0','1','0011'):
+                      assert run_program(p,word,32)==run_table(k,rules,word,32)
+          p=compile_table(1,[[0,0,0],[0,0,0]])
+          assert decode_program(p)==(1,[[0,0,0],[0,0,0]])
+          d=json.loads(Path('hsi_continuous/out/generic_compiler.json').read_text())
+          assert d['exact_roundtrip'] and d['table_equivalence']
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
@@ -302,6 +323,7 @@ jobs:
             hsi_continuous/out/native_zero_decider.json
             hsi_continuous/out/integrated_unary_loop.json
             hsi_continuous/out/crosscheck.json
+            hsi_continuous/out/generic_compiler.json
             hsi_continuous/out/*.oneline.sh
             hsi_continuous/out/*.oneline.json
           retention-days: 90
