@@ -24,6 +24,9 @@ def compile_table(k,rules):
     validate(k,rules)
     base=4*(k+1)
     c=sum((q+(k+1)*(d+2*w))*base**i for i,(q,d,w) in enumerate(rules))
+    # Padding above the used transition digits keeps p positive even if c=0.
+    if c==0:
+        c=base**(2*k)
     z=c+k-1
     return z*(z+1)//2+c
 
