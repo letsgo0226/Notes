@@ -1,5 +1,10 @@
 name: HSI TM Open-Corpus Trilogy (No AI)
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'trilogy_tm_corpus.py'
+      - '.github/workflows/trilogy_tm_corpus.yml'
   schedule:
     # Daily 11:23 Asia/Taipei; GitHub may delay or skip execution.
     - cron: '23 3 * * *'
