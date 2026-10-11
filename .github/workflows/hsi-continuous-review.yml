@@ -148,6 +148,18 @@ jobs:
               assert r['increment_calls']==int(r['b'])
           assert d['exact_integer'] and not d['pure_originalxy_loop_control']
           PY
+      - name: Verify bounded OriginalXY E257 integer encoding
+        run: |
+          python hsi_continuous/originalxy_e257_bounded.py --hex 00 > hsi_continuous/out/e257_bounded.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/e257_bounded.json').read_text())
+          assert d['encoded']=='258'
+          assert d['decoded_hex']=='00' and d['roundtrip']
+          assert d['integer_exact'] and d['python_loop_control']
+          assert d['originalxy_transitions']>0
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
@@ -176,6 +188,7 @@ jobs:
             hsi_continuous/out/multistate.json
             hsi_continuous/out/binary_increment.json
             hsi_continuous/out/exact_addition.json
+            hsi_continuous/out/e257_bounded.json
             hsi_continuous/out/*.oneline.sh
             hsi_continuous/out/*.oneline.json
           retention-days: 90
