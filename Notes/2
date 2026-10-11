@@ -1,0 +1,3692 @@
+解析延拓方程：由 Cauchy–Riemann、恆等定理、解析 germ、路徑延拓、Riemann surface 與自然邊界導出的精確框架
+Analytic Continuation Equation: An Exact Framework from Cauchy–Riemann, the Identity Theorem, Analytic Germs, Path Continuation, Riemann Surfaces, and Natural Boundaries
+
+版本 / Version: 1.0
+語言 / Languages: 繁體中文 + English
+編碼 / Encoding: UTF-8
+
+======================================================================
+0. 目的與數學範圍
+0. Purpose and Mathematical Scope
+======================================================================
+
+【中文】
+本文建立一套關於「解析延拓方程」的精確框架。核心目標是形式化下列問題：
+
+    給定一個函數 f:D→C，
+    是否存在一個更大論域 Ω⊃D 與函數 F:Ω→C，
+    使 F 在 Ω 上全純，且 F|_D=f？
+
+本文不宣稱存在一個只由固定有限次
++, -, ×, ÷, exp, log
+等初等運算所構成、並能對所有可能輸入函數直接輸出「最大解析延拓閉式」
+的萬用標量公式。
+
+本文改採彼此相容的精確結構：
+
+(1) Cauchy–Riemann / Wirtinger 全純條件；
+(2) 解析延拓存在性方程；
+(3) 恆等定理導出的唯一性；
+(4) Taylor 冪級數與局部延拓；
+(5) Cauchy 積分公式所提供的局部重建；
+(6) analytic germ（解析芽）與 germ 等價類；
+(7) 沿路徑解析延拓；
+(8) monodromy（單值化）與路徑依賴；
+(9) 平面論域中的最大/極大延拓之區分；
+(10) maximal analytic continuation 的 Riemann surface 構造；
+(11) natural boundary（自然邊界）；
+(12) meromorphic continuation（亞純延拓）；
+(13) 變分式「零殘差」判準；
+(14) 函數升維／結構提升的精確解釋；
+(15) 與 UTM / meta-level 構造的概念類比；
+(16) 幾個標準例子；
+(17) 核心公式與結論。
+
+最核心的方程為：
+
+    AC_{D→Ω}(F;f)
+    :=
+    (
+        ∂̄F,
+        F|_D - f
+    )
+    =
+    (0,0).
+
+其中：
+
+    ∂̄
+    =
+    (1/2)(∂/∂x + i∂/∂y).
+
+在 F∈C^1(Ω) 的條件下：
+
+    ∂̄F=0
+    <=>
+    F 在 Ω 上全純。
+
+因此：
+
+    存在 F 使 AC_{D→Ω}(F;f)=0
+    <=>
+    f 可以解析延拓到 Ω。
+
+若 Ω 連通且 D 非空開集，則解一旦存在便唯一。
+
+必須特別區分：
+
+    「解析延拓存在的精確方程」
+    ≠
+    「對所有函數都能在有限步驟內求出閉式答案的萬用演算法」。
+
+前者是本文建立的數學等價；後者本文不作宣稱。
+
+
+【English】
+This document develops an exact framework for an "analytic continuation equation."
+The central problem is:
+
+    Given a function f:D→C,
+    does there exist a larger domain Ω⊃D and a function F:Ω→C
+    such that F is holomorphic on Ω and F|_D=f?
+
+We do not claim the existence of a universal scalar closed form built from a fixed finite
+composition of elementary operations such as
+
+    +, -, ×, ÷, exp, log
+
+that takes every possible function representation and directly outputs its maximal analytic
+continuation.
+
+Instead, we use several exact and compatible structures:
+
+(1) the Cauchy–Riemann / Wirtinger holomorphicity condition;
+(2) an exact existence equation for analytic continuation;
+(3) uniqueness from the identity theorem;
+(4) Taylor series and local continuation;
+(5) local reconstruction by the Cauchy integral formula;
+(6) analytic germs and germ equivalence;
+(7) analytic continuation along paths;
+(8) monodromy and path dependence;
+(9) the distinction between maximal and maximum planar continuations;
+(10) the Riemann-surface construction of maximal analytic continuation;
+(11) natural boundaries;
+(12) meromorphic continuation;
+(13) a variational zero-residual criterion;
+(14) a precise interpretation of "function lifting";
+(15) a conceptual analogy with UTM / meta-level constructions;
+(16) standard examples;
+(17) a core formula and conclusion.
+
+The central equation is
+
+    AC_{D→Ω}(F;f)
+    :=
+    (
+        ∂̄F,
+        F|_D - f
+    )
+    =
+    (0,0),
+
+where
+
+    ∂̄
+    =
+    (1/2)(∂/∂x + i∂/∂y).
+
+For F∈C^1(Ω),
+
+    ∂̄F=0
+    <=>
+    F is holomorphic on Ω.
+
+Therefore,
+
+    there exists F with AC_{D→Ω}(F;f)=0
+    <=>
+    f admits analytic continuation to Ω.
+
+If Ω is connected and D is a nonempty open subset, then the solution, if it exists,
+is unique.
+
+A crucial distinction is:
+
+    "an exact equation characterizing existence of analytic continuation"
+    ≠
+    "a universal finite-step algorithm producing a closed-form answer for every function."
+
+The former is established here; the latter is not claimed.
+
+
+======================================================================
+1. 基本設定：什麼叫作解析延拓？
+1. Basic Setup: What Is Analytic Continuation?
+======================================================================
+
+【中文】
+令 D,Ω⊂C 為開集，且：
+
+    D⊂Ω.
+
+假設：
+
+    f:D→C
+
+為全純函數。
+
+若存在：
+
+    F:Ω→C
+
+使：
+
+    (i)  F 在 Ω 上全純；
+    (ii) F(z)=f(z),  對所有 z∈D，
+
+則稱 F 為 f 從 D 到 Ω 的解析延拓。
+
+記作：
+
+    f  ↝_Ω  F.
+
+或只寫：
+
+    f ↝ Ω.
+
+因此解析延拓不是任意「猜一個在較大範圍有定義的函數」；
+它必須同時滿足：
+
+    全純性
+    +
+    原論域上一致性。
+
+若原始 f 本身在 D 上不全純，而 D 為開集，則不存在任何全純 F
+可以在 D 上逐點等於 f。
+
+因為若：
+
+    F|_D=f
+
+且 F 在 Ω 上全純，則限制：
+
+    F|_D
+
+必然也在 D 上全純。
+
+所以：
+
+    f 非全純
+    =>
+    不存在通常意義下的解析延拓。
+
+
+【English】
+Let D,Ω⊂C be open sets with
+
+    D⊂Ω.
+
+Assume
+
+    f:D→C
+
+is holomorphic.
+
+A function
+
+    F:Ω→C
+
+is called an analytic continuation of f from D to Ω if:
+
+    (i)  F is holomorphic on Ω;
+    (ii) F(z)=f(z) for every z∈D.
+
+We may write
+
+    f  ↝_Ω  F
+
+or simply
+
+    f ↝ Ω.
+
+Thus analytic continuation is not an arbitrary extension of the domain. It requires both
+
+    holomorphicity
+    +
+    agreement with the original function.
+
+If f is not holomorphic on the open set D, then no holomorphic F on Ω can agree with f
+at every point of D.
+
+Indeed, if
+
+    F|_D=f
+
+and F is holomorphic on Ω, then the restriction F|_D must also be holomorphic on D.
+
+Hence
+
+    f non-holomorphic
+    =>
+    no analytic continuation in the usual sense.
+
+
+======================================================================
+2. Wirtinger 導數與全純條件
+2. Wirtinger Derivative and the Holomorphicity Condition
+======================================================================
+
+【中文】
+令：
+
+    z=x+iy,
+
+且：
+
+    F(z)=u(x,y)+iv(x,y).
+
+定義 Wirtinger 導數：
+
+    ∂/∂z
+    :=
+    (1/2)(∂/∂x - i∂/∂y),
+
+    ∂/∂\bar z
+    :=
+    (1/2)(∂/∂x + i∂/∂y).
+
+記：
+
+    ∂̄F
+    :=
+    ∂F/∂\bar z.
+
+若 F∈C^1(Ω)，則：
+
+    ∂̄F=0
+
+等價於 Cauchy–Riemann 方程：
+
+    u_x=v_y,
+    u_y=-v_x.
+
+因此：
+
+    F 在 Ω 上全純
+    <=>
+    ∂̄F=0 於 Ω.
+
+這提供一個非常適合寫成「方程」的全純性判準。
+
+
+【English】
+Let
+
+    z=x+iy
+
+and
+
+    F(z)=u(x,y)+iv(x,y).
+
+Define the Wirtinger derivatives by
+
+    ∂/∂z
+    :=
+    (1/2)(∂/∂x - i∂/∂y),
+
+    ∂/∂\bar z
+    :=
+    (1/2)(∂/∂x + i∂/∂y).
+
+Write
+
+    ∂̄F
+    :=
+    ∂F/∂\bar z.
+
+If F∈C^1(Ω), then
+
+    ∂̄F=0
+
+is equivalent to the Cauchy–Riemann equations
+
+    u_x=v_y,
+    u_y=-v_x.
+
+Hence
+
+    F is holomorphic on Ω
+    <=>
+    ∂̄F=0 on Ω.
+
+This gives an exact differential equation for holomorphicity.
+
+
+======================================================================
+3. 核心解析延拓方程 AC_{D→Ω}
+3. The Core Analytic-Continuation Equation AC_{D→Ω}
+======================================================================
+
+【中文】
+定義解析延拓算子：
+
+    AC_{D→Ω}(F;f)
+    :=
+    (
+        ∂̄F,
+        F|_D-f
+    ).
+
+解析延拓方程為：
+
+    AC_{D→Ω}(F;f)
+    =
+    (0,0).
+
+亦即：
+
+    {
+        ∂̄F=0      on Ω,
+        F=f         on D.
+    }
+
+第一式要求：
+
+    F ∈ Hol(Ω).
+
+第二式要求：
+
+    F|_D=f.
+
+因此得到精確等價：
+
+    AC_{D→Ω}(F;f)=0 有解
+    <=>
+    f 可解析延拓至 Ω.
+
+更形式化地：
+
+    Sol_AC(f;D,Ω)
+    :=
+    {
+        F∈C^1(Ω):
+        ∂̄F=0,
+        F|_D=f
+    }.
+
+則：
+
+    Sol_AC(f;D,Ω) ≠ ∅
+    <=>
+    f admits analytic continuation to Ω.
+
+若無法延拓到 Ω：
+
+    Sol_AC(f;D,Ω)=∅.
+
+這正是「若解析延拓存在，方程有解；若不存在，方程無解」的精確版本。
+
+
+【English】
+Define the analytic-continuation operator
+
+    AC_{D→Ω}(F;f)
+    :=
+    (
+        ∂̄F,
+        F|_D-f
+    ).
+
+The analytic-continuation equation is
+
+    AC_{D→Ω}(F;f)
+    =
+    (0,0),
+
+that is,
+
+    {
+        ∂̄F=0      on Ω,
+        F=f         on D.
+    }
+
+The first condition requires
+
+    F ∈ Hol(Ω),
+
+and the second requires
+
+    F|_D=f.
+
+Therefore,
+
+    AC_{D→Ω}(F;f)=0 has a solution
+    <=>
+    f admits analytic continuation to Ω.
+
+Define
+
+    Sol_AC(f;D,Ω)
+    :=
+    {
+        F∈C^1(Ω):
+        ∂̄F=0,
+        F|_D=f
+    }.
+
+Then
+
+    Sol_AC(f;D,Ω) ≠ ∅
+    <=>
+    f admits analytic continuation to Ω.
+
+If continuation to Ω is impossible, then
+
+    Sol_AC(f;D,Ω)=∅.
+
+This is the exact form of the desired principle:
+existence of analytic continuation corresponds to solvability of the equation.
+
+
+======================================================================
+4. 唯一性：為何有解時不能有兩個不同答案？
+4. Uniqueness: Why Can There Not Be Two Different Solutions?
+======================================================================
+
+【中文】
+假設 Ω 為連通開集，D⊂Ω 為非空開集。
+
+若 F_1,F_2 都滿足：
+
+    AC_{D→Ω}(F_j;f)=0,
+
+則：
+
+    F_1,F_2 ∈ Hol(Ω)
+
+且：
+
+    F_1=f=F_2  on D.
+
+令：
+
+    H=F_1-F_2.
+
+則：
+
+    H∈Hol(Ω)
+
+且：
+
+    H=0  on D.
+
+由於 D 是非空開集，因此 H 的零點集在 Ω 中有聚點。
+
+由恆等定理：
+
+    H≡0  on Ω.
+
+所以：
+
+    F_1=F_2  on Ω.
+
+因此：
+
+    |Sol_AC(f;D,Ω)| ≤ 1.
+
+換言之，對固定的目標論域 Ω：
+
+    解析延拓若存在，就必然唯一。
+
+注意：
+「唯一」是指固定 Ω 之後的函數唯一；
+它不表示只有一個可能的較大論域 Ω。
+
+
+【English】
+Assume Ω is connected and D⊂Ω is a nonempty open set.
+
+Suppose F_1 and F_2 both satisfy
+
+    AC_{D→Ω}(F_j;f)=0.
+
+Then
+
+    F_1,F_2 ∈ Hol(Ω)
+
+and
+
+    F_1=f=F_2 on D.
+
+Let
+
+    H=F_1-F_2.
+
+Then
+
+    H∈Hol(Ω)
+
+and
+
+    H=0 on D.
+
+Since D is a nonempty open set, the zero set of H has an accumulation point in Ω.
+
+By the identity theorem,
+
+    H≡0 on Ω.
+
+Hence
+
+    F_1=F_2 on Ω.
+
+Therefore,
+
+    |Sol_AC(f;D,Ω)| ≤ 1.
+
+Thus, for a fixed target domain Ω, the analytic continuation, if it exists, is unique.
+
+This does not mean there is only one possible larger target domain Ω.
+
+
+======================================================================
+5. 局部 Taylor 形式：解析延拓如何一步一步發生？
+5. Local Taylor Form: How Does Analytic Continuation Proceed Step by Step?
+======================================================================
+
+【中文】
+令：
+
+    z_0∈D,
+
+且 f 在 z_0 附近全純。
+
+則：
+
+    f(z)
+    =
+    Σ_{n=0}^∞ a_n (z-z_0)^n,
+
+其中：
+
+    a_n
+    =
+    f^(n)(z_0)/n!.
+
+此級數有某個收斂半徑：
+
+    R_0>0.
+
+因此首先得到一個圓盤：
+
+    B(z_0,R_0).
+
+若選擇：
+
+    z_1∈B(z_0,R_0),
+
+則可在 z_1 重新展開：
+
+    f(z)
+    =
+    Σ_{n=0}^∞ b_n (z-z_1)^n,
+
+其中：
+
+    b_n=f^(n)(z_1)/n!.
+
+新的展開可能具有不同半徑：
+
+    R_1.
+
+若：
+
+    B(z_1,R_1)
+
+伸出原來的：
+
+    B(z_0,R_0),
+
+便完成一次局部解析延拓。
+
+重複此過程：
+
+    (z_0,R_0)
+        ->
+    (z_1,R_1)
+        ->
+    (z_2,R_2)
+        ->
+    ...
+
+即可沿某條路徑推進。
+
+因此解析延拓可以理解成：
+
+    overlap
+    +
+    identity theorem
+    +
+    new Taylor expansion.
+
+只要相鄰圓盤有非空連通重疊，且兩個局部函數在重疊上相等，
+它們就能黏合為更大的解析函數。
+
+
+【English】
+Let
+
+    z_0∈D
+
+and assume f is holomorphic near z_0.
+
+Then
+
+    f(z)
+    =
+    Σ_{n=0}^∞ a_n (z-z_0)^n,
+
+where
+
+    a_n
+    =
+    f^(n)(z_0)/n!.
+
+The series has some radius of convergence
+
+    R_0>0.
+
+Hence it defines f on a disk
+
+    B(z_0,R_0).
+
+Choose
+
+    z_1∈B(z_0,R_0).
+
+We may re-expand at z_1:
+
+    f(z)
+    =
+    Σ_{n=0}^∞ b_n (z-z_1)^n,
+
+where
+
+    b_n=f^(n)(z_1)/n!.
+
+The new expansion may have a different radius
+
+    R_1.
+
+If
+
+    B(z_1,R_1)
+
+extends beyond
+
+    B(z_0,R_0),
+
+then one step of local analytic continuation has occurred.
+
+Repeating,
+
+    (z_0,R_0)
+        ->
+    (z_1,R_1)
+        ->
+    (z_2,R_2)
+        ->
+    ...
+
+continues the function along a path.
+
+Thus local analytic continuation can be viewed as
+
+    overlap
+    +
+    identity theorem
+    +
+    new Taylor expansion.
+
+Whenever neighboring disks have nonempty connected overlap and the local functions agree
+there, they glue to a larger holomorphic function.
+
+
+======================================================================
+6. Cauchy 積分公式與局部重建
+6. Cauchy Integral Formula and Local Reconstruction
+======================================================================
+
+【中文】
+若 F 在包含閉圓盤：
+
+    \overline{B(a,r)}
+
+的鄰域上全純，則對：
+
+    |z-a|<r
+
+有：
+
+    F(z)
+    =
+    (1/(2πi))
+    ∮_{|ζ-a|=r}
+    F(ζ)/(ζ-z) dζ.
+
+並且：
+
+    F^(n)(a)
+    =
+    n!/(2πi)
+    ∮_{|ζ-a|=r}
+    F(ζ)/(ζ-a)^(n+1) dζ.
+
+因此只要已知一個局部解析函數在適當閉曲線上的值，
+便能恢復曲線內所有 Taylor 係數。
+
+這提供：
+
+    boundary/local data
+        ->
+    Cauchy integral
+        ->
+    Taylor coefficients
+        ->
+    analytic function.
+
+然而必須注意：
+
+Cauchy 積分公式本身不會自動跨越奇點或自然邊界。
+它只能在已知解析性的適當區域內提供精確重建。
+
+
+【English】
+If F is holomorphic on a neighborhood of the closed disk
+
+    \overline{B(a,r)},
+
+then for
+
+    |z-a|<r
+
+the Cauchy integral formula gives
+
+    F(z)
+    =
+    (1/(2πi))
+    ∮_{|ζ-a|=r}
+    F(ζ)/(ζ-z) dζ.
+
+Moreover,
+
+    F^(n)(a)
+    =
+    n!/(2πi)
+    ∮_{|ζ-a|=r}
+    F(ζ)/(ζ-a)^(n+1) dζ.
+
+Thus, appropriate boundary/local data determine all Taylor coefficients inside the contour.
+
+This gives the chain
+
+    boundary/local data
+        ->
+    Cauchy integral
+        ->
+    Taylor coefficients
+        ->
+    analytic function.
+
+However, the Cauchy integral formula does not automatically cross singularities or natural
+boundaries. It reconstructs the function only within regions where the required holomorphic
+structure is available.
+
+
+======================================================================
+7. 解析 germ：把「局部函數」變成可延拓的基本單位
+7. Analytic Germs: Local Functions as the Basic Units of Continuation
+======================================================================
+
+【中文】
+在點 z_0 附近考慮兩個全純函數：
+
+    f:U→C,
+    g:V→C,
+
+其中：
+
+    z_0∈U∩V.
+
+若存在 z_0 的鄰域 W⊂U∩V，使：
+
+    f|_W=g|_W,
+
+則稱 f 與 g 在 z_0 具有相同 germ。
+
+記作：
+
+    [f]_{z_0}=[g]_{z_0}.
+
+germ 只保留「在某點附近的解析行為」，
+不固定一個全域論域。
+
+因此解析延拓可以改寫成 germ 的傳遞：
+
+    [f_0]_{z_0}
+        ->
+    [f_1]_{z_1}
+        ->
+    [f_2]_{z_2}
+        ->
+    ...
+
+這種描述比單純要求一個固定 Ω 更一般，
+因為它允許我們沿不同路徑研究不同延拓結果。
+
+
+【English】
+Consider two holomorphic functions near z_0,
+
+    f:U→C,
+    g:V→C,
+
+with
+
+    z_0∈U∩V.
+
+If there exists a neighborhood W of z_0 with W⊂U∩V such that
+
+    f|_W=g|_W,
+
+then f and g determine the same germ at z_0.
+
+Write
+
+    [f]_{z_0}=[g]_{z_0}.
+
+A germ records only the local analytic behavior near a point; it does not fix a global domain.
+
+Analytic continuation may therefore be described as propagation of germs:
+
+    [f_0]_{z_0}
+        ->
+    [f_1]_{z_1}
+        ->
+    [f_2]_{z_2}
+        ->
+    ...
+
+This viewpoint is more general than choosing one fixed Ω, because it allows continuation
+along different paths and comparison of their outcomes.
+
+
+======================================================================
+8. 沿路徑的解析延拓
+8. Analytic Continuation Along a Path
+======================================================================
+
+【中文】
+令：
+
+    γ:[0,1]→C
+
+為連續路徑，且：
+
+    γ(0)=z_0.
+
+從 germ：
+
+    [f_0]_{z_0}
+
+出發。
+
+若對每個：
+
+    t∈[0,1]
+
+都能指定一個 germ：
+
+    [f_t]_{γ(t)}
+
+使得對足夠接近的 t,t'，兩個 germ 在共同鄰域中彼此一致，
+則稱原 germ 可以沿 γ 解析延拓。
+
+終點得到：
+
+    [f_1]_{γ(1)}.
+
+因此：
+
+    continuation along γ
+    :
+    [f_0]_{z_0}
+    ->
+    [f_1]_{γ(1)}.
+
+可能發生兩條路徑：
+
+    γ_1, γ_2
+
+具有相同起點與終點，但得到不同終點 germ：
+
+    [F_1]_z ≠ [F_2]_z.
+
+這就是路徑依賴與多值現象的來源之一。
+
+
+【English】
+Let
+
+    γ:[0,1]→C
+
+be a continuous path with
+
+    γ(0)=z_0.
+
+Start with a germ
+
+    [f_0]_{z_0}.
+
+If for every
+
+    t∈[0,1]
+
+one can assign a germ
+
+    [f_t]_{γ(t)}
+
+such that nearby germs are represented by functions agreeing on common neighborhoods, then
+the original germ is said to admit analytic continuation along γ.
+
+At the endpoint we obtain
+
+    [f_1]_{γ(1)}.
+
+Thus
+
+    continuation along γ
+    :
+    [f_0]_{z_0}
+    ->
+    [f_1]_{γ(1)}.
+
+Two paths
+
+    γ_1, γ_2
+
+with the same initial and terminal points may produce different terminal germs:
+
+    [F_1]_z ≠ [F_2]_z.
+
+This is one source of path dependence and multivalued behavior.
+
+
+======================================================================
+9. Monodromy：何時不同路徑會得到同一答案？
+9. Monodromy: When Do Different Paths Give the Same Answer?
+======================================================================
+
+【中文】
+一個基本形式的 monodromy theorem 可表述為：
+
+若 Ω 為單連通論域，
+且某一初始 germ 可以沿 Ω 中每一條從 z_0 出發的路徑解析延拓，
+則延拓結果與路徑無關。
+
+因此存在唯一單值全純函數：
+
+    F:Ω→C
+
+代表所有這些延拓。
+
+形式上：
+
+    path-independent continuation
+        =>
+    single-valued holomorphic F.
+
+若 Ω 非單連通，則路徑繞過奇點的繞行類別可能影響結果。
+
+例如 log z：
+
+    沿原點繞一圈
+    =>
+    log z -> log z + 2πi.
+
+所以：
+
+    局部解析性
+    ≠
+    全域單值性.
+
+
+【English】
+A basic form of the monodromy theorem states:
+
+If Ω is simply connected and an initial germ can be analytically continued along every path
+in Ω beginning at z_0, then the result is independent of the chosen path.
+
+Hence there exists a unique single-valued holomorphic function
+
+    F:Ω→C
+
+representing all such continuations.
+
+Schematically,
+
+    path-independent continuation
+        =>
+    single-valued holomorphic F.
+
+If Ω is not simply connected, different winding classes around singularities may give
+different results.
+
+For log z,
+
+    one loop around 0
+    =>
+    log z -> log z + 2πi.
+
+Thus
+
+    local analyticity
+    ≠
+    global single-valuedness.
+
+
+======================================================================
+10. 多個可延拓論域不等於「不存在最大延拓」
+10. Many Continuation Domains Do Not Imply the Absence of a Maximal Continuation
+======================================================================
+
+【中文】
+假設原函數可延拓到：
+
+    Ω_1, Ω_2, Ω_3, ...
+
+這並不表示不存在更大的統一解析結構。
+
+如果這些延拓在重疊處相容，則可嘗試黏合：
+
+    F_α = F_β
+    on Ω_α∩Ω_β
+
+的相容部分。
+
+在最簡單情況下：
+
+    Ω = ⋃_α Ω_α
+
+仍為適當論域，且所有局部延拓可以黏合成：
+
+    F:Ω→C.
+
+所以：
+
+    無限多個 admissible continuation domains
+    ⇏
+    不存在較大的 continuation.
+
+真正的障礙通常不是「選項太多」，
+而是：
+
+    (i)  奇點；
+    (ii) 路徑依賴；
+    (iii) monodromy；
+    (iv) natural boundary；
+    (v) 無法在同一平面論域上保持單值。
+
+
+【English】
+Suppose the original function can be continued to
+
+    Ω_1, Ω_2, Ω_3, ...
+
+This does not imply that no larger unified analytic structure exists.
+
+If the continuations are compatible on overlaps, one can attempt to glue them wherever
+
+    F_α = F_β
+    on Ω_α∩Ω_β.
+
+In the simplest case,
+
+    Ω = ⋃_α Ω_α
+
+is again an appropriate domain and the local continuations glue to a single
+
+    F:Ω→C.
+
+Therefore,
+
+    infinitely many admissible continuation domains
+    ⇏
+    absence of a larger continuation.
+
+The real obstructions are typically
+
+    (i)  singularities;
+    (ii) path dependence;
+    (iii) monodromy;
+    (iv) natural boundaries;
+    (v) failure of single-valuedness on one planar domain.
+
+
+======================================================================
+11. 「極大」與「最大」必須區分
+11. "Maximal" and "Maximum" Must Be Distinguished
+======================================================================
+
+【中文】
+在偏序語言中，令解析延拓依「可再延拓」排序。
+
+若：
+
+    (Ω,F)
+
+不能再真地延拓到任何更大的同類平面論域，
+則可稱它為一個極大元素（maximal element）。
+
+但「最大元素」（maximum element）要求更強：
+
+    每一個其它 admissible continuation
+    都包含於同一個共同最大對象。
+
+在普通複平面子域的範疇中，
+由於 branch / monodromy，
+未必存在一個單一最大的平面論域承載單值延拓。
+
+所以必須區分：
+
+    maximal planar continuation
+
+與：
+
+    maximal analytic continuation as a Riemann surface.
+
+後者是更自然、更一般的概念。
+
+
+【English】
+Order analytic continuations by the relation "extends further."
+
+If a pair
+
+    (Ω,F)
+
+cannot be properly extended to a larger object of the same planar type, it may be called
+maximal.
+
+A maximum object is stronger: it must dominate every other admissible continuation.
+
+Within the category of ordinary planar domains, branch behavior and monodromy may prevent
+the existence of a single largest domain carrying one single-valued continuation.
+
+Hence one must distinguish
+
+    maximal planar continuation
+
+from
+
+    maximal analytic continuation as a Riemann surface.
+
+The latter is the more natural and general object.
+
+
+======================================================================
+12. 最大解析延拓的 Riemann surface 構造
+12. Riemann-Surface Construction of the Maximal Analytic Continuation
+======================================================================
+
+【中文】
+從一個初始解析 germ：
+
+    a_0=[f_0]_{z_0}
+
+出發。
+
+考慮所有可以由 a_0 沿某條路徑解析延拓得到的 germ。
+
+定義集合：
+
+    R_f
+    :=
+    {
+        [g]_z :
+        [g]_z 可由 [f_0]_{z_0} 經解析延拓得到
+    }.
+
+對每個元素：
+
+    a=[g]_z∈R_f,
+
+定義投影：
+
+    π(a)=z.
+
+並定義值函數：
+
+    \mathcal F(a)=g(z).
+
+由 germ 的定義，g(z) 與代表元的選擇無關。
+
+在適當 germ topology 下：
+
+    π:R_f→C
+
+是局部 biholomorphism（局部雙全純映射）。
+
+並且：
+
+    \mathcal F:R_f→C
+
+是全純函數。
+
+因此得到：
+
+    (R_f, π, \mathcal F).
+
+這就是原始 germ 的最大解析延拓之標準幾何模型。
+
+重要的是：
+
+    R_f 未必是一個 C 中的普通子域。
+
+它可以具有多個 sheet，
+而不同路徑得到的不同 germ 可在 R_f 中成為不同點，
+即使它們投影到同一個 z：
+
+    π(a_1)=π(a_2)=z,
+    a_1≠a_2.
+
+因此原本的「多值性」被改寫成：
+
+    在 base plane 上同一 z
+    對應 Riemann surface 上不同點。
+
+這使得：
+
+    多值函數（base representation）
+        ->
+    單值函數（lifted Riemann surface）.
+
+
+【English】
+Start with an initial analytic germ
+
+    a_0=[f_0]_{z_0}.
+
+Consider all germs obtainable from a_0 by analytic continuation along paths.
+
+Define
+
+    R_f
+    :=
+    {
+        [g]_z :
+        [g]_z is obtainable from [f_0]_{z_0} by analytic continuation
+    }.
+
+For
+
+    a=[g]_z∈R_f,
+
+define the projection
+
+    π(a)=z
+
+and the value function
+
+    \mathcal F(a)=g(z).
+
+By germ equivalence, g(z) is independent of the chosen representative.
+
+With the natural germ topology,
+
+    π:R_f→C
+
+is a local biholomorphism, and
+
+    \mathcal F:R_f→C
+
+is holomorphic.
+
+Thus we obtain
+
+    (R_f, π, \mathcal F),
+
+the standard geometric model of the maximal analytic continuation of the initial germ.
+
+Crucially,
+
+    R_f need not be an ordinary subset of C.
+
+It may have multiple sheets, and distinct germs may be distinct points of R_f even when they
+project to the same complex number:
+
+    π(a_1)=π(a_2)=z,
+    a_1≠a_2.
+
+Thus multivaluedness on the base plane is rewritten as
+
+    different points on the Riemann surface lying above the same base point.
+
+Hence
+
+    multivalued function (base representation)
+        ->
+    single-valued function (lifted Riemann surface).
+
+
+======================================================================
+13. 這種「升維」究竟是不是維度真的增加？
+13. Does This "Lifting" Literally Increase Dimension?
+======================================================================
+
+【中文】
+必須精確區分。
+
+Riemann surface 的複維度仍然是：
+
+    dim_C(R_f)=1.
+
+其實維數為：
+
+    dim_R(R_f)=2.
+
+所以從 C 到 R_f：
+
+    不是一般意義下
+    C^1 -> C^2 -> C^3
+
+那種局部幾何維數增加。
+
+更準確的說法是：
+
+    representation lift
+    / sheet lift
+    / topological lift
+    / analytic-structure lift.
+
+亦即：
+
+    原本無法在單一平面座標 z 中
+    以單值方式保存的所有解析 continuation states，
+
+被提升為：
+
+    R_f 上不同的點。
+
+因此本文若使用「函數升維」一詞，
+它主要表示：
+
+    把原本作為「不同 branch / continuation possibility」的外部選項，
+    內化成更大解析空間中的內部座標／點。
+
+形式上：
+
+    {branches at z}
+        ->
+    π^{-1}(z) ⊂ R_f.
+
+這是一種結構升階，
+而非必然的局部流形維數增加。
+
+
+【English】
+A precise distinction is essential.
+
+A Riemann surface still has complex dimension
+
+    dim_C(R_f)=1
+
+and real dimension
+
+    dim_R(R_f)=2.
+
+Thus passing from C to R_f is not literally a local dimensional increase of the form
+
+    C^1 -> C^2 -> C^3.
+
+A more accurate description is
+
+    representation lift,
+    sheet lift,
+    topological lift,
+    or analytic-structure lift.
+
+The different continuation states that could not all be represented single-valuedly by one
+base coordinate z become different points of R_f.
+
+Thus, when this document uses the phrase "function lifting," it means chiefly:
+
+    possibilities that were external alternatives
+    become internal points/coordinates of a larger analytic structure.
+
+Formally,
+
+    {branches at z}
+        ->
+    π^{-1}(z) ⊂ R_f.
+
+This is a structural lift, not necessarily an increase in local manifold dimension.
+
+
+======================================================================
+14. Natural boundary：真正的「無法再跨越」
+14. Natural Boundary: Genuine Failure of Further Continuation
+======================================================================
+
+【中文】
+令：
+
+    f(z)=Σ_{n=0}^∞ a_n z^n
+
+在：
+
+    |z|<R
+
+收斂。
+
+若圓：
+
+    |z|=R
+
+上的每一點都阻止 f 解析延拓到任何穿越該點的鄰域，
+則稱：
+
+    |z|=R
+
+為 natural boundary。
+
+此時不存在任何跨過邊界點的局部解析 continuation。
+
+例如 lacunary series：
+
+    f(z)
+    =
+    Σ_{n=0}^∞ z^{2^n}
+
+在：
+
+    |z|<1
+
+解析，而單位圓是其典型 natural boundary。
+
+因此若 Ω 是任何包含單位圓某個跨界鄰域的開集，
+則：
+
+    Sol_AC(f;D,Ω)=∅,
+
+其中：
+
+    D={|z|<1}.
+
+這給出最接近「方程正好無解」的典型情形。
+
+注意：
+natural boundary 不表示 f 在 D 上沒有解析結構；
+它表示：
+
+    無法跨越該邊界。
+
+
+【English】
+Let
+
+    f(z)=Σ_{n=0}^∞ a_n z^n
+
+converge on
+
+    |z|<R.
+
+If every point of
+
+    |z|=R
+
+prevents analytic continuation to any neighborhood crossing that point, then the circle
+
+    |z|=R
+
+is called a natural boundary.
+
+No local analytic continuation can cross any point of that boundary.
+
+A standard lacunary example is
+
+    f(z)
+    =
+    Σ_{n=0}^∞ z^{2^n},
+
+which is holomorphic on
+
+    |z|<1
+
+and has the unit circle as a natural boundary.
+
+Thus, for any open Ω that contains a neighborhood crossing the unit circle,
+
+    Sol_AC(f;D,Ω)=∅,
+
+where
+
+    D={|z|<1}.
+
+This is a canonical situation in which the continuation equation has no solution for a
+specified larger target domain.
+
+A natural boundary does not mean that f lacks analytic structure on D; it means that the
+boundary cannot be crossed analytically.
+
+
+======================================================================
+15. 例一：幾何級數的解析延拓
+15. Example 1: Analytic Continuation of the Geometric Series
+======================================================================
+
+【中文】
+令：
+
+    f(z)
+    =
+    Σ_{n=0}^∞ z^n,
+    |z|<1.
+
+由有限部分和：
+
+    Σ_{n=0}^{N} z^n
+    =
+    (1-z^{N+1})/(1-z),
+
+當 |z|<1 且 N→∞：
+
+    z^{N+1}→0.
+
+所以：
+
+    f(z)
+    =
+    1/(1-z).
+
+定義：
+
+    F(z)=1/(1-z).
+
+則：
+
+    F∈Hol(C\{1})
+
+且：
+
+    F|_{|z|<1}=f.
+
+因此：
+
+    AC_{D→Ω}(F;f)=0
+
+對：
+
+    D={|z|<1},
+    Ω=C\{1}.
+
+所以：
+
+    Sol_AC(f;D,C\{1})
+    =
+    {1/(1-z)}.
+
+這裡存在無限多個較小可延拓論域，
+但它們可以統一於：
+
+    C\{1}.
+
+因此：
+
+    「可選論域很多」
+    不等於
+    「不存在最大平面延拓」。
+
+
+【English】
+Let
+
+    f(z)
+    =
+    Σ_{n=0}^∞ z^n,
+    |z|<1.
+
+From the finite geometric sum,
+
+    Σ_{n=0}^{N} z^n
+    =
+    (1-z^{N+1})/(1-z),
+
+and for |z|<1,
+
+    z^{N+1}→0
+
+as N→∞.
+
+Hence
+
+    f(z)
+    =
+    1/(1-z).
+
+Define
+
+    F(z)=1/(1-z).
+
+Then
+
+    F∈Hol(C\{1})
+
+and
+
+    F|_{|z|<1}=f.
+
+Therefore
+
+    AC_{D→Ω}(F;f)=0
+
+for
+
+    D={|z|<1},
+    Ω=C\{1}.
+
+Thus
+
+    Sol_AC(f;D,C\{1})
+    =
+    {1/(1-z)}.
+
+There are infinitely many smaller continuation domains, but they are unified by
+
+    C\{1}.
+
+Hence
+
+    "many possible domains"
+    does not imply
+    "no largest planar continuation."
+
+
+======================================================================
+16. 例二：log z 與 Riemann surface
+16. Example 2: log z and Its Riemann Surface
+======================================================================
+
+【中文】
+從 z=1 附近的主值 germ 出發：
+
+    log(1)=0.
+
+在不繞過原點的局部區域中，
+可以選擇單值 branch。
+
+但沿原點逆時針繞一圈：
+
+    log z
+        ->
+    log z + 2πi.
+
+繞 k 圈：
+
+    log z
+        ->
+    log z + 2πik.
+
+因此在：
+
+    C\{0}
+
+上不存在一個單值全純 logarithm。
+
+若存在：
+
+    L∈Hol(C\{0}),
+    exp(L(z))=z,
+
+則：
+
+    L'(z)=1/z.
+
+對單位圓積分：
+
+    ∮_{|z|=1} L'(z)dz
+    =
+    0
+
+因為 L' 是全純函數的導數。
+
+但：
+
+    ∮_{|z|=1} dz/z
+    =
+    2πi.
+
+矛盾。
+
+所以：
+
+    無單值 holomorphic logarithm on C\{0}.
+
+然而提升到 universal covering / logarithm Riemann surface 後，
+log 成為單值全純函數。
+
+因此：
+
+    planar single-valued failure
+    ≠
+    absence of maximal analytic continuation.
+
+更準確地：
+
+    base plane branch ambiguity
+        ->
+    sheet coordinate on R_log.
+
+
+【English】
+Start with the principal germ near z=1:
+
+    log(1)=0.
+
+On local regions that do not wind around the origin, one may choose a single-valued branch.
+
+But one counterclockwise loop around 0 changes the value by
+
+    log z
+        ->
+    log z + 2πi.
+
+After k windings,
+
+    log z
+        ->
+    log z + 2πik.
+
+Hence no single-valued holomorphic logarithm exists on
+
+    C\{0}.
+
+Indeed, if
+
+    L∈Hol(C\{0}),
+    exp(L(z))=z,
+
+then
+
+    L'(z)=1/z.
+
+Integrating around the unit circle would give
+
+    ∮_{|z|=1} L'(z)dz
+    =
+    0,
+
+because L' is the derivative of a globally holomorphic function.
+
+But
+
+    ∮_{|z|=1} dz/z
+    =
+    2πi,
+
+a contradiction.
+
+Thus
+
+    no single-valued holomorphic logarithm exists on C\{0}.
+
+After lifting to the universal covering / logarithm Riemann surface, however, log becomes a
+single-valued holomorphic function.
+
+Therefore,
+
+    planar single-valued failure
+    ≠
+    absence of maximal analytic continuation.
+
+More precisely,
+
+    branch ambiguity on the base plane
+        ->
+    sheet coordinate on R_log.
+
+
+======================================================================
+17. 例三：平方根與兩個 sheet
+17. Example 3: Square Root and Two Sheets
+======================================================================
+
+【中文】
+考慮：
+
+    w^2=z.
+
+在避開 z=0 的局部區域，可選：
+
+    w=+sqrt(z)
+
+或：
+
+    w=-sqrt(z).
+
+沿 z=0 繞一圈，兩個 branch 互換。
+
+因此在：
+
+    C\{0}
+
+上不存在同時涵蓋所有繞行而保持單值的普通 sqrt branch。
+
+但考慮：
+
+    R_sqrt
+    =
+    {
+        (z,w)∈(C\{0})×C :
+        w^2=z
+    }.
+
+投影：
+
+    π(z,w)=z.
+
+在此兩-sheet cover 上：
+
+    \mathcal F(z,w)=w
+
+是單值全純函數。
+
+因此：
+
+    ±sqrt(z)
+
+在 base plane 上的二值性，
+被轉換成：
+
+    R_sqrt 上兩個不同點 (z,+w), (z,-w).
+
+這再次說明：
+
+    branch multiplicity
+        ->
+    lifted state multiplicity.
+
+
+【English】
+Consider
+
+    w^2=z.
+
+On a local region avoiding z=0, one may choose either
+
+    w=+sqrt(z)
+
+or
+
+    w=-sqrt(z).
+
+A loop around z=0 interchanges the two branches.
+
+Hence no ordinary single-valued square-root branch on C\{0} can simultaneously represent
+all windings.
+
+Consider instead
+
+    R_sqrt
+    =
+    {
+        (z,w)∈(C\{0})×C :
+        w^2=z
+    }.
+
+With projection
+
+    π(z,w)=z,
+
+the function
+
+    \mathcal F(z,w)=w
+
+is single-valued and holomorphic on this two-sheeted covering surface.
+
+Thus the two-valued appearance
+
+    ±sqrt(z)
+
+on the base plane becomes two distinct points
+
+    (z,+w), (z,-w)
+
+on R_sqrt.
+
+Again,
+
+    branch multiplicity
+        ->
+    lifted state multiplicity.
+
+
+======================================================================
+18. 亞純延拓：ζ(s) 類型需要稍作修改
+18. Meromorphic Continuation: The ζ(s) Case Requires a Modified Equation
+======================================================================
+
+【中文】
+解析延拓要求：
+
+    F∈Hol(Ω).
+
+但某些重要函數的自然延拓具有 pole。
+
+例如 Riemann ζ 函數：
+
+    ζ(s)
+    =
+    Σ_{n=1}^∞ n^{-s},
+    Re(s)>1,
+
+不能全純延拓到整個 C，
+因為在：
+
+    s=1
+
+有單極點。
+
+然而 ζ 可亞純延拓到整個 C。
+
+因此對 ζ 更合適的問題是：
+
+    尋找 F∈Mer(Ω)
+    使 F|_D=f.
+
+若預先指定單極點 p，
+可將：
+
+    H(z)=(z-p)F(z).
+
+若 H 在 p 附近全純，
+則 F 至多在 p 有單極點。
+
+因此帶一個指定單極點的延拓方程可寫：
+
+    {
+        ∂̄[(z-p)F(z)] = 0,
+        F|_D=f,
+    }
+
+並附加：
+
+    F 在 Ω\{p} 上全純。
+
+對 ζ：
+
+    p=1
+
+且：
+
+    (s-1)ζ(s)
+
+可延拓為整函數。
+
+所以 ζ 的正確全域敘述是：
+
+    meromorphic continuation to C,
+
+而不是：
+
+    holomorphic continuation to all of C.
+
+這項區分對任何「黎曼函數的解析延拓方程」都十分重要。
+
+
+【English】
+Analytic continuation requires
+
+    F∈Hol(Ω).
+
+However, important functions may naturally continue with poles.
+
+For example, the Riemann zeta function
+
+    ζ(s)
+    =
+    Σ_{n=1}^∞ n^{-s},
+    Re(s)>1,
+
+does not admit a holomorphic continuation to all of C because it has a simple pole at
+
+    s=1.
+
+It does admit a meromorphic continuation to the whole complex plane.
+
+Thus, for ζ, the more appropriate problem is:
+
+    find F∈Mer(Ω)
+    such that F|_D=f.
+
+If a simple pole p is prescribed, define
+
+    H(z)=(z-p)F(z).
+
+If H is holomorphic near p, then F has at most a simple pole at p.
+
+A continuation equation with one prescribed simple pole may therefore be written as
+
+    {
+        ∂̄[(z-p)F(z)] = 0,
+        F|_D=f,
+    }
+
+together with the requirement that
+
+    F is holomorphic on Ω\{p}.
+
+For ζ,
+
+    p=1,
+
+and
+
+    (s-1)ζ(s)
+
+extends to an entire function.
+
+Thus the correct global statement for ζ is
+
+    meromorphic continuation to C,
+
+not
+
+    holomorphic continuation to all of C.
+
+This distinction is essential in any continuation equation involving the Riemann zeta
+function.
+
+
+======================================================================
+19. 變分版本：零殘差等價，但 infimum 需要小心
+19. Variational Version: Zero Residual Is Exact, but the Infimum Needs Care
+======================================================================
+
+【中文】
+可定義一個形式殘差：
+
+    J[F]
+    =
+    ||∂̄F||^2_{X(Ω)}
+    +
+    ||F|_D-f||^2_{Y(D)},
+
+其中 X,Y 是適當函數空間。
+
+若存在 F 使：
+
+    J[F]=0,
+
+則：
+
+    ∂̄F=0
+
+且：
+
+    F|_D=f.
+
+所以：
+
+    J[F]=0
+    <=>
+    F 為解析延拓
+
+（在 norm 的零元確實表示函數等於 0 的標準假設下）。
+
+因此精確判準應寫：
+
+    ∃F : J[F]=0
+    <=>
+    analytic continuation exists.
+
+必須避免無條件把它改成：
+
+    inf_F J[F]=0
+    <=>
+    continuation exists.
+
+原因是：
+
+    infimum=0
+
+不一定保證最小值被某個 F 取得。
+
+若函數空間、閉性、compactness / coercivity 等條件足夠，
+才可進一步把：
+
+    infimum=0
+
+與：
+
+    attained zero minimizer
+
+等同。
+
+因此最安全的「最優解」版本是：
+
+    Find F* such that
+        J[F*]=0.
+
+而不是單獨使用：
+
+    inf J=0.
+
+
+【English】
+One may define a residual functional
+
+    J[F]
+    =
+    ||∂̄F||^2_{X(Ω)}
+    +
+    ||F|_D-f||^2_{Y(D)},
+
+where X and Y are suitable function spaces.
+
+If there exists F such that
+
+    J[F]=0,
+
+then
+
+    ∂̄F=0
+
+and
+
+    F|_D=f.
+
+Hence
+
+    J[F]=0
+    <=>
+    F is an analytic continuation,
+
+under the usual assumption that zero norm means the function is zero.
+
+Therefore the exact variational criterion is
+
+    ∃F : J[F]=0
+    <=>
+    analytic continuation exists.
+
+One must not automatically replace this by
+
+    inf_F J[F]=0
+    <=>
+    continuation exists.
+
+An infimum of zero need not be attained by any F.
+
+Only under additional functional-analytic hypotheses such as suitable closedness,
+compactness, coercivity, or attainment results can one equate
+
+    infimum=0
+
+with
+
+    existence of a zero minimizer.
+
+Thus the safest optimization form is
+
+    Find F* such that
+        J[F*]=0,
+
+not merely
+
+    inf J=0.
+
+
+======================================================================
+20. 把「論域」本身當作未知量
+20. Treating the Domain Itself as an Unknown
+======================================================================
+
+【中文】
+固定 Ω 時，解析延拓方程為：
+
+    AC_{D→Ω}(F;f)=0.
+
+若不固定 Ω，
+則未知量變成一對：
+
+    (Ω,F).
+
+定義 admissible continuation pairs：
+
+    E(f)
+    :=
+    {
+        (Ω,F):
+        D⊂Ω,
+        Ω open and connected,
+        F∈Hol(Ω),
+        F|_D=f
+    }.
+
+可依延拓關係排序：
+
+    (Ω_1,F_1) ≼ (Ω_2,F_2)
+
+若：
+
+    Ω_1⊂Ω_2
+
+且：
+
+    F_2|_{Ω_1}=F_1.
+
+於是解析延拓不再只是求一個函數值，
+而是求：
+
+    domain
+    +
+    function
+    +
+    compatibility relation.
+
+這已經是一個「函數結構空間」問題。
+
+
+【English】
+For a fixed Ω, the continuation equation is
+
+    AC_{D→Ω}(F;f)=0.
+
+If Ω is not fixed, the unknown becomes a pair
+
+    (Ω,F).
+
+Define the set of admissible continuation pairs
+
+    E(f)
+    :=
+    {
+        (Ω,F):
+        D⊂Ω,
+        Ω open and connected,
+        F∈Hol(Ω),
+        F|_D=f
+    }.
+
+Order these pairs by
+
+    (Ω_1,F_1) ≼ (Ω_2,F_2)
+
+whenever
+
+    Ω_1⊂Ω_2
+
+and
+
+    F_2|_{Ω_1}=F_1.
+
+The analytic-continuation problem is therefore no longer merely a problem of computing
+function values. It involves
+
+    domain
+    +
+    function
+    +
+    compatibility relation.
+
+This is already a problem on a space of function structures.
+
+
+======================================================================
+21. 由平面延拓集合到 germ-space 的結構提升
+21. Structural Lift from Planar Continuations to Germ Space
+======================================================================
+
+【中文】
+平面觀點：
+
+    E(f)
+    =
+    {
+        (Ω_α,F_α)
+    }.
+
+可能存在許多不同：
+
+    Ω_1,Ω_2,Ω_3,...
+
+若只問：
+
+    「哪個 Ω 最大？」
+
+可能受 branch structure 阻礙。
+
+germ-space 觀點則改問：
+
+    「所有可達 germ 如何共同形成一個解析空間？」
+
+因此：
+
+    family of continuations
+        ->
+    space of continuation states.
+
+形式上：
+
+    {
+        [F_α]_z
+        reachable from [f_0]_{z_0}
+    }
+        =
+    R_f.
+
+這與一般「升階」的思想相同：
+
+    原本作為候選答案集合的東西
+        ->
+    下一層結構的點。
+
+所以可以把：
+
+    R_f
+
+稱作：
+
+    analytic state space of continuations.
+
+再次強調：
+這是結構/表示層級的 lift，
+不表示 R_f 的局部複維度高於 1。
+
+
+【English】
+From the planar viewpoint,
+
+    E(f)
+    =
+    {
+        (Ω_α,F_α)
+    }
+
+may contain many domains
+
+    Ω_1,Ω_2,Ω_3,...
+
+If one asks only
+
+    "which Ω is largest?"
+
+branch structure may obstruct a satisfactory planar answer.
+
+The germ-space viewpoint asks instead:
+
+    "how do all reachable germs form one analytic space?"
+
+Thus
+
+    family of continuations
+        ->
+    space of continuation states.
+
+Formally,
+
+    {
+        [F_α]_z
+        reachable from [f_0]_{z_0}
+    }
+        =
+    R_f.
+
+This has the general form of a level lift:
+
+    objects that were candidate answers
+        ->
+    points of a higher structural object.
+
+Accordingly, R_f may be viewed as an
+
+    analytic state space of continuations.
+
+Again, this is a representational/structural lift, not a claim that the local complex
+dimension of R_f exceeds 1.
+
+
+======================================================================
+22. 與 UTM / Meta-Program 構造的概念類比
+22. Conceptual Analogy with UTM / Meta-Program Constructions
+======================================================================
+
+【中文】
+此節是結構類比，不是複分析定理。
+
+普通程式層可寫：
+
+    P(x)=y.
+
+後設程式層可寫：
+
+    M(<P>)=<P'>,
+
+即把：
+
+    程式本身
+
+變成：
+
+    可被運算的資料。
+
+解析延拓中有相似形式：
+
+    f on D
+
+原本是一個函數物件。
+
+若進一步考慮：
+
+    所有可延拓 pair (Ω,F),
+
+再把它們轉成：
+
+    germ-space / Riemann surface R_f,
+
+則原本作為：
+
+    「不同 continuation possibilities」
+
+的候選集合，
+被重新編碼為：
+
+    一個單一解析結構中的 states.
+
+概念鏈：
+
+    function
+        ->
+    continuation family
+        ->
+    germ family
+        ->
+    Riemann surface.
+
+可與：
+
+    program
+        ->
+    program transformations
+        ->
+    meta-state space
+
+作概念類比。
+
+但這不表示 Riemann surface 等於 UTM，
+也不表示解析延拓能突破不可計算性。
+
+這裡只比較「把原本外部的規則/選項提升成下一層內部對象」的形式。
+
+
+【English】
+This section is a structural analogy, not a theorem of complex analysis.
+
+At the ordinary program level one writes
+
+    P(x)=y.
+
+At a meta-program level one may write
+
+    M(<P>)=<P'>,
+
+so that
+
+    the program itself
+
+becomes
+
+    data to be transformed.
+
+Analytic continuation has a formally similar pattern.
+
+The object
+
+    f on D
+
+is initially a function.
+
+One may then consider
+
+    all admissible continuation pairs (Ω,F),
+
+and reorganize them into
+
+    the germ space / Riemann surface R_f.
+
+Thus objects that appeared as
+
+    different continuation possibilities
+
+are recoded as
+
+    states within one analytic structure.
+
+Conceptually,
+
+    function
+        ->
+    continuation family
+        ->
+    germ family
+        ->
+    Riemann surface
+
+may be compared with
+
+    program
+        ->
+    program transformations
+        ->
+    meta-state space.
+
+This does not identify a Riemann surface with a UTM, nor does analytic continuation bypass
+computability limits.
+
+The analogy concerns only the formal act of turning external alternatives/rules into internal
+objects at a higher descriptive level.
+
+
+======================================================================
+23. 「任意函數」一詞的限制
+23. Limits of the Phrase "Arbitrary Function"
+======================================================================
+
+【中文】
+若輸入是完全任意的：
+
+    f:D→C,
+
+而不假設 f 全純，
+則通常不存在解析延拓。
+
+因此真正的問題類別應寫成：
+
+    f∈Hol(D).
+
+對：
+
+    f∉Hol(D),
+
+方程：
+
+    AC_{D→Ω}(F;f)=0
+
+必然無解。
+
+另外，即使 f∈Hol(D)，
+是否能延拓到指定 Ω，
+仍依賴：
+
+    singularity structure,
+    topology,
+    monodromy,
+    natural boundary.
+
+所以：
+
+    f holomorphic on D
+
+只保證：
+
+    它在 D 內具有解析性，
+
+並不保證：
+
+    它能延拓到任意更大的 Ω。
+
+
+【English】
+If the input is a completely arbitrary function
+
+    f:D→C
+
+with no holomorphicity assumption, then analytic continuation usually does not exist.
+
+The natural input class is therefore
+
+    f∈Hol(D).
+
+For
+
+    f∉Hol(D),
+
+the equation
+
+    AC_{D→Ω}(F;f)=0
+
+has no solution.
+
+Even when f∈Hol(D), continuation to a prescribed Ω depends on
+
+    singularity structure,
+    topology,
+    monodromy,
+    natural boundaries.
+
+Thus
+
+    f holomorphic on D
+
+guarantees analyticity inside D, but does not guarantee continuation to every larger Ω.
+
+
+======================================================================
+24. 「方程存在」與「萬用求解演算法存在」不同
+24. Existence of the Equation Is Not the Same as a Universal Solving Algorithm
+======================================================================
+
+【中文】
+方程：
+
+    AC_{D→Ω}(F;f)=0
+
+是一個精確存在性判準。
+
+它告訴我們：
+
+    solution exists
+    <=>
+    analytic continuation exists.
+
+但這不自動給出：
+
+    一個固定有限程序，
+    對任意形式表示的 f 與 Ω，
+    都能在有限時間內輸出 F 或證明無解。
+
+原因是「輸入函數如何表示」本身就是額外資料。
+
+例如：
+
+    closed form,
+    power series,
+    differential equation,
+    oracle,
+    numerical samples
+
+代表完全不同的計算問題。
+
+僅給有限個取樣點，
+一般不足以唯一決定一個解析函數。
+
+所以本文建立的是：
+
+    exact mathematical specification,
+
+而不是：
+
+    universal black-box finite solver.
+
+
+【English】
+The equation
+
+    AC_{D→Ω}(F;f)=0
+
+is an exact existence criterion.
+
+It states
+
+    solution exists
+    <=>
+    analytic continuation exists.
+
+But this does not automatically provide
+
+    one fixed finite procedure that, for every possible representation of f and Ω,
+    always outputs F or proves nonexistence in finite time.
+
+How the input function is represented is itself essential information.
+
+For example,
+
+    closed form,
+    power series,
+    differential equation,
+    oracle,
+    numerical samples
+
+lead to very different computational problems.
+
+Finite samples alone do not generally determine a unique analytic function.
+
+Thus this document provides an
+
+    exact mathematical specification,
+
+not a
+
+    universal black-box finite solver.
+
+
+======================================================================
+25. 函數升維方程的一個抽象寫法
+25. An Abstract Equation for Function Lifting
+======================================================================
+
+【中文】
+若想把解析延拓寫成「升階算子」，
+可定義：
+
+    Lift([f]_{z_0})
+    :=
+    (R_f,π,\mathcal F).
+
+其中：
+
+    R_f = 所有可達 analytic germs 的空間；
+    π:R_f→C = base projection；
+    \mathcal F:R_f→C = 單值全純 evaluation.
+
+因此：
+
+    [f]_{z_0}
+        --Lift-->
+    (R_f,π,\mathcal F).
+
+若沒有 monodromy，
+R_f 可能可簡化成普通平面論域 Ω。
+
+若有 monodromy，
+R_f 可具有多 sheet。
+
+若碰到 natural boundary，
+R_f 的 projection image 也會受到相應阻礙，
+無法跨越該 boundary 產生新的 germs。
+
+因此 Lift 並不是：
+
+    任意製造延拓。
+
+它只是：
+
+    收集所有真正可由解析相容性產生的延拓。
+
+
+【English】
+To express analytic continuation as a structural lifting operator, define
+
+    Lift([f]_{z_0})
+    :=
+    (R_f,π,\mathcal F),
+
+where
+
+    R_f = the space of all reachable analytic germs;
+    π:R_f→C = the base projection;
+    \mathcal F:R_f→C = the single-valued holomorphic evaluation function.
+
+Thus
+
+    [f]_{z_0}
+        --Lift-->
+    (R_f,π,\mathcal F).
+
+When there is no monodromy, R_f may reduce to an ordinary planar domain Ω.
+
+When monodromy is present, R_f may have multiple sheets.
+
+When a natural boundary is encountered, the projection image of R_f is correspondingly
+blocked; no new germs are generated across that boundary.
+
+Thus Lift does not
+
+    arbitrarily manufacture continuations.
+
+It merely collects all continuations genuinely generated by analytic compatibility.
+
+
+======================================================================
+26. 可以把解析延拓方程寫成固定點嗎？
+26. Can the Analytic-Continuation Equation Be Written as a Fixed Point?
+======================================================================
+
+【中文】
+可形式化地引入一個 continuation operator：
+
+    T(F)
+
+表示：
+
+    從目前局部解析資料出發，
+    依相容規則加入所有可合法新增的局部 germs。
+
+理想固定點：
+
+    T(R_f)=R_f
+
+表示：
+
+    所有可再合法加入的解析 germs
+    已經包含在 R_f 中。
+
+因此最大解析延拓可被概念性地寫成：
+
+    R_f = Fix(T).
+
+但這個式子是抽象規格，
+不是在一般情況下直接可計算的 elementary formula。
+
+其幾何內容仍然是：
+
+    R_f
+    =
+    all reachable analytic germs modulo local equality.
+
+
+【English】
+Formally, one may introduce a continuation operator
+
+    T(F)
+
+meaning:
+
+    starting from the current local analytic data,
+    add every locally admissible germ compatible with analytic continuation.
+
+An ideal fixed point
+
+    T(R_f)=R_f
+
+means that every further admissible germ is already represented in R_f.
+
+Thus maximal analytic continuation may be written conceptually as
+
+    R_f = Fix(T).
+
+This is an abstract specification, not a generally available elementary computational
+formula.
+
+Its geometric content remains
+
+    R_f
+    =
+    all reachable analytic germs modulo local equality.
+
+
+======================================================================
+27. 與「有解則無最大解析延拓」猜想的精確修正
+27. Exact Correction of the Conjecture "Solvable Implies No Maximal Continuation"
+======================================================================
+
+【中文】
+原猜想可表述為：
+
+    若 AC_{D→Ω} 對某些更大 Ω 有解，
+    則因為可能存在無限多種 Ω，
+    所以不存在最大解析延拓。
+
+此推論一般不成立。
+
+反例：
+
+    f(z)=Σ_{n=0}∞ z^n,
+    |z|<1.
+
+它可以延拓到無限多個較大子域，
+但所有這些相容延拓統一為：
+
+    F(z)=1/(1-z)
+
+於：
+
+    C\{1}.
+
+所以：
+
+    infinitely many admissible domains
+    does not imply
+    no maximal continuation.
+
+較正確的命題是：
+
+    若所有平面單值延拓無法在同一 ordinary planar domain 中統一，
+    則可能需要將最大解析延拓表示為 Riemann surface。
+
+因此：
+
+    multiplicity of planar branches
+        ->
+    not necessarily failure of maximal continuation;
+        ->
+    may require a lifted carrier space.
+
+最終版本：
+
+    無限延拓可能性
+    不否定最大解析延拓；
+    它有時改變「最大對象」的類型。
+
+
+【English】
+The original conjecture may be stated as follows:
+
+    If AC_{D→Ω} is solvable for some larger Ω,
+    then because infinitely many choices of Ω may exist,
+    no maximal analytic continuation exists.
+
+This implication is false in general.
+
+Counterexample:
+
+    f(z)=Σ_{n=0}∞ z^n,
+    |z|<1.
+
+It extends to infinitely many larger subdomains, but all compatible extensions unify as
+
+    F(z)=1/(1-z)
+
+on
+
+    C\{1}.
+
+Hence
+
+    infinitely many admissible domains
+    does not imply
+    no maximal continuation.
+
+A more accurate statement is:
+
+    if all planar single-valued continuations cannot be unified on one ordinary planar domain,
+    the maximal analytic continuation may need to be represented by a Riemann surface.
+
+Thus
+
+    multiplicity of planar branches
+        ->
+    not necessarily failure of maximal continuation;
+        ->
+    possibly a need for a lifted carrier space.
+
+Final version:
+
+    infinitely many continuation possibilities do not destroy maximal analytic continuation;
+    they may change the category in which the maximal object lives.
+
+
+======================================================================
+28. 核心「解析延拓公式」
+28. Recommended Core Analytic-Continuation Formula
+======================================================================
+
+【中文】
+若只選一個最直接的核心方程：
+
+    AC_{D→Ω}(F;f)
+    =
+    (
+        ∂̄F,
+        F|_D-f
+    )
+    =
+    (0,0).
+
+其中：
+
+    ∂̄
+    =
+    (1/2)(∂/∂x+i∂/∂y).
+
+則：
+
+    AC_{D→Ω}(F;f)=0
+    <=>
+    F∈Hol(Ω)
+    且
+    F|_D=f.
+
+因此：
+
+    Sol_AC(f;D,Ω)≠∅
+    <=>
+    f 可解析延拓至 Ω.
+
+若 Ω 連通且 D 非空開集：
+
+    |Sol_AC(f;D,Ω)|≤1.
+
+若對指定 Ω 不可延拓：
+
+    Sol_AC(f;D,Ω)=∅.
+
+若不固定 Ω，
+則最大解析延拓由 germ-space 表示：
+
+    Lift([f]_{z_0})
+    =
+    (R_f,π,\mathcal F),
+
+其中：
+
+    R_f
+    =
+    {
+        all analytic germs reachable
+        from [f]_{z_0}
+    }.
+
+整體鏈：
+
+    local holomorphic function
+        ↓
+    ∂̄f=0
+        ↓
+    continuation equation
+        ↓
+    compatible local germs
+        ↓
+    continuation along paths
+        ↓
+    monodromy / branch structure
+        ↓
+    germ-space
+        ↓
+    Riemann surface R_f
+        ↓
+    maximal analytic continuation.
+
+若遇 natural boundary：
+
+    no crossing germ
+        ↓
+    no solution for any target Ω crossing that boundary.
+
+
+【English】
+If one selects a single central equation, use
+
+    AC_{D→Ω}(F;f)
+    =
+    (
+        ∂̄F,
+        F|_D-f
+    )
+    =
+    (0,0),
+
+where
+
+    ∂̄
+    =
+    (1/2)(∂/∂x+i∂/∂y).
+
+Then
+
+    AC_{D→Ω}(F;f)=0
+    <=>
+    F∈Hol(Ω)
+    and
+    F|_D=f.
+
+Therefore
+
+    Sol_AC(f;D,Ω)≠∅
+    <=>
+    f admits analytic continuation to Ω.
+
+If Ω is connected and D is a nonempty open set,
+
+    |Sol_AC(f;D,Ω)|≤1.
+
+If continuation to the prescribed Ω is impossible,
+
+    Sol_AC(f;D,Ω)=∅.
+
+If Ω is not fixed, the maximal analytic continuation is represented by the germ-space lift
+
+    Lift([f]_{z_0})
+    =
+    (R_f,π,\mathcal F),
+
+where
+
+    R_f
+    =
+    {
+        all analytic germs reachable
+        from [f]_{z_0}
+    }.
+
+The full chain is
+
+    local holomorphic function
+        ↓
+    ∂̄f=0
+        ↓
+    continuation equation
+        ↓
+    compatible local germs
+        ↓
+    continuation along paths
+        ↓
+    monodromy / branch structure
+        ↓
+    germ-space
+        ↓
+    Riemann surface R_f
+        ↓
+    maximal analytic continuation.
+
+At a natural boundary,
+
+    no crossing germ
+        ↓
+    no solution for any target Ω crossing that boundary.
+
+
+======================================================================
+29. 小型例子總表
+29. Compact Example Table
+======================================================================
+
+【中文】
+
+例 A：幾何級數
+
+    f(z)=Σ z^n, |z|<1.
+
+延拓：
+
+    F(z)=1/(1-z).
+
+最大自然平面論域：
+
+    C\{1}.
+
+類型：
+
+    單值解析延拓。
+
+
+例 B：log z
+
+初始：
+
+    germ near z=1.
+
+繞原點：
+
+    log z -> log z+2πik.
+
+平面結果：
+
+    無法在 C\{0} 上給出全域單值 holomorphic log.
+
+提升：
+
+    logarithm Riemann surface / universal cover.
+
+類型：
+
+    多 sheet 最大解析延拓。
+
+
+例 C：sqrt z
+
+關係：
+
+    w^2=z.
+
+平面結果：
+
+    兩 branch.
+
+提升：
+
+    two-sheeted covering surface over C\{0}.
+
+類型：
+
+    branch structure.
+
+
+例 D：lacunary series
+
+    f(z)=Σ z^{2^n}.
+
+論域：
+
+    |z|<1.
+
+邊界：
+
+    |z|=1 natural boundary.
+
+結果：
+
+    不可解析跨越單位圓。
+
+
+例 E：Riemann ζ
+
+    ζ(s)=Σ n^{-s}, Re(s)>1.
+
+結果：
+
+    可亞純延拓到 C；
+    s=1 為單極點。
+
+所以：
+
+    holomorphic continuation to all C: no,
+    meromorphic continuation to all C: yes.
+
+
+【English】
+
+Example A: Geometric series
+
+    f(z)=Σ z^n, |z|<1.
+
+Continuation:
+
+    F(z)=1/(1-z).
+
+Largest natural planar domain:
+
+    C\{1}.
+
+Type:
+
+    single-valued analytic continuation.
+
+
+Example B: log z
+
+Initial data:
+
+    germ near z=1.
+
+Winding around 0:
+
+    log z -> log z+2πik.
+
+Planar result:
+
+    no global single-valued holomorphic logarithm on C\{0}.
+
+Lift:
+
+    logarithm Riemann surface / universal cover.
+
+Type:
+
+    multi-sheet maximal analytic continuation.
+
+
+Example C: sqrt z
+
+Relation:
+
+    w^2=z.
+
+Planar result:
+
+    two branches.
+
+Lift:
+
+    two-sheeted covering surface over C\{0}.
+
+Type:
+
+    branch structure.
+
+
+Example D: Lacunary series
+
+    f(z)=Σ z^{2^n}.
+
+Domain:
+
+    |z|<1.
+
+Boundary:
+
+    |z|=1 is a natural boundary.
+
+Result:
+
+    no analytic continuation across the unit circle.
+
+
+Example E: Riemann ζ
+
+    ζ(s)=Σ n^{-s}, Re(s)>1.
+
+Result:
+
+    meromorphic continuation to C;
+    a simple pole at s=1.
+
+Hence
+
+    holomorphic continuation to all C: no,
+    meromorphic continuation to all C: yes.
+
+
+======================================================================
+30. 精確性層級
+30. Levels of Exactness
+======================================================================
+
+【中文】
+本文應區分：
+
+(1) 精確存在性方程：
+
+    AC_{D→Ω}(F;f)=0.
+
+(2) 精確唯一性：
+
+    Ω connected, D nonempty open
+    =>
+    at most one solution.
+
+(3) 精確局部生成：
+
+    Taylor re-expansion
+    +
+    overlap compatibility.
+
+(4) 精確路徑延拓：
+
+    chains of compatible germs.
+
+(5) 精確最大解析結構：
+
+    (R_f,π,\mathcal F).
+
+(6) 精確不可跨越：
+
+    natural boundary.
+
+(7) 亞純版本：
+
+    allow prescribed poles / F∈Mer(Ω).
+
+(8) 變分表示：
+
+    ∃F with J[F]=0.
+
+(9) 結構升階詮釋：
+
+    branches
+        ->
+    points/sheets of R_f.
+
+(10) 非宣稱項目：
+
+    本文不宣稱存在一個
+    對所有函數表示都能在有限步驟中求出最大解析延拓閉式的萬用演算法。
+
+
+【English】
+The following levels should be distinguished:
+
+(1) Exact existence equation:
+
+    AC_{D→Ω}(F;f)=0.
+
+(2) Exact uniqueness:
+
+    Ω connected, D nonempty open
+    =>
+    at most one solution.
+
+(3) Exact local generation:
+
+    Taylor re-expansion
+    +
+    overlap compatibility.
+
+(4) Exact path continuation:
+
+    chains of compatible germs.
+
+(5) Exact maximal analytic structure:
+
+    (R_f,π,\mathcal F).
+
+(6) Exact obstruction:
+
+    natural boundary.
+
+(7) Meromorphic version:
+
+    allow prescribed poles / F∈Mer(Ω).
+
+(8) Variational representation:
+
+    ∃F with J[F]=0.
+
+(9) Structural-lift interpretation:
+
+    branches
+        ->
+    points/sheets of R_f.
+
+(10) Non-claim:
+
+    this document does not claim a universal finite-step algorithm that produces a
+    closed-form maximal analytic continuation for every possible representation of a
+    function.
+
+
+======================================================================
+31. 結論
+31. Conclusion
+======================================================================
+
+【中文】
+本文給出一條精確的解析延拓鏈：
+
+    f∈Hol(D)
+        ↓
+    ∂̄f=0
+        ↓
+    尋找 F on Ω
+        ↓
+    AC_{D→Ω}(F;f)
+    =
+    (
+        ∂̄F,
+        F|_D-f
+    )
+    =
+    (0,0)
+        ↓
+    有解
+    <=>
+    可解析延拓至 Ω
+        ↓
+    恆等定理
+        ↓
+    固定 Ω 時解唯一
+        ↓
+    Taylor / Cauchy local reconstruction
+        ↓
+    compatible germs
+        ↓
+    path continuation
+        ↓
+    monodromy
+        ↓
+    Riemann-surface lift
+        ↓
+    maximal analytic continuation.
+
+若：
+
+    natural boundary
+
+阻止跨界，
+則任何真正跨越該 boundary 的指定目標 Ω 都滿足：
+
+    Sol_AC(f;D,Ω)=∅.
+
+最核心公式為：
+
+    AC_{D→Ω}(F;f)
+    =
+    (
+        ∂̄F,
+        F|_D-f
+    )
+    =
+    (0,0).
+
+以及：
+
+    Sol_AC(f;D,Ω)≠∅
+    <=>
+    f admits analytic continuation to Ω.
+
+而在不固定單一平面論域的最一般情形中：
+
+    Lift([f]_{z_0})
+    =
+    (R_f,π,\mathcal F),
+
+其中 R_f 收納所有由原 germ 真正可達的解析 germs。
+
+因此可以把整體思想壓縮成：
+
+    local function
+        ->
+    continuation equation
+        ->
+    all compatible continuations
+        ->
+    germ space
+        ->
+    Riemann surface
+        ->
+    maximal analytic continuation.
+
+這說明：
+
+    無限多個解析延拓可能性
+    並不必然消滅「最大解析延拓」；
+
+更精確地說：
+
+    它有時迫使我們把「最大對象」
+    從一個普通平面論域
+    提升為一個承載所有相容 continuation states 的 Riemann surface。
+
+這就是解析延拓與「函數結構提升」之間最嚴格而不過度宣稱的數學連接。
+
+
+【English】
+This document gives the exact continuation chain
+
+    f∈Hol(D)
+        ↓
+    ∂̄f=0
+        ↓
+    seek F on Ω
+        ↓
+    AC_{D→Ω}(F;f)
+    =
+    (
+        ∂̄F,
+        F|_D-f
+    )
+    =
+    (0,0)
+        ↓
+    solvable
+    <=>
+    analytic continuation to Ω exists
+        ↓
+    identity theorem
+        ↓
+    uniqueness for fixed Ω
+        ↓
+    Taylor / Cauchy local reconstruction
+        ↓
+    compatible germs
+        ↓
+    path continuation
+        ↓
+    monodromy
+        ↓
+    Riemann-surface lift
+        ↓
+    maximal analytic continuation.
+
+If a
+
+    natural boundary
+
+blocks further continuation, then any target Ω genuinely crossing that boundary satisfies
+
+    Sol_AC(f;D,Ω)=∅.
+
+The central equation is
+
+    AC_{D→Ω}(F;f)
+    =
+    (
+        ∂̄F,
+        F|_D-f
+    )
+    =
+    (0,0),
+
+with the exact criterion
+
+    Sol_AC(f;D,Ω)≠∅
+    <=>
+    f admits analytic continuation to Ω.
+
+In the most general setting, where no single planar domain is fixed,
+
+    Lift([f]_{z_0})
+    =
+    (R_f,π,\mathcal F),
+
+where R_f contains all analytic germs genuinely reachable from the initial germ.
+
+The entire idea can therefore be compressed into
+
+    local function
+        ->
+    continuation equation
+        ->
+    all compatible continuations
+        ->
+    germ space
+        ->
+    Riemann surface
+        ->
+    maximal analytic continuation.
+
+Thus infinitely many analytic-continuation possibilities do not necessarily destroy the
+notion of maximal analytic continuation.
+
+More precisely, they may force the "maximal object" to move from an ordinary planar domain
+to a Riemann surface carrying all compatible continuation states.
+
+This is the most rigorous mathematical connection between analytic continuation and the
+idea of structural lifting of functions without making claims beyond standard complex
+analysis.
+
+
+======================================================================
+END / 結束
+======================================================================
