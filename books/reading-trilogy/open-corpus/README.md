@@ -12,7 +12,7 @@
 
 包含公開題錄搜索：python3 trilogy_tm_corpus.py --build
 
-GitHub Actions 的「HSI TM Open-Corpus Trilogy (No AI)」預定於每日臺灣時間 11:23 執行；也可人工觸發。GitHub Actions 運算仍受 GitHub 帳戶額度限制；無 AI 模型呼叫費用。
+GitHub Actions 的「HSI TM Open-Corpus Trilogy (No AI)」會在程式首次合併到 main 時嘗試執行，之後預定每日臺灣時間 11:23 執行；也可人工觸發。排程實際執行時間受 GitHub 服務情況影響。GitHub Actions 運算仍受 GitHub 帳戶額度限制；無 AI 模型呼叫費用。
 
 ## 輸出與進度
 
