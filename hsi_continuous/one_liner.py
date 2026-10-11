@@ -9,6 +9,10 @@ import argparse
 import json
 from pathlib import Path
 import shlex
+import sys
+
+if hasattr(sys, 'set_int_max_str_digits'):
+    sys.set_int_max_str_digits(0)
 
 ROOT=Path(__file__).resolve().parent.parent
 NOTES=ROOT/"Notes"
