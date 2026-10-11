@@ -74,6 +74,16 @@
       "sha256": "36bed23775fc673b75794426f2816f121ae6ebd5b35c7f2895628f926b241ff0"
     },
     {
+      "path": "hsi_corpus_autoevolve.py",
+      "bytes": 6767,
+      "sha256": "ca295fc33fc4e107b0da4d378b4d31af9beaf8d9f8b360806991f83c6924496b"
+    },
+    {
+      "path": "hsi_corpus_clxy_gate.py",
+      "bytes": 11511,
+      "sha256": "357f46a8ccb5de1c88a5a81b5ce51508cd3f568b5a093b10383275400cfe5e6e"
+    },
+    {
       "path": "hsi_deploy.py",
       "bytes": 21821,
       "sha256": "9645386bdfc08b57694dba9df460290897c4e2bb7d11de8813c393790ef0e8f9"
@@ -115,8 +125,8 @@
     },
     {
       "path": "hsi_notes_service.py",
-      "bytes": 22325,
-      "sha256": "34cd0658c1866e0c8137219efef4046160ebe6409e0ca10b8fa0173e8533300b"
+      "bytes": 23698,
+      "sha256": "34bb5aef692d4e6f637318eff0ab1cc7581fa07c56aefdfda12924701d393b7f"
     },
     {
       "path": "hsi_notes_validate.py",
@@ -142,6 +152,11 @@
       "path": "hsi_update.py",
       "bytes": 11504,
       "sha256": "dc5814ba388e48dfcb2059d479849267e99b1f685e7c698969dc77f72c9756fd"
+    },
+    {
+      "path": "hsi_xy_analytic_2k/hsi_cl_xy_2k.sh",
+      "bytes": 1810,
+      "sha256": "6491f0df21285760cbd5f9ecd25a9803bf4dcf3020ba8ce947260154ab0eac5d"
     },
     {
       "path": "validation_snapshots/hsi_three_system_core.py",

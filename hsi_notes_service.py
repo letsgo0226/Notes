@@ -148,10 +148,20 @@ class Runtime:
                                          env=env, capture_output=True, timeout=180)
                 cert_path = destination / 'song.hsicert'
                 cert = json.loads(cert_path.read_text()) if cert_path.exists() else None
+                independent = None
+                if cert:
+                    gate = subprocess.run([os.sys.executable, str(self.root / 'hsi_corpus_clxy_gate.py'), '--artifact', str(destination)],
+                                          capture_output=True, timeout=60)
+                    independent = {'exit_code': gate.returncode, 'result': json.loads(gate.stdout.decode('utf-8').splitlines()[-1])}
                 self.corpus_probe = {'status': 'PASSED' if process.returncode == 0 else 'UNRESOLVED',
                                      'exit_code': process.returncode, 'audio_verified': bool(cert and cert.get('technical_closed')),
                                      'rights_verified': bool(cert and cert.get('rights_closed')),
                                      'reason': process.stderr.decode('utf-8', 'replace')[-800:]}
+                if independent:
+                    self.corpus_probe['independent_gate'] = independent
+                    self.corpus_probe['audio_verified'] = self.corpus_probe['audio_verified'] and independent['exit_code'] == 0
+                    if independent['exit_code'] != 0:
+                        self.corpus_probe['status'] = 'UNRESOLVED'
                 self.corpus_probe['candidate_budget'] = 8
                 self.corpus_probe['trace'] = process.stdout.decode('utf-8', 'replace')[-1600:]
                 search_path = destination / 'search.hsicert'
@@ -170,6 +180,8 @@ class Runtime:
                     self.corpus_probe['audio_sha256'] = cert.get('audio_sha256')
             except subprocess.TimeoutExpired:
                 self.corpus_probe = {'status': 'UNRESOLVED', 'reason': 'finite cloud probe timeout'}
+            except Exception as exc:
+                self.corpus_probe = {'status': 'UNRESOLVED', 'reason': type(exc).__name__}
             print(json.dumps({'event': 'NOTES_CORPUS_PROBE', 'result': self.corpus_probe}), flush=True)
 
     def render_native(self, request):
@@ -239,9 +251,17 @@ class Runtime:
         cert_path = output / 'song.hsicert'
         cert = json.loads(cert_path.read_text()) if cert_path.exists() else None
         success = process.returncode == 0 and cert and cert.get('technical_closed') and (output / 'song.wav').is_file()
+        independent = None
+        if success:
+            gate = subprocess.run([os.sys.executable, str(self.root / 'hsi_corpus_clxy_gate.py'), '--artifact', str(output)],
+                                  capture_output=True, timeout=60)
+            independent = {'exit_code': gate.returncode, 'result': json.loads(gate.stdout.decode('utf-8').splitlines()[-1])}
+            success = gate.returncode == 0
         result = {'status': 'SUCCEEDED' if success else 'UNRESOLVED', 'renderer': 'HSI-open-corpus',
                   'external_ai': False, 'exit_code': process.returncode,
                   'rights_verified': bool(cert and cert.get('rights_closed')), 'notes': self.provenance()}
+        if independent:
+            result['independent_gate'] = independent
         if success:
             result.update(id=uid, path='/audio/' + uid + '/song.wav', audio_sha256=cert['audio_sha256'],
                           storage='ephemeral; download the output', source_count=len(cert.get('sources', [])))
