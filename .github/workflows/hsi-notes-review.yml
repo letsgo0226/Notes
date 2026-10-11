@@ -6,6 +6,8 @@ on:
       - 'hsi_notes_review.py'
       - 'hsi_notes_review.lock.json'
       - 'tests/test_hsi_notes_review.py'
+      - 'tests/test_hsi_notes_domains.py'
+      - 'hsi_notes_domains.py'
       - 'docs/HSI_NOTES_FOUR_SYSTEM_REVIEW.md'
       - '.github/workflows/hsi-notes-review.yml'
   workflow_dispatch:
@@ -28,5 +30,7 @@ jobs:
         run: python3 -m unittest discover -s tests -v
       - name: Verify all locked Notes files (no remote deploy)
         run: python3 hsi_notes_review.py --json-out "$RUNNER_TEMP/hsi-notes-review.json"
+      - name: Produce deterministic cross-domain review candidates
+        run: python3 hsi_notes_domains.py --out "$RUNNER_TEMP/hsi-notes-domains.json"
       - name: Check finite 2KB release in isolated subprocesses
         run: python3 Notes/HSI_Prime_Analytic_2KB_Release/verify_prime_analytic.py

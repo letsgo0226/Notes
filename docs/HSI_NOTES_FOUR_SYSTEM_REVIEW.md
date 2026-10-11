@@ -45,3 +45,34 @@ The existing 'hsi_deploy.py --target all --plan' resolves the HSI core, UTM, Tra
 5. Require explicit human approval for production/paid API use. Do not activate live orders as part of this work.
 
 Passing 'SOURCE_INVENTORY_VERIFIED' proves only presence and byte identity of the selected 12 files. All six domain gates remain 'NOT_TESTED_NOT_DEPLOYED'; it makes no claims about audio output, license rights, production correctness, universal problem solving, or ethical axioms.
+
+## Review-only semantic adapter (stage 2)
+
+The new `hsi_notes_domains.py` is a **deterministic planning tool**, not a deployer. It refuses to create plans if the 12-file inventory differs from the pinned lock. All 12 files contribute to an exact manifest fingerprint. Only `Notes/1` through `Notes/4` are treated as **concept source documents**, using exact bilingual heading markers. The eight other files are **reference/audit materials**, not musical training data.
+
+Declared human-curated, contestable analogies:
+
+| Concept source | Candidate music concepts |
+|---|---|
+| `Notes/1` prime formulas | prime, pulse, counterpoint |
+| `Notes/2` analytic continuation | continuation, transition, legato |
+| `Notes/3` formal correspondence | correspondence, call and response |
+| `Notes/4` bitwise metatheory | binary, rhythm |
+
+The output is a JSON **candidate** with six separate gates: `music_corpus`, `music_native`, `music_ai_bridge`, `utm`, `trader_42`, and `omega`. Every gate is intentionally `NOT_EXECUTED_NOT_DEPLOYED`.
+
+- Music Corpus receives only proposed search keywords. No network request or public-domain license confirmation takes place.
+- Music Native receives only a suggested local keyword string, not an audio render.
+- AI Music Bridge remains disabled; no external calls, charges, lyrics or song requests.
+- UTM receives a **32-bit manifest-hash prefix** as an illustrative bounded word, **not** an encoding of full document semantics or a halting proof.
+- Trader_42 receives only a source-provenance record, with paper-only / zero orders / no broker calls.
+- Omega receives only a revisability/human-override review checklist, **not** a proof of ethical correctness.
+
+Generate the proposed inputs without taking any deployment action:
+
+~~~sh
+python3 hsi_notes_domains.py --out /tmp/hsi-notes-domains.json
+python3 -m unittest discover -s tests -v
+~~~
+
+Any mapping from prime numbers, formal correspondence, or mathematical continuation to musical choices remains an **editorial design decision** requiring human review. This stage changes no launcher, Railway project, paid provider, production branch, or trading mode.
