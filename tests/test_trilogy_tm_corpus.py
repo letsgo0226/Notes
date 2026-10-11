@@ -32,6 +32,25 @@ class TMWriterTests(unittest.TestCase):
             self.assertNotEqual((one["book"],one["chapter"]),(two["book"],two["chapter"]))
             self.assertEqual(len(m.load_state(target)["completed"]),2)
             self.assertEqual(m.load_state(target)["tm_checkpoint"]["n"],32)
+    def test_all_twelve_files_have_content_profiles(self):
+        _, inv=m.inventory()
+        rows=m.source_profiles(inv)
+        self.assertEqual(len(rows),12)
+        self.assertEqual({x["file"] for x in rows},set(inv["observed"]))
+        self.assertTrue(all(x["bytes"]>0 and x["line_count"]>0 for x in rows))
+        self.assertTrue(all(x["summarization"]=="MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS" for x in rows))
+
+    def test_crossref_rejects_unrelated_subjects(self):
+        payload={"message":{"items":[
+            {"DOI":"10.1234/patent","title":["Patent infringement limitation"]},
+            {"DOI":"10.1234/ethics","title":["Ethics of care and love"]}
+        ]}}
+        def fetch(req,timeout):
+            return io.BytesIO(json.dumps(payload).encode("utf-8"))
+        found=m.crossref_metadata("ethics of care love",fetcher=fetch)
+        self.assertEqual(found["status"],"FOUND")
+        self.assertEqual([x["doi"] for x in found["records"]],["10.1234/ethics"])
+
     def test_crossref_metadata_only(self):
         payload={"message":{"items":[{"DOI":"10.1234/example","title":["A Test of Reason"],
             "author":[{"given":"A","family":"Scholar"}],
