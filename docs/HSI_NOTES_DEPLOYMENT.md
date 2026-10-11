@@ -19,6 +19,8 @@ Open-Corpus searches network audio indexes for CC0/PDM WAV sources and uses
 deterministic DSP. It uses no trained AI model or fal service. Search or source
 download failure remains explicit; it does not establish that no music exists.
 License index metadata alone does not attest publication rights.
+Peak normalization can amplify quiet material by at most eight times before
+the existing soft limiter; the correspondence thresholds remain unchanged.
 
 Native synthesizes audio without fetching a corpus or calling an AI API:
 

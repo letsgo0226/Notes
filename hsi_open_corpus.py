@@ -7,7 +7,7 @@ from hsi_search import run_search, VERSION as HSI_SEARCH_VERSION
 PROTOCOL="HSI-OPEN-CORPUS/1.0"
 CORRESPONDENCE_PROTOCOL="HSI-RC/1.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
-VERSION="1.9.0"
+VERSION="1.9.1"
 MIN_HSI_SEARCH_VERSION=(1,4,0)
 
 def _semver_tuple(v):
@@ -282,8 +282,10 @@ def resample(src,in_sr,out_sr,rate=1.0):
     return out
 
 def write_wav(path,left,right,sr):
-    peak=max(1.0,max((abs(x) for x in left),default=0),max((abs(x) for x in right),default=0))
-    gain=.94/peak
+    peak=max(1e-9,max((abs(x) for x in left),default=0),max((abs(x) for x in right),default=0))
+    # Quiet retrieved material needs gain as well as loud material needs
+    # attenuation. Bound amplification, then retain the existing soft limiter.
+    gain=min(8.0,.94/peak)
     pcm=array("h")
     for l,r in zip(left,right):
         pcm.append(int(max(-1,min(1,math.tanh(l*gain)))*32767))
@@ -599,6 +601,7 @@ def main():
         "rights_closed":rights_closed,
         "closed":closed,
         "sample_rate":TARGET_SR,"channels":2,"duration_seconds":seconds,
+        "normalization":{"algorithm":"bounded_peak_gain_then_tanh","max_gain":8.0,"target_before_tanh":.94},
         "source_count":len(provenance),"event_count":len(events),
         "audio_bytes":len(raw),"audio_sha256":hashlib.sha256(raw).hexdigest(),
         "e257_enabled":E257_ENABLED,"e257_chunk_bytes":512 if E257_ENABLED else 0,"e257_chunks":chunks,
