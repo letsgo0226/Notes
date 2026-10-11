@@ -1,0 +1,342 @@
+{
+  "protocol": "HSI-TM-OPEN-CORPUS-WRITER/1.0",
+  "status": "RULE_GENERATED_RESEARCH_UNREVIEWED",
+  "model_calls": 0,
+  "full_text_read": false,
+  "publication_ready": false,
+  "source_commit": "5084ffadcce34d6460d313eb7b6a0c4451d9a5e6",
+  "verified_source_count": 12,
+  "source_fingerprint_sha256": "a83480e0123a927d325e452b705d49163f29ce65456b042487bab0d046cca7b9",
+  "source_inventory": {
+    "Notes/1": {
+      "bytes": 24549,
+      "git_blob_sha1": "c8bbc0aa969ff27892ccc7739ccebcdadcebfff7",
+      "sha256": "67cca4014a2dda6a1328eee68679bef8111bff1442bc94de3ffcd452eb94d03a"
+    },
+    "Notes/2": {
+      "bytes": 64343,
+      "git_blob_sha1": "696a345df866b2ef374bed2fdef03af7ba22490e",
+      "sha256": "eb8a25bf4203756fe287506a652bd0e1f2dc87c0b0a7f6878e35f68cb26c18e0"
+    },
+    "Notes/3": {
+      "bytes": 44561,
+      "git_blob_sha1": "77d46387871c72eb4d4007ce2dafeeac44fab52a",
+      "sha256": "6b2a92addfecad366e77c869aa498c44f25f0e531393c3978c06cac11c8e4ee2"
+    },
+    "Notes/4": {
+      "bytes": 38042,
+      "git_blob_sha1": "f51c80a27404426ab8c85d3ca414a5d248e1e9ef",
+      "sha256": "84f761ab888ff24e422f1a82a472d76525a32d93fce85aecac5fd700f081a1f5"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_POSIX_2KB_OneLiner.sh": {
+      "bytes": 2043,
+      "git_blob_sha1": "0201324b31756ea3c800f29cc5f368a406892fb6",
+      "sha256": "679f8118985635ea7eeb963ac92839acd4c97a4d3ada5607339aa2766c189e7d"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_2KB_OneLiner.sh": {
+      "bytes": 2027,
+      "git_blob_sha1": "eac7a28f9d138d2c44a7550cb67130176ab7fbe9",
+      "sha256": "2b032922bc09019bd55e454d9143e0755c1c7b51d6d4f12f8e315c687c363c31"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_Core.py": {
+      "bytes": 1983,
+      "git_blob_sha1": "ccce79783ab2bffe10292d7e6926fec48878badd",
+      "sha256": "b89d0709b161c291c0fb1d9371058b107c735bbfd28212a1a66353ee6523ba7b"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/HSI_PRIME_ANALYTIC_PLAINTEXT_2KB_BILINGUAL_SPEC.txt": {
+      "bytes": 20600,
+      "git_blob_sha1": "f5e654fadb7f34a88f17f4efda23161f1a00a3d3",
+      "sha256": "641c0a9fcdff92c068aedfdbabaaa7d92a73c5410e42952ca4eef6b30ce2fc8b"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/OriginalXY_reference.py": {
+      "bytes": 3072,
+      "git_blob_sha1": "62800e278d79cfed52eafe87a01e24bfccbd2edb",
+      "sha256": "62bb72a9cdcbbcf1d4f529aaa74fc371b02a91f7a2245f38c93a6a8a62174b7c"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/README.md": {
+      "bytes": 2018,
+      "git_blob_sha1": "c23b5a353e87ec9736c1327a205fc9da71c8ee32",
+      "sha256": "a098e36848e66bf9f7a8a00d2131016791a05d847bd70c22b097ab4041bc2317"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/verification_certificate.json": {
+      "bytes": 5009,
+      "git_blob_sha1": "469412329d12227804c339c7f39bdce73f1cc5de",
+      "sha256": "2753d7ff2247bfb7b90ca5a6042b7cf5e2285fd2eabe8fcf1b52d5544653cdc1"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/verify_prime_analytic.py": {
+      "bytes": 9705,
+      "git_blob_sha1": "ec3528c55c8a5c5dc0075eade392e0ada165105e",
+      "sha256": "58fda9f5a404c3a58c7f3a4aefdc49396e4c5212c6c2d0e9d7e5af80a7a99f68"
+    }
+  },
+  "tm_source": "Notes/HSI_Prime_Analytic_2KB_Release/OriginalXY_reference.py",
+  "tm_trace_sha256": "b1ba4d28508cc8d6d8e16cc3df348b8f16fdbb43c002b12e11c957df625e0060",
+  "tm_statuses": [
+    "UNRESOLVED",
+    "HALTED",
+    "UNRESOLVED",
+    "HALTED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "HALTED",
+    "UNRESOLVED",
+    "HALTED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "HALTED",
+    "UNRESOLVED"
+  ],
+  "tm_steps": 16,
+  "tm_selected_mode": "反例檢驗",
+  "chapter": 8,
+  "book": "03_Love_如何閱讀生命",
+  "web_research": {
+    "status": "FOUND",
+    "query": "ethics of care love virtue ethics flourishing",
+    "request_url": "https://api.crossref.org/works?query.bibliographic=ethics+of+care+love+virtue+ethics+flourishing&rows=4&select=DOI%2Ctitle%2Cauthor%2Cpublished%2CURL%2Ctype",
+    "records": [
+      {
+        "doi": "10.1002/9781118939369.ch9",
+        "title": "Humean Virtue Ethics",
+        "authors": [],
+        "year": 2015,
+        "url": "https://doi.org/10.1002/9781118939369.ch9",
+        "verified_scope": "depositor bibliographic metadata only"
+      },
+      {
+        "doi": "10.1017/cbo9780511973789.008",
+        "title": "A Kantian conception of human flourishing",
+        "authors": [
+          "Lara Denis"
+        ],
+        "year": 2011,
+        "url": "https://doi.org/10.1017/cbo9780511973789.008",
+        "verified_scope": "depositor bibliographic metadata only"
+      },
+      {
+        "doi": "10.5040/9781978733701.ch-3",
+        "title": "A Love-Centered Account of Virtue Ethics",
+        "authors": [],
+        "year": 2019,
+        "url": "https://doi.org/10.5040/9781978733701.ch-3",
+        "verified_scope": "depositor bibliographic metadata only"
+      },
+      {
+        "doi": "10.4135/9781473910034.n6",
+        "title": "Virtue Theory: Virtue, Purpose and\n\t\t\t\t\tFlourishing in Business",
+        "authors": [],
+        "year": 2015,
+        "url": "https://doi.org/10.4135/9781473910034.n6",
+        "verified_scope": "depositor bibliographic metadata only"
+      }
+    ]
+  },
+  "source_excerpts": [
+    {
+      "path": "Notes/1",
+      "line": 14,
+      "excerpt": "本文建立一套「精確可計算」的質數公式框架。核心目標不是宣稱存在一個只由有限次"
+    },
+    {
+      "path": "Notes/2",
+      "line": 14,
+      "excerpt": "本文建立一套關於「解析延拓方程」的精確框架。核心目標是形式化下列問題："
+    },
+    {
+      "path": "Notes/3",
+      "line": 17,
+      "excerpt": "「自變數／應變數」、「持續枚舉」、「保守演化」、「零殘差證書」及「系統延續」"
+    },
+    {
+      "path": "Notes/4",
+      "line": 17,
+      "excerpt": "能否由同一位元集合建構一致且完備的邏輯系統，並連結圖靈機執行、唯一性編碼、"
+    }
+  ],
+  "source_profiles": [
+    {
+      "file": "Notes/1",
+      "bytes": 24549,
+      "sha256": "67cca4014a2dda6a1328eee68679bef8111bff1442bc94de3ffcd452eb94d03a",
+      "line_count": 1305,
+      "concept_counts": {
+        "finite_computation": 37,
+        "encoding": 17,
+        "verification": 0,
+        "analytic_methods": 124,
+        "state_and_time": 5
+      },
+      "text_excerpt": "質數公式：由對數乘積、排列組合、Wilson 定理、質數計數與 Gödel 編碼導出的精確有限公式",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/2",
+      "bytes": 64343,
+      "sha256": "eb8a25bf4203756fe287506a652bd0e1f2dc87c0b0a7f6878e35f68cb26c18e0",
+      "line_count": 3692,
+      "concept_counts": {
+        "finite_computation": 26,
+        "encoding": 2,
+        "verification": 0,
+        "analytic_methods": 190,
+        "state_and_time": 20
+      },
+      "text_excerpt": "解析延拓方程：由 Cauchy–Riemann、恆等定理、解析 germ、路徑延拓、Riemann surface 與自然邊界導出的精確框架",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/3",
+      "bytes": 44561,
+      "sha256": "6b2a92addfecad366e77c869aa498c44f25f0e531393c3978c06cac11c8e4ee2",
+      "line_count": 980,
+      "concept_counts": {
+        "finite_computation": 160,
+        "encoding": 77,
+        "verification": 43,
+        "analytic_methods": 87,
+        "state_and_time": 30
+      },
+      "text_excerpt": "以純粹圖靈機語言建立的普遍對應原理：從 HSI_original、HSI_xy、唯一性編碼與類 Dirichlet 函數，到有限證書、解析表示與跨系統應用",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/4",
+      "bytes": 38042,
+      "sha256": "84f761ab888ff24e422f1a82a472d76525a32d93fce85aecac5fd700f081a1f5",
+      "line_count": 859,
+      "concept_counts": {
+        "finite_computation": 118,
+        "encoding": 58,
+        "verification": 34,
+        "analytic_methods": 69,
+        "state_and_time": 7
+      },
+      "text_excerpt": "HSI 位元後設理論：從 2 KB One-Liner 的每一位元到有限一致性、有限完備性、哥德爾編碼與類 Dirichlet 證書",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_POSIX_2KB_OneLiner.sh",
+      "bytes": 2043,
+      "sha256": "679f8118985635ea7eeb963ac92839acd4c97a4d3ada5607339aa2766c189e7d",
+      "line_count": 1,
+      "concept_counts": {
+        "finite_computation": 5,
+        "encoding": 1,
+        "verification": 2,
+        "analytic_methods": 0,
+        "state_and_time": 2
+      },
+      "text_excerpt": "python3 -c \"$(printf '%b' 'import os,json,sys,time\\nfrom math import isqrt\\nfrom functools import re",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_2KB_OneLiner.sh",
+      "bytes": 2027,
+      "sha256": "2b032922bc09019bd55e454d9143e0755c1c7b51d6d4f12f8e315c687c363c31",
+      "line_count": 1,
+      "concept_counts": {
+        "finite_computation": 5,
+        "encoding": 1,
+        "verification": 2,
+        "analytic_methods": 0,
+        "state_and_time": 2
+      },
+      "text_excerpt": "python3 -c $'import os,json,sys,time\\nfrom math import isqrt\\nfrom functools import reduce\\nJ=lambda",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_Core.py",
+      "bytes": 1983,
+      "sha256": "b89d0709b161c291c0fb1d9371058b107c735bbfd28212a1a66353ee6523ba7b",
+      "line_count": 29,
+      "concept_counts": {
+        "finite_computation": 5,
+        "encoding": 1,
+        "verification": 2,
+        "analytic_methods": 0,
+        "state_and_time": 2
+      },
+      "text_excerpt": "import os,json,sys,time",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_PRIME_ANALYTIC_PLAINTEXT_2KB_BILINGUAL_SPEC.txt",
+      "bytes": 20600,
+      "sha256": "641c0a9fcdff92c068aedfdbabaaa7d92a73c5410e42952ca4eef6b30ce2fc8b",
+      "line_count": 442,
+      "concept_counts": {
+        "finite_computation": 60,
+        "encoding": 27,
+        "verification": 23,
+        "analytic_methods": 66,
+        "state_and_time": 14
+      },
+      "text_excerpt": "HSI 純明文 2 KB One-Liner：由質數公式、位元後設理論與解析延拓方程建構的有限可驗證系統",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Prime_Analytic_2KB_Release/OriginalXY_reference.py",
+      "bytes": 3072,
+      "sha256": "62bb72a9cdcbbcf1d4f529aaa74fc371b02a91f7a2245f38c93a6a8a62174b7c",
+      "line_count": 42,
+      "concept_counts": {
+        "finite_computation": 6,
+        "encoding": 4,
+        "verification": 2,
+        "analytic_methods": 0,
+        "state_and_time": 5
+      },
+      "text_excerpt": "import os,json,math,time,functools,sys",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Prime_Analytic_2KB_Release/README.md",
+      "bytes": 2018,
+      "sha256": "a098e36848e66bf9f7a8a00d2131016791a05d847bd70c22b097ab4041bc2317",
+      "line_count": 34,
+      "concept_counts": {
+        "finite_computation": 8,
+        "encoding": 1,
+        "verification": 2,
+        "analytic_methods": 9,
+        "state_and_time": 10
+      },
+      "text_excerpt": "HSI_STATE=demo.state HSI_LIMIT=12 HSI_SLEEP=0 sh HSI_OriginalXY_POSIX_2KB_OneLiner.sh",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Prime_Analytic_2KB_Release/verification_certificate.json",
+      "bytes": 5009,
+      "sha256": "2753d7ff2247bfb7b90ca5a6042b7cf5e2285fd2eabe8fcf1b52d5544653cdc1",
+      "line_count": 209,
+      "concept_counts": {
+        "finite_computation": 7,
+        "encoding": 0,
+        "verification": 10,
+        "analytic_methods": 28,
+        "state_and_time": 4
+      },
+      "text_excerpt": "{",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Prime_Analytic_2KB_Release/verify_prime_analytic.py",
+      "bytes": 9705,
+      "sha256": "58fda9f5a404c3a58c7f3a4aefdc49396e4c5212c6c2d0e9d7e5af80a7a99f68",
+      "line_count": 222,
+      "concept_counts": {
+        "finite_computation": 23,
+        "encoding": 9,
+        "verification": 9,
+        "analytic_methods": 28,
+        "state_and_time": 13
+      },
+      "text_excerpt": "def run(kind: str, params: dict, state: Path):",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    }
+  ],
+  "dossier_sha256": "f8d997cff35e1c10586a3deb214c034e77fec72a8f42ed83aeacaa3ed6784c33"
+}
