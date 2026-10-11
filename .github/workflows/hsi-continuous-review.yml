@@ -123,6 +123,19 @@ jobs:
           assert d['output']['status']=='HALTED'
           assert d['native_originalxy_transition'] and not d['general_arithmetic_compiler']
           PY
+      - name: Verify OriginalXY native binary integer increment
+        run: |
+          python hsi_continuous/originalxy_binary_increment.py > hsi_continuous/out/binary_increment.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/binary_increment.json').read_text())
+          for r in d['results']:
+              n=int(r['input'])
+              assert int(r['output'])==n+1
+              assert r['halted'] and r['steps']>=1
+          assert d['native_tape_arithmetic'] and not d['general_integer_arithmetic']
+          PY
       - name: Assert review-only safeguards
         run: |
           python - <<'PY'
@@ -149,6 +162,7 @@ jobs:
             hsi_continuous/out/native_tiny_compiler.json
             hsi_continuous/out/two_symbol.json
             hsi_continuous/out/multistate.json
+            hsi_continuous/out/binary_increment.json
             hsi_continuous/out/*.oneline.sh
             hsi_continuous/out/*.oneline.json
           retention-days: 90
