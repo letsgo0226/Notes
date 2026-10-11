@@ -74,6 +74,7 @@ and limit price. There is no automatic strategy or order generation.
 | Endpoint | Operation |
 |---|---|
 | `GET /orders/status` | Configuration/readiness, without keys or balances |
+| `POST /orders/account-check` | Signed account and API-permission GETs only; no order |
 | `POST /orders/prepare` | Offline review ticket; does not call Binance |
 | `POST /orders/test` | Current filters and Binance `/api/v3/order/test` |
 | `POST /orders/submit` | Exact tested ticket plus `confirm_live_order:true` |
@@ -101,9 +102,28 @@ No deployment self-test submits real or testnet orders.
 The account must support Binance Spot and the selected API host. Deployment
 success does not establish account permissions or exchange-side eligibility.
 
+The operator-protected account check requires `notes_manifest_sha256`, obtained
+from `GET /health` at `notes.manifest_sha256`. It checks `GET /api/v3/account`
+and, on production, `GET /sapi/v1/account/apiRestrictions`. Responses retain
+only account/trading permission booleans and sanitized HTTP/error codes, never
+balances, account UID, API keys, signed URLs, or broker error text. Checks are
+cached for 60 seconds and do not run automatically at startup.
+`PERMISSIONS_VERIFIED` establishes readable account and enabled Spot API
+permissions; it does not mean an order has passed `/orders/test`, live flags
+are enabled, or funds are sufficient. `credentials_verified` still means an
+exact order passed the broker test. Spot testnet has no Wallet permission
+endpoint, so this check keeps that permission unresolved there.
+
+Run the account check with the separate operator token before preparing an
+explicit order. If it returns `UNRESOLVED` or `BLOCKED`, correct the reported
+account/connection restriction and rerun after the cache interval. Do not
+enable live flags to bypass a failed connection or permission check.
+
 Primary protocol references:
 - https://developers.binance.com/docs/binance-spot-api-docs/rest-api/trading-endpoints
 - https://developers.binance.com/docs/binance-spot-api-docs/filters
+- https://developers.binance.com/docs/binance-spot-api-docs/rest-api/account-endpoints
+- https://developers.binance.com/docs/wallet/account/api-key-permission
 
 ## Release / rollback
 

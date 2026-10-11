@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
+import urllib.error
 from unittest.mock import patch
 
 from hsi_binance_orders import BinanceOrders
@@ -47,6 +48,64 @@ class ManualOrderTests(unittest.TestCase):
                 with self.subTest(changes=changes), self.assertRaises(ValueError):
                     self.prepare(**changes)
             broker.assert_not_called()
+
+    def test_account_check_only_signed_reads_and_no_account_details(self):
+        account = {'canTrade': True, 'accountType': 'SPOT', 'uid': 123,
+                   'balances': [{'asset': 'BTC', 'free': '42'}]}
+        with patch.object(self.orders, 'broker', side_effect=[account, {'enableSpotAndMarginTrading': True}]) as broker:
+            result = self.orders.account_check({'notes_manifest_sha256': MANIFEST})
+            self.assertEqual(result['status'], 'PERMISSIONS_VERIFIED')
+            self.assertTrue(result['signed_read_verified'])
+            self.assertFalse(result['order_submission'])
+            self.assertFalse(self.orders.credentials_verified)
+            self.assertEqual([c.args[0] for c in broker.call_args_list], ['/api/v3/account', '/sapi/v1/account/apiRestrictions'])
+            self.assertTrue(all(c.kwargs['signed'] and len(c.args) < 3 for c in broker.call_args_list))
+            self.assertNotIn('balances', str(result))
+            self.assertNotIn('uid', str(result))
+            self.assertTrue(self.orders.account_check({'notes_manifest_sha256': MANIFEST})['cached'])
+            self.assertEqual(broker.call_count, 2)
+
+    def test_account_read_permission_is_not_trade_permission(self):
+        for account_trade, key_trade in [(False, True), (True, False)]:
+            self.orders.account_result = None
+            with patch.object(self.orders, 'broker', side_effect=[{'canTrade': account_trade, 'accountType': 'SPOT'}, {'enableSpotAndMarginTrading': key_trade}]):
+                result = self.orders.account_check({'notes_manifest_sha256': MANIFEST})
+            self.assertEqual(result['status'], 'BLOCKED')
+            self.assertTrue(result['signed_read_verified'])
+            self.assertFalse(result['spot_trading_permission_verified'])
+
+    def test_account_errors_are_sanitized_and_never_mark_success(self):
+        error = urllib.error.HTTPError('https://api.binance.com/private?signature=PRIVATE', 401,
+                                      'SECRET', {}, io.BytesIO(b'{"code":-2015,"msg":"PRIVATE"}'))
+        with patch.object(self.orders, 'broker', side_effect=error) as broker:
+            result = self.orders.account_check({'notes_manifest_sha256': MANIFEST})
+        self.assertEqual(result['error'], {'type': 'HTTPError', 'http_status': 401, 'broker_code': -2015})
+        self.assertFalse(result['signed_read_verified'])
+        self.assertEqual(result['status'], 'UNRESOLVED')
+        self.assertNotIn('PRIVATE', str(result))
+        self.assertEqual(broker.call_count, 1)
+
+    def test_bad_manifest_and_invalid_responses_do_not_verify_account(self):
+        with patch.object(self.orders, 'broker') as broker, self.assertRaises(ValueError):
+            self.orders.account_check({'notes_manifest_sha256': 'bad'})
+        broker.assert_not_called()
+        with patch.object(self.orders, 'broker', return_value={'canTrade': 'true', 'accountType': 'SPOT'}):
+            result = self.orders.account_check({'notes_manifest_sha256': MANIFEST})
+        self.assertFalse(result['signed_read_verified'])
+        self.assertEqual(result['status'], 'UNRESOLVED')
+
+    def test_permission_endpoint_failure_and_testnet_are_unresolved(self):
+        account = {'canTrade': True, 'accountType': 'SPOT'}
+        with patch.object(self.orders, 'broker', side_effect=[account, TimeoutError()]):
+            result = self.orders.account_check({'notes_manifest_sha256': MANIFEST})
+        self.assertTrue(result['signed_read_verified'])
+        self.assertFalse(result['spot_trading_permission_verified'])
+        self.assertEqual(result['status'], 'UNRESOLVED')
+        self.orders.account_result = None
+        with patch.dict(os.environ, {'BINANCE_TRADE_BASE_URL': 'https://testnet.binance.vision'}), patch.object(self.orders, 'broker', return_value=account) as broker:
+            result = self.orders.account_check({'notes_manifest_sha256': MANIFEST})
+        self.assertEqual(result['status'], 'UNRESOLVED')
+        self.assertEqual(broker.call_count, 1)
 
     def test_changed_ticket_expiry_and_disabled_live_never_post(self):
         ticket = self.prepare()

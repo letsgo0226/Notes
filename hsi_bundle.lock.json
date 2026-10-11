@@ -65,8 +65,8 @@
     },
     {
       "path": "hsi_binance_orders.py",
-      "bytes": 11647,
-      "sha256": "1d1264be9d4524c63bb1890f81f7ef4e2f76cec520e2d3e5a52c2437ddab0b8c"
+      "bytes": 15228,
+      "sha256": "13f66367acb428c4ae7fe3e9d14749942f6b89e645a575539f8eca8a5288fc2a"
     },
     {
       "path": "hsi_bootstrap.py",
@@ -125,8 +125,8 @@
     },
     {
       "path": "hsi_notes_service.py",
-      "bytes": 23698,
-      "sha256": "34bb5aef692d4e6f637318eff0ab1cc7581fa07c56aefdfda12924701d393b7f"
+      "bytes": 23741,
+      "sha256": "199e050e8b21af5a35dffdc7bec2815986850a24ece0b00849c35137b41872b6"
     },
     {
       "path": "hsi_notes_validate.py",

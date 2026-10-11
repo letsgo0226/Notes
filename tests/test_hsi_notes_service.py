@@ -13,6 +13,7 @@ from unittest.mock import patch
 
 from hsi_notes_service import Runtime, handler_for, fal_json
 from hsi_notes_validate import measure_wav
+from hsi_binance_orders import BinanceOrders
 
 
 class HttpContractTests(unittest.TestCase):
@@ -71,6 +72,19 @@ class HttpContractTests(unittest.TestCase):
 
     def test_render_requires_token(self):
         self.assertEqual(self.request('/render', {'p': 'HSI-MUSIC-2K/1', 'q': 'pulse'})[0], 401)
+
+    def test_account_check_is_operator_authenticated_before_broker_access(self):
+        self.runtime.orders = BinanceOrders(self.runtime.directory / 'orders.sqlite', self.runtime.plan['manifest_sha256'])
+        body = {'notes_manifest_sha256': self.runtime.plan['manifest_sha256']}
+        with patch.dict(os.environ, {'HSI_ORDER_CONTROL_TOKEN': 'test-operator'}), patch.object(self.runtime.orders, 'broker', side_effect=[{'canTrade': True, 'accountType': 'SPOT'}, {'enableSpotAndMarginTrading': True}]) as broker:
+            self.assertEqual(self.request('/orders/account-check', body)[0], 401)
+            broker.assert_not_called()
+            self.assertEqual(self.request('/orders/account-check', {'notes_manifest_sha256': 'bad'}, 'test-operator')[0], 400)
+            broker.assert_not_called()
+            status, result = self.request('/orders/account-check', body, 'test-operator')
+            self.assertEqual(status, 200)
+            self.assertEqual(result['status'], 'PERMISSIONS_VERIFIED')
+            self.assertFalse(result['order_submission'])
 
     def test_non_object_and_large_inputs_rejected(self):
         self.assertEqual(self.request('/certify', [1, 2])[0], 400)

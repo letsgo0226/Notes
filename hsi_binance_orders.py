@@ -46,6 +46,7 @@ class BinanceOrders:
         self.lock = threading.Lock()
         self.broker_calls = 0
         self.credentials_verified = False
+        self.account_result = None
         with self.database() as db:
             db.execute('CREATE TABLE IF NOT EXISTS orders (id TEXT PRIMARY KEY, payload TEXT NOT NULL, digest TEXT NOT NULL, created REAL NOT NULL, submitted REAL, state TEXT NOT NULL, result TEXT)')
 
@@ -64,6 +65,9 @@ class BinanceOrders:
         return {'broker': 'Binance Spot', 'execution': 'manual LIMIT/FOK only',
                 'credentials_present': bool(os.getenv('BINANCE_API_KEY') and os.getenv('BINANCE_API_SECRET')),
                 'credentials_verified': self.credentials_verified, 'live_armed': os.getenv('LIVE_ARMED', '0') == '1',
+                'signed_account_read_verified': bool(self.account_result and self.account_result['signed_read_verified']),
+                'spot_permission_verified': bool(self.account_result and self.account_result['spot_trading_permission_verified']),
+                'account_check_status': self.account_result['status'] if self.account_result else 'NOT_REQUESTED',
                 'dry_run': os.getenv('LIVE_DRY_RUN', '1') != '0',
                 'kill_switch': os.getenv('HSI_ORDER_KILL', '1') != '0',
                 'durable_journal': os.getenv('HSI_ORDER_JOURNAL_DURABLE', '0') == '1' and os.path.ismount(self.journal.parent),
@@ -95,6 +99,58 @@ class BinanceOrders:
         self.broker_calls += 1
         with urllib.request.build_opener(NoRedirect()).open(request, timeout=15) as response:
             return json.loads(response.read(2 * 1024 * 1024))
+
+    @staticmethod
+    def read_error(exc):
+        # Never expose the signed URL, API key, account payload, or broker text.
+        result = {'type': type(exc).__name__}
+        if isinstance(exc, urllib.error.HTTPError):
+            result['http_status'] = exc.code
+            try:
+                data = json.loads(exc.read(4096))
+                if isinstance(data, dict) and type(data.get('code')) is int:
+                    result['broker_code'] = data['code']
+            except (ValueError, TypeError):
+                pass
+        return result
+
+    def account_check(self, request):
+        """Signed GETs only; account/key permissions do not test an order."""
+        if request.get('notes_manifest_sha256') != self.manifest:
+            raise ValueError('Notes manifest mismatch')
+        with self.lock:
+            now = time.time()
+            if self.account_result and now - self.account_result['checked_at'] < 60:
+                return {**self.account_result, 'cached': True}
+            result = {'status': 'UNRESOLVED', 'signed_read_verified': False,
+                      'spot_trading_permission_verified': False,
+                      'account_can_trade': None, 'api_spot_trading_enabled': None,
+                      'checked_at': now, 'order_submission': False,
+                      'test_order_verified': self.credentials_verified,
+                      'notes_manifest_sha256': self.manifest}
+            try:
+                account = self.broker('/api/v3/account', {'omitZeroBalances': 'true'}, signed=True)
+                if not isinstance(account, dict) or type(account.get('canTrade')) is not bool or not isinstance(account.get('accountType'), str):
+                    raise ValueError('unexpected account response')
+                result['signed_read_verified'] = True
+                result['account_can_trade'] = account['canTrade']
+                spot_account = account['accountType'] == 'SPOT'
+                # Do not retain balances, UID, commissions, or the full response.
+                del account
+                if os.getenv('BINANCE_TRADE_BASE_URL', 'https://api.binance.com').rstrip('/') == 'https://testnet.binance.vision':
+                    result['reason'] = 'Wallet permission endpoint is unavailable on Spot testnet'
+                else:
+                    restrictions = self.broker('/sapi/v1/account/apiRestrictions', signed=True)
+                    if not isinstance(restrictions, dict) or type(restrictions.get('enableSpotAndMarginTrading')) is not bool:
+                        raise ValueError('unexpected API permission response')
+                    result['api_spot_trading_enabled'] = restrictions['enableSpotAndMarginTrading']
+                    del restrictions
+                    result['spot_trading_permission_verified'] = spot_account and result['account_can_trade'] and result['api_spot_trading_enabled']
+                    result['status'] = 'PERMISSIONS_VERIFIED' if result['spot_trading_permission_verified'] else 'BLOCKED'
+            except Exception as exc:
+                result['error'] = self.read_error(exc)
+            self.account_result = result
+            return dict(result)
 
     def prepare(self, request):
         if request.get('notes_manifest_sha256') != self.manifest:
