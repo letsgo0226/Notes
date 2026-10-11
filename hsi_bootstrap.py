@@ -87,7 +87,9 @@ def main():
         directory = install(os.getenv('HSI_BUNDLE_HOME', str(Path.home() / '.hsi-notes')), os.getenv('HSI_BUNDLE_REF', 'main'))
     except Exception as exc:
         parser.exit(2, 'BUNDLE_FAILED: ' + str(exc) + '\n')
-    os.execv(sys.executable, [sys.executable, str(directory / 'hsi_notes_run.py'), args.engine, *args.args])
+    # Windows exec emulation lets the launcher exit before the spawned program;
+    # wait for the actual render so completion means files are ready.
+    raise SystemExit(subprocess.call([sys.executable, str(directory / 'hsi_notes_run.py'), args.engine, *args.args]))
 
 
 if __name__ == '__main__':

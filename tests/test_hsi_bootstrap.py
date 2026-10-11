@@ -37,6 +37,14 @@ class BootstrapTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 hsi_bootstrap.install(tmp, 'fixture')
 
+    def test_deployment_syntax_validation_never_modifies_notes(self):
+        from hsi_deploy import validate_target
+        before = {p.relative_to(ROOT).as_posix(): p.read_bytes() for p in (ROOT / 'Notes').rglob('*') if p.is_file()}
+        self.assertTrue(all(validate_target('self', ROOT).values()))
+        after = {p.relative_to(ROOT).as_posix(): p.read_bytes() for p in (ROOT / 'Notes').rglob('*') if p.is_file()}
+        self.assertEqual(before, after)
+        self.assertEqual(len(after), 12)
+
 
 if __name__ == '__main__':
     unittest.main()

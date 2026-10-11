@@ -70,13 +70,13 @@
     },
     {
       "path": "hsi_bootstrap.py",
-      "bytes": 4128,
-      "sha256": "8a5ff31737ec73b323d6010accf3a61dea0314f9cc35c8d15d602e16fbde64a8"
+      "bytes": 4287,
+      "sha256": "36bed23775fc673b75794426f2816f121ae6ebd5b35c7f2895628f926b241ff0"
     },
     {
       "path": "hsi_deploy.py",
-      "bytes": 21725,
-      "sha256": "3b4c707a9c3ecbfb167fca8905c91b44dab9ef0b8d50660b30e80c23eecf005f"
+      "bytes": 21821,
+      "sha256": "9645386bdfc08b57694dba9df460290897c4e2bb7d11de8813c393790ef0e8f9"
     },
     {
       "path": "hsi_native_renderer.py",

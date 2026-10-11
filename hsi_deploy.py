@@ -151,7 +151,8 @@ def validate_target(name,root):
         return (root/rel).read_text(encoding="utf-8")
     for p in root.rglob("*.py"):
         try:
-            py_compile.compile(str(p),doraise=True)
+            # Verify syntax without creating bytecode inside locked Notes/.
+            compile(p.read_bytes(),str(p),"exec")
             checks["py_compile:"+p.name]=True
         except Exception:
             checks["py_compile:"+p.name]=False
@@ -340,7 +341,7 @@ def _write_atomic(path,text):
 
 def make_dispatcher(root,current):
     script=f'''#!/usr/bin/env python3
-import json, os, sys
+import json, os, sys, subprocess
 from pathlib import Path
 ROOT=Path({str(root)!r})
 STATE=json.loads((ROOT/"current.json").read_text(encoding="utf-8"))
@@ -357,7 +358,7 @@ if target not in TARGETS:
     raise SystemExit("target not deployed: "+target)
 path=Path(TARGETS[target])/file
 extra=[sys.argv[1]] if sys.argv[1] in {{"corpus","native"}} else []
-os.execv(sys.executable,[sys.executable,str(path)]+extra+sys.argv[2:])
+raise SystemExit(subprocess.call([sys.executable,str(path)]+extra+sys.argv[2:]))
 '''
     _write_atomic(root/"hsi.py",script)
     try:
