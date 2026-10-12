@@ -13,7 +13,7 @@ from pathlib import Path
 from hsi_notes_review import audit
 
 PROTOCOL = 'HSI-NOTES-DOMAIN-PLAN/0.1'
-EXPECTED_SOURCES = 12
+EXPECTED_SOURCES = 16
 # Mapping is a declared editorial interpretation, not a mathematical deduction.
 DOCUMENT_RULES = (
     ('Notes/1', 'prime', ('質數公式', 'Prime Formula'), ('prime', 'pulse', 'counterpoint')),
@@ -38,7 +38,7 @@ def make_plan(root, lock):
     if inventory['inventory_status'] != 'SOURCE_INVENTORY_VERIFIED':
         raise ReviewError('locked Notes inventory failed: ' + json.dumps(inventory['issues'], ensure_ascii=False))
     if inventory['expected_count'] != EXPECTED_SOURCES or inventory['observed_count'] != EXPECTED_SOURCES:
-        raise ReviewError('expected exactly 12 locked source files')
+        raise ReviewError('expected exactly 16 locked source files')
     if not isinstance(lock.get('source_commit'), str) or len(lock['source_commit']) != 40:
         raise ReviewError('missing pinned source commit')
     evidence = []

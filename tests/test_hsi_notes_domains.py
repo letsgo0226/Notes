@@ -17,6 +17,8 @@ class DomainPlanTests(unittest.TestCase):
         samples = {path: (a + ' ' + b + '\n').encode('utf-8') for path, _, (a, b), _ in DOCUMENT_RULES}
         for i in range(8):
             samples[f'Notes/HSI_Prime_Analytic_2KB_Release/reference{i}'] = f'audit-{i}\n'.encode()
+        for i in range(4):
+            samples[f'Notes/HSI_Sub2K_Program_Synthesizer/reference{i}'] = f'synth-audit-{i}\n'.encode()
         for path, raw in samples.items():
             dest = self.root / path
             dest.parent.mkdir(exist_ok=True, parents=True)
@@ -28,13 +30,13 @@ class DomainPlanTests(unittest.TestCase):
         b = make_plan(self.root, self.lock)
         self.assertEqual(a, b)
         self.assertEqual(a['plan_status'], 'READY_FOR_HUMAN_REVIEW_NOT_DEPLOYED')
-        self.assertEqual(a['source_count'], 12)
+        self.assertEqual(a['source_count'], 16)
         self.assertEqual(len(a['documents']), 4)
 
-    def test_four_documents_eight_reference_sources(self):
+    def test_four_documents_twelve_reference_sources(self):
         a = make_plan(self.root, self.lock)
         self.assertEqual(sum(x['role'] == 'concept_source' for x in a['all_source_files']), 4)
-        self.assertEqual(sum(x['role'] == 'reference_and_audit_source' for x in a['all_source_files']), 8)
+        self.assertEqual(sum(x['role'] == 'reference_and_audit_source' for x in a['all_source_files']), 12)
 
     def test_all_domains_remain_unexecuted(self):
         a = make_plan(self.root, self.lock)
@@ -87,7 +89,7 @@ class DomainPlanTests(unittest.TestCase):
         with self.assertRaises(ReviewError):
             make_plan(self.root, self.lock)
 
-    def test_removed_eight_reference_sources_fails(self):
+    def test_removed_reference_sources_fails(self):
         self.lock['entries'] = self.lock['entries'][:4]
         for p in (self.root / 'Notes/HSI_Prime_Analytic_2KB_Release').iterdir():
             p.unlink()

@@ -128,7 +128,7 @@ def render_native(root, stage, plan, sr, bpm, bars):
     return {'status': 'LOCAL_AUDIO_VERIFIED', 'audio': 'native/song.wav', 'audio_sha256': sha(raw),
             'score_sha256': sha((output / 'score.json').read_bytes()), 'metrics': metrics,
             'same_runtime_rerender_identical': True, 'e257_reconstruction_verified': True,
-            'conditioning': 'declared creative keywords plus fingerprint of all 12 files',
+            'conditioning': 'declared creative keywords plus fingerprint of all 16 files',
             'musical_quality_assessed': False, 'intelligible_singing_verified': False,
             'cross_platform_byte_identity_verified': False, 'remote_deployment': False}
 

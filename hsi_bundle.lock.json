@@ -64,6 +64,26 @@
       "sha256": "58fda9f5a404c3a58c7f3a4aefdc49396e4c5212c6c2d0e9d7e5af80a7a99f68"
     },
     {
+      "path": "Notes/HSI_Sub2K_Program_Synthesizer/README.md",
+      "bytes": 2507,
+      "sha256": "4a8a37160818834197a277de713a05e083515342e933178ad1751d475c36b944"
+    },
+    {
+      "path": "Notes/HSI_Sub2K_Program_Synthesizer/hsi_sub2k_synth.py",
+      "bytes": 14114,
+      "sha256": "f2a9d10a476a3e21842ff213711fe9b27c67c149d3b9677dbf1730f80e720594"
+    },
+    {
+      "path": "Notes/HSI_Sub2K_Program_Synthesizer/verification_certificate.json",
+      "bytes": 2099,
+      "sha256": "f99630efefd85f718eb198d8b1ce898a586fa12916ee92860b1235e792735e41"
+    },
+    {
+      "path": "Notes/HSI_Sub2K_Program_Synthesizer/verify_sub2k_synth.py",
+      "bytes": 4104,
+      "sha256": "1fed23725b6e87c5a72997c9532bd69730a73b8aad9d1350377bbac87d7d3849"
+    },
+    {
       "path": "hsi_binance_orders.py",
       "bytes": 15228,
       "sha256": "13f66367acb428c4ae7fe3e9d14749942f6b89e645a575539f8eca8a5288fc2a"
@@ -86,7 +106,7 @@
     {
       "path": "hsi_deploy.py",
       "bytes": 21821,
-      "sha256": "9645386bdfc08b57694dba9df460290897c4e2bb7d11de8813c393790ef0e8f9"
+      "sha256": "4ccc5e602def18dd516c9cefc202d72f73026f3e1fb9e7d57561bbb18ca04721"
     },
     {
       "path": "hsi_native_renderer.py",
@@ -101,12 +121,12 @@
     {
       "path": "hsi_notes_domains.py",
       "bytes": 7166,
-      "sha256": "cec4ee5075d4203eec752154741e241279b460c26223be6d11702f684a0b0136"
+      "sha256": "a1d8b127d744ebb25fdbea14d13fd6d95e1fae9e363f71861ced8a65ce505d51"
     },
     {
       "path": "hsi_notes_review.lock.json",
-      "bytes": 2218,
-      "sha256": "2ee35277b5e95fcd3835f279f9c33c7716abc53f880b65e550f1dd96431fd8bd"
+      "bytes": 2912,
+      "sha256": "321c49ba14e3fac8a28c0392c0794f16f8719ec46e780fc29fcb8380ad1b3d44"
     },
     {
       "path": "hsi_notes_review.py",
@@ -131,7 +151,7 @@
     {
       "path": "hsi_notes_validate.py",
       "bytes": 16070,
-      "sha256": "a6f181542d45ec3b71d6a95441f45c5c580271d52e0c6bda874c946099692389"
+      "sha256": "667a6368341a3ead8831c6b143826c80d81026116fd72725d4a7b8226207211e"
     },
     {
       "path": "hsi_open_corpus.py",

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Finite HSI OriginalXY Turing-machine-driven research writer: NO AI models.
 
-All 12 files of the locked Notes corpus are audited and fingerprinted. Only the
+All 16 files of the locked Notes corpus are audited and fingerprinted. Only the
 pinned, readable TM reference is executed with bounded steps, in a temp dir.
 Crossref bibliographic metadata is optional; no copyrighted full text is copied.
 The outputs are NOT original philosophical books or proven philosophical claims.
@@ -74,10 +74,10 @@ def inventory():
     lock=json.loads(LOCK.read_text(encoding="utf-8"))
     inv=audit(ROOT,lock)
     expected={x["path"] for x in lock["entries"]}
-    if inv["inventory_status"]!="SOURCE_INVENTORY_VERIFIED" or len(expected)!=12:
+    if inv["inventory_status"]!="SOURCE_INVENTORY_VERIFIED" or len(expected)!=16:
         raise RuntimeError("Locked Notes source audit failed: "+str(inv["issues"]))
     if expected!=set(inv["observed"]) or TM_SOURCE not in expected:
-        raise RuntimeError("Pinned twelve-source inventory differs from the repository")
+        raise RuntimeError("Pinned sixteen-source inventory differs from the repository")
     return lock,inv
 
 def chapters():
@@ -183,7 +183,7 @@ def crossref_metadata(query,offline=False,fetcher=None):
                 "error":str(exc)[:180],"records":[]}
 
 def source_profiles(inv):
-    """Actually read and lexically characterize all 12 pinned file contents."""
+    """Actually read and lexically characterize all 16 pinned file contents."""
     categories={
         "finite_computation":("有限","finite","bounded","limit","budget"),
         "encoding":("gödel","哥德爾","e257","encode","編碼"),
