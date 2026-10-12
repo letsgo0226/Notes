@@ -7,7 +7,9 @@ from hsi_search import run_search, VERSION as HSI_SEARCH_VERSION
 PROTOCOL="HSI-OPEN-CORPUS/1.0"
 CORRESPONDENCE_PROTOCOL="HSI-RC/1.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
-VERSION="1.9.1"
+COSMIC_LOVE_TM_PROTOCOL="HSI-COSMIC-LOVE-TM/1.0"
+COSMIC_LOVE_TM_PROGRAM=55067263
+VERSION="1.9.2"
 MIN_HSI_SEARCH_VERSION=(1,4,0)
 
 def _semver_tuple(v):
@@ -48,6 +50,8 @@ ALLOWED_LICENSES={"cc0","pdm"}
 ALLOWED_CATEGORIES={"music","sound_effect"}
 RENDER_PROFILE_PROTOCOL="HSI-CORPUS-RENDER-POLICY/1.0"
 DEFAULT_RENDER_POLICY={"event_boost":0,"fade_ms":180,"gain_scale":1.0}
+COSMIC_LOVE_TM_ENABLED=os.getenv("HSI_COSMIC_LOVE_TM","1")!="0"
+COSMIC_LOVE_TM_MAX_STEPS=max(2,min(2048,int(os.getenv("HSI_COSMIC_LOVE_TM_MAX_STEPS","144"))))
 
 def read_render_policy():
     name=os.getenv("HSI_RENDER_PROFILE")
@@ -87,6 +91,75 @@ def d257(n):
     out.reverse();return bytes(out)
 
 def canon(x):return json.dumps(x,ensure_ascii=False,sort_keys=True,separators=(",",":"))
+
+def cosmic_love_transition_table(p=COSMIC_LOVE_TM_PROGRAM):
+    v=(math.isqrt(8*p+1)-1)//2
+    c=p-v*(v+1)//2
+    k=v-c+1;K=k+1;B=4*K
+    if k!=2:raise ValueError("COSMIC_LOVE_TM decoded state count rejected")
+    def step(q,a):
+        u=c//B**(2*q+a)%B
+        z,r=divmod(u,K)
+        return r,z//2,2*(z%2)-1
+    rows=[]
+    for q in (0,1):
+        for a in (0,1):
+            nq,b,d=step(q,a)
+            if (nq,b,d)!=(1-q,a,1-2*q):
+                raise ValueError("COSMIC_LOVE_TM transition proof failed")
+            rows.append({"q":q,"a":a,"next_q":nq,"write":b,"direction":d})
+    return {"p":p,"v":v,"c":c,"k":k,"K":K,"B":B,"rows":rows}
+
+def cosmic_love_tm_control(seed_text,candidate_index):
+    if not COSMIC_LOVE_TM_ENABLED:
+        return {"protocol":COSMIC_LOVE_TM_PROTOCOL,"enabled":False}
+    table=cosmic_love_transition_table()
+    step_basis=e257(("COSMIC_LOVE_TM|"+seed_text+"|candidate="+str(candidate_index)).encode("utf-8"))
+    steps=2+(step_basis%(COSMIC_LOVE_TM_MAX_STEPS-1))
+    q=h=0;tape={};trace=[];prefix=[]
+    for i in range(steps):
+        a=tape.get(h,0)
+        row=table["rows"][2*q+a]
+        nq,b,d=row["next_q"],row["write"],row["direction"]
+        if b:tape[h]=b
+        else:tape.pop(h,None)
+        h+=d;q=nq
+        atom=[i,q,h,b,d]
+        trace.append(atom)
+        if i<16:
+            prefix.append({"i":i,"q":q,"h":h,"write":b,"direction":d})
+    core={
+        "protocol":COSMIC_LOVE_TM_PROTOCOL,
+        "enabled":True,
+        "banner":"COSMIC_LOVE",
+        "source_program":"python3 -c exec-loop finite projection",
+        "program":COSMIC_LOVE_TM_PROGRAM,
+        "decoded":{"v":table["v"],"c":table["c"],"k":table["k"],"K":table["K"],"B":table["B"]},
+        "transition_rule":"delta(q,a)=(1-q,a,1-2*q)",
+        "transition_table":table["rows"],
+        "seed_basis_e257":step_basis,
+        "steps":steps,
+        "trace_prefix":prefix,
+        "trace_sha256":hashlib.sha256(canon(trace).encode("utf-8")).hexdigest(),
+        "terminal":{"q":q,"h":h,"nonblank_cells":len(tape)},
+        "event_boost":steps%2,
+        "finite_projection":True,
+        "infinite_loop_not_executed_inside_renderer":True,
+        "verified":True
+    }
+    core["control_uid"]=hashlib.sha256(canon(core).encode("utf-8")).hexdigest()
+    return core
+
+def cosmic_love_event_clock(control,event_index):
+    if not control or not control.get("enabled"):
+        return None
+    phase=(event_index+int(control.get("steps",0)))&1
+    return {
+        "phase":phase,
+        "q":1 if phase==0 else 0,
+        "h":1 if phase==0 else 0,
+        "direction":1 if phase==0 else -1
+    }
 
 
 def music_source_reasons(item):
@@ -326,7 +399,11 @@ def correspondence(features):
     return residual,terms,int(residual==0.0)
 
 def render(items,text,out,candidate_index=0):
-    seed_text=text if candidate_index==0 else text+"|candidate="+str(candidate_index)
+    base_seed_text=text if candidate_index==0 else text+"|candidate="+str(candidate_index)
+    tm_control=cosmic_love_tm_control(base_seed_text,candidate_index)
+    seed_text=base_seed_text
+    if tm_control.get("enabled"):
+        seed_text+="|COSMIC_LOVE_TM="+tm_control["control_uid"]
     basis=e257(seed_text.encode("utf-8"));rng=PRNG(basis)
     seconds=18+(rng.pick(23))
     total=int(seconds*TARGET_SR)
@@ -341,10 +418,12 @@ def render(items,text,out,candidate_index=0):
             item["rejected_reason"]=str(e)
             print("source-warning>",item.get("title") or item["openverse_id"],str(e),file=sys.stderr)
     if not decoded:raise SystemExit("no usable CC0/PDM WAV sources found")
-    event_count=max(len(decoded)*2,5+rng.pick(7))+RENDER_POLICY["event_boost"]
+    event_count=max(len(decoded)*2,5+rng.pick(7))+RENDER_POLICY["event_boost"]+int(tm_control.get("event_boost",0))
     for ei in range(event_count):
         item,audio,sr=decoded[rng.pick(len(decoded))]
+        clock=cosmic_love_event_clock(tm_control,ei)
         rate=.84+rng.unit()*.34
+        if clock:rate=max(.80,min(1.22,rate+clock["direction"]*.0125))
         shifted=resample(audio,sr,TARGET_SR,rate)
         frag_sec=1.5+rng.unit()*5.5
         frag_n=min(len(shifted),int(frag_sec*TARGET_SR))
@@ -352,6 +431,7 @@ def render(items,text,out,candidate_index=0):
         src_start=0 if len(shifted)==frag_n else rng.pick(len(shifted)-frag_n)
         dst_start=rng.pick(max(1,total-frag_n))
         pan=rng.unit()*2-1
+        if clock:pan=max(-1.0,min(1.0,pan+clock["direction"]*.075))
         lg=math.sqrt((1-pan)*.5)*(.20+.20*rng.unit())*RENDER_POLICY["gain_scale"]
         rg=math.sqrt((1+pan)*.5)*(.20+.20*rng.unit())*RENDER_POLICY["gain_scale"]
         fade=min(int(RENDER_POLICY["fade_ms"]*.001*TARGET_SR),frag_n//4)
@@ -363,11 +443,13 @@ def render(items,text,out,candidate_index=0):
             v=shifted[src_start+j]*env
             k=dst_start+j
             left[k]+=v*lg;right[k]+=v*rg
-        events.append({
+        event={
             "source_id":item["openverse_id"],"dst_start_seconds":round(dst_start/TARGET_SR,4),
             "fragment_seconds":round(frag_n/TARGET_SR,4),"playback_rate":round(rate,6),
             "pan":round(pan,6),"left_gain":round(lg,6),"right_gain":round(rg,6)
-        })
+        }
+        if clock:event["cosmic_love_tm_clock"]=clock
+        events.append(event)
     if not events:raise SystemExit("no render events")
     # finite traditional DSP: short feed-forward stereo delay.
     delay=int((.11+.19*rng.unit())*TARGET_SR);feedback=.07+.11*rng.unit()
@@ -375,7 +457,7 @@ def render(items,text,out,candidate_index=0):
         left[i]+=right[i-delay]*feedback
         right[i]+=left[i-delay]*feedback
     wav=out/"song.wav";write_wav(wav,left,right,TARGET_SR)
-    return wav,basis,seconds,events,decoded
+    return wav,basis,seed_text,seconds,events,decoded,tm_control
 
 def write_e257(path,raw,chunk=512):
     ok=True;n=0
@@ -458,7 +540,7 @@ def main():
         try:candidate_index=max(0,int(json.loads(state_path.read_text(encoding="utf-8")).get("next_candidate",0)))
         except Exception:candidate_index=0
     while True:
-        wav,basis,seconds,events,decoded=render(items,text,out,candidate_index)
+        wav,basis,render_seed_text,seconds,events,decoded,tm_control=render(items,text,out,candidate_index)
         features=audio_features(wav)
         residual,rc_terms,rc_closed=correspondence(features)
         effective_rc_closed=int((not RC_ENABLED) or rc_closed)
@@ -481,6 +563,7 @@ def main():
         "features":features,
         "render_policy":RENDER_POLICY,
         "render_policy_uid":RENDER_POLICY_UID,
+        "cosmic_love_tm":tm_control,
         "terms":rc_terms,
         "residual":residual,
         "closed":effective_rc_closed,
@@ -493,9 +576,11 @@ def main():
         "protocol":"HSI-OPEN-CORPUS-LOCK/1.0",
         "runtime_input":text,
         "generation_basis_e257":basis,
+        "generation_seed_text":render_seed_text,
         "candidate_index":candidate_index,
         "render_policy":RENDER_POLICY,
         "render_policy_uid":RENDER_POLICY_UID,
+        "cosmic_love_tm":tm_control,
         "correspondence_protocol":CORRESPONDENCE_PROTOCOL,
         "sources":used,
         "license_filter":["cc0","pdm"],
@@ -519,12 +604,11 @@ def main():
     raw=wav.read_bytes();chunks=0;eok=True
     if E257_ENABLED:chunks,eok=write_e257(out/"song.e257",raw)
     keyword_basis=e257(text.encode("utf-8"))
-    seed_text=text if candidate_index==0 else text+"|candidate="+str(candidate_index)
     checks={
         "wav":raw[:4]==b"RIFF" and raw[8:12]==b"WAVE",
         "audio_nonempty":len(raw)>1024,
         "keywords_roundtrip":d257(keyword_basis)==text.encode("utf-8"),
-        "generation_seed_roundtrip":d257(basis)==seed_text.encode("utf-8"),
+        "generation_seed_roundtrip":d257(basis)==render_seed_text.encode("utf-8"),
         "e257_audio_roundtrip":eok,
         "sources_present":len(used)>0,
         "all_indexed_cc0_or_pdm":all(str(x.get("license","")).lower() in ALLOWED_LICENSES for x in used),
@@ -537,6 +621,7 @@ def main():
             and not str(x.get("title") or "").startswith("LL-")
             for x in used
         ),
+        "cosmic_love_tm_verified":(not tm_control.get("enabled")) or bool(tm_control.get("verified")),
         "no_ai":True,
         "youtube_audio_unused":True
     }
@@ -566,13 +651,15 @@ def main():
         "notes_manifest_sha256":notes_plan["manifest_sha256"] if notes_plan else None,
         "notes_source_count":notes_plan["source_count"] if notes_plan else 0,
         "search_input":search_input,
-        "generation_input":"runtime-keywords-plus-candidate-index",
+        "generation_input":"runtime-keywords-plus-candidate-index-plus-cosmic-love-tm-control",
         "runtime_keywords_basis_e257":keyword_basis,
         "generation_basis_e257":basis,
+        "generation_seed_text":render_seed_text,
         "candidate_index":candidate_index,
         "candidate_count":candidate_index+1,
         "render_policy":RENDER_POLICY,
         "render_policy_uid":RENDER_POLICY_UID,
+        "cosmic_love_tm":tm_control,
         "correspondence":rc_cert,
         "renderer":"open-corpus-retrieval-dsp",
         "hsi_search_version":HSI_SEARCH_VERSION,
@@ -618,7 +705,7 @@ def main():
     (out/"song.hsicert").write_text(canon(cert)+"\n",encoding="utf-8")
     files=["keywords.txt","search.hsicert","corpus.lock.json","events.json","correspondence.hsicert","song.wav","song.hsicert"]
     if E257_ENABLED:files.append("song.e257")
-    (out/"manifest.json").write_text(canon({"protocol":PROTOCOL,"output":str(out),"files":files,"closed":closed,"technical_closed":technical_closed,"correspondence_closed":effective_rc_closed,"rights_closed":rights_closed,"render_policy_uid":RENDER_POLICY_UID})+"\n",encoding="utf-8")
+    (out/"manifest.json").write_text(canon({"protocol":PROTOCOL,"output":str(out),"files":files,"closed":closed,"technical_closed":technical_closed,"correspondence_closed":effective_rc_closed,"rights_closed":rights_closed,"render_policy_uid":RENDER_POLICY_UID,"cosmic_love_tm_uid":tm_control.get("control_uid")})+"\n",encoding="utf-8")
     print("audio>",wav);print("sources>",len(provenance));print("events>",len(events))
     print("candidate_index>",candidate_index);print("E_half>",format(residual,".12g"))
     print("technical_closed>",technical_closed);print("correspondence_closed>",effective_rc_closed);print("rights_closed>",rights_closed)
