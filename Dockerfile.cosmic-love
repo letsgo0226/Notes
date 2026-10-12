@@ -1,0 +1,10 @@
+FROM python:3.12-alpine
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+WORKDIR /app
+# Exactly three reviewed stdlib-only source files. No Notes, trade code or keys.
+COPY hsi_cosmic_love.py hsi_cosmic_love_heartbeat.py hsi_cosmic_love_service.py /app/
+RUN python3 hsi_cosmic_love.py --json > /dev/null \
+    && python3 -m py_compile /app/hsi_cosmic_love.py /app/hsi_cosmic_love_heartbeat.py /app/hsi_cosmic_love_service.py
+USER 10001:10001
+EXPOSE 8080
+CMD ["python3", "-u", "hsi_cosmic_love_service.py"]
