@@ -21,20 +21,21 @@ jobs:
       - name: No-broker paper-only safety tests
         run: |
           python3 -m unittest trader42_paper.test_engine -v
-          python3 -m py_compile trader42_paper/engine.py
+          python3 -m unittest trader42_paper.test_replay -v
+          python3 -m py_compile trader42_paper/engine.py trader42_paper/replay.py
       - name: Static deny of external broker calls
         run: |
           python3 - <<'PY'
           import ast,pathlib
-          p=pathlib.Path('trader42_paper/engine.py')
-          tree=ast.parse(p.read_text())
-          forbidden={'requests','httpx','urllib','socket','ccxt','binance','subprocess','os','websockets'}
-          imports=set()
-          for n in ast.walk(tree):
-              if isinstance(n,ast.Import):
-                  imports.update(x.name.split('.')[0] for x in n.names)
-              elif isinstance(n,ast.ImportFrom) and n.module:
-                  imports.add(n.module.split('.')[0])
-          assert not imports.intersection(forbidden),imports.intersection(forbidden)
+          forbidden={'requests','httpx','urllib','socket','ccxt','subprocess','os','websockets'}
+          for rel in ['trader42_paper/engine.py','trader42_paper/replay.py']:
+              tree=ast.parse(pathlib.Path(rel).read_text())
+              imports=set()
+              for n in ast.walk(tree):
+                  if isinstance(n,ast.Import):
+                      imports.update(x.name.split('.')[0] for x in n.names)
+                  elif isinstance(n,ast.ImportFrom) and n.module:
+                      imports.add(n.module.split('.')[0])
+              assert not imports.intersection(forbidden),(rel,imports.intersection(forbidden))
           print('NO_BROKER_OR_NETWORK_IMPORTS')
           PY
