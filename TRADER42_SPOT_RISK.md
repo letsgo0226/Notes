@@ -134,3 +134,38 @@ snapshot **cannot** enforce or certify the 2 USDT stop and never
 activates trading.
 
 Binance docs: https://developers.binance.com/en/docs/catalog/core-trading-spot-trading/api/rest-api/account
+
+## Offline comparison of two redacted evidence summaries
+
+`hsi_spot_trade_digest.py` defines a canonical decimal-preserving
+fingerprint scheme used by both the supplied FIFO fixture and the
+signed-GET audit summary. `hsi_spot_reconcile.py` can compare the
+resulting JSON *on the user's own machine* (do not upload keys, balances,
+or raw fill history):
+
+```sh
+python3 -m hsi_spot_ledger --input local-btcusdt-fixture.json > local-ledger-report.json
+python3 -m hsi_spot_reconcile --snapshot local-readonly-snapshot.json --ledger-report local-ledger-report.json
+```
+
+This comparison checks the UTC day, exactly identical snapshot clock,
+trade count, BUY/SELL counts, complete supplied window, decimal-preserving
+SHA-256 fingerprint, disallowed commissions, unexpected open orders and
+disabled API trading permission. Tampering or mismatching input produces
+`UNKNOWN_FAIL_CLOSED`.
+
+Even when it finds agreement, the only possible positive status is
+`BOUNDED_DIGEST_MATCH_ONLY_NOT_RECONCILED` with
+`broker_reconciled=false`, `daily_pnl_verified=false`,
+`exchange_origin_authenticated_by_this_file=false` and
+`live_order_permission=DENIED`. A SHA-256 digest is **not** a
+signature or proof that the data was genuinely issued by Binance.
+There is still no verified opening cost basis, all-symbol activity,
+transfers or continuous signed account-history coverage. The genuine
+daily realized-loss stop remains a required future implementation,
+not a deployed protection. The 2 USDT threshold cannot guarantee
+that realized or unrealized losses will stay within 2 USDT.
+
+Read-only audit is deliberately opt-in and **not deployed**. The user's
+Railway service remains in safe standby; PR #27 stays draft and cannot
+unlock live order submission via environment variables.
