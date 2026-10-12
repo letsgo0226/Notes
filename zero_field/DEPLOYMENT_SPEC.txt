@@ -1,0 +1,32 @@
+COSMIC LOVE / FINITE DIRICHLET ZERO FIELD / REVIEW-ONLY 1.0
+2026-10-13 Asia/Taipei
+
+Inspired by the previous Zero-Point Field conversation. The coefficients
+and normalization are EXPLICIT NEW IMPLEMENTATION CHOICES, not claimed
+to reproduce every past site's setting exactly.
+
+Given validated HSI-ST/1 p=55067263:
+  q_0=0, q_(j+1)=1-q_j, a_n=1+q_(n-1) in {1,2}
+  N even and bounded, 2<=N<=64.
+  D_N(s)=sum_(n=1)^N a_n n^(-s)
+  P_Z(s)=product_(z in Z) [(s-z)(s-conjugate(z)) /
+                              ((2-z)(2-conjugate(z)))]
+  F(s)=A*D_N(s)*P_Z(s)/D_N(2)
+  E(s)=|F(s)|^2 >=0.
+  P_Z(2)=1, F(2)=A, provided z != 2.
+  For z in Z, F(z)=0 by a deliberately constructed factor,
+  subject to floating arithmetic error.
+
+D_N is a finite Dirichlet polynomial, not Riemann zeta.
+Its zeros do not establish Riemann's hypothesis. Sample
+z=0.5+14.134725141734693i is selected, not discovered.
+E is dimensionless magnitude-squared, NOT joules,
+vacuum energy extraction, plasma, or quantum apparatus.
+
+Deployment: isolated Railway staging service only, no public domain,
+no shared state volume, no ChatGPT access, no repository writes,
+no auto-upgrades, no Binance keys or real orders.
+Keep original Cosmic Love worker, canary, Corpus and Trader_42 unchanged.
+Only GET /health and GET /evaluate are supported endpoints.
+Cloud process uptime is not the unbounded TM nonhalting theorem.
+Running this service may incur compute charges.
