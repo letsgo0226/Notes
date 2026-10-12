@@ -190,3 +190,53 @@ permission to change the key configuration or to trade.
 These controls exist only in this unmerged Draft PR. No live-account
 Binance queries, trading-key changes, or Railway deployments were
 performed to exercise these tests.
+
+
+## Submission-bound UTC daily stop latch (Draft PR only)
+
+`hsi_spot_pretrade_gate.py` adds a separate, **deny-only** execution
+boundary. In this proposed code, `BinanceOrders.submit()` calls
+`enforce_pretrade()` against its own SQLite order journal **before**
+exchange-info lookup, an order POST, or a new `SUBMITTING` journal entry.
+The independent `assert_live_release()` guard remains unconditional.
+Neither guard can be enabled with Railway environment toggles.
+
+A new `spot_utc_loss_latch` table stores a UTC calendar date and the
+origin-labeled, **unverified** local replay loss that tripped the
+2 USDT threshold. This deliberately provides *only negative evidence*:
+`observe_offline_loss()` can persist a more conservative HALT for
+diagnostic testing, but has no HTTP endpoint and can never grant an
+order or clear a prior HALT. The first recorded HALT remains latched for
+that UTC day if later offline PnL appears to recover. After UTC midnight,
+that day's latch does not apply, but the new day still reports
+`UNKNOWN_FAIL_CLOSED`, **not** permission to trade.
+
+The live submit path has **no complete signed Binance cost-basis,
+cross-venue transfer, third-currency fee or historical-order
+reconciliation provider**. Thus the normal status stays
+`UNKNOWN_FAIL_CLOSED` and every candidate order is rejected with
+`RISK_UNKNOWN_BROKER_RECONCILIATION_REQUIRED`. A latched diagnostic
+rejection instead reports `HALT_DAILY_LOSS_REVIEW_LATCHED`.
+A local checksum, signed-read summary, operator-supplied report,
+environment variable, or offline FIFO input can never count as
+`broker_reconciled=true` in this proposed version.
+
+A journal must be reliably durable to preserve any stop evidence across
+host restarts. SQLite write durability does not establish the accuracy or
+origin of a Binance loss calculation; there is **no production-verified
+stop engine** here. The 2 USDT figure is a stop threshold, never a
+guaranteed maximum loss; fees, gaps, slippage and network uncertainty
+can cause greater losses.
+
+Synthetic regression suite:
+
+```sh
+python3 -m unittest discover -s tests -p 'test_hsi_spot_pretrade_gate.py' -v
+```
+
+Tests demonstrate that UNKNOWN blocks with no broker request,
+synthetic -2 and below-latch persist across database reopen,
+recoveries do not clear today's latch, UTC rollover stays UNKNOWN,
+precision around the threshold is preserved, and the code-level
+`assert_live_release()` is separately effective.
+**Do not merge or deploy this Draft PR as a live-trading release.**
