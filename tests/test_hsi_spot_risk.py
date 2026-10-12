@@ -1,6 +1,8 @@
 """Offline-only strict Binance Spot risk tests; no real network."""
 import json
 import os
+import subprocess
+import sys
 import tempfile
 from pathlib import Path
 import unittest
@@ -63,6 +65,29 @@ class SpotRiskTests(unittest.TestCase):
             self.assertFalse(report["fifo_ledger"]["broker_reconciled"])
             self.assertEqual(report["fifo_ledger"]["live_order_permission"],"DENIED")
             self.assertEqual(report["live_release"],"BLOCKED_SEPARATE_APPROVAL_REQUIRED")
+
+    def test_cli_readonly_report_is_available_without_broker(self):
+        """No-network CLI smoke test catches incorrect args variable handling."""
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = Path(directory) / "fixture.json"
+            from datetime import datetime, timezone
+            midnight = int(datetime(2026, 10, 13, tzinfo=timezone.utc).timestamp() * 1000)
+            fixture.write_text(json.dumps({
+                "utc_day": "2026-10-13",
+                "as_of_ms": midnight + 90000,
+                "observed_at_ms": midnight + 90001,
+                "opening_lots": [],
+                "fills": [],
+            }), encoding="utf-8")
+            proc = subprocess.run([
+                sys.executable, "-m", "hsi_spot_risk",
+                "--ledger-file", str(fixture)
+            ], capture_output=True, text=True, timeout=10)
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            payload = json.loads(proc.stdout)
+            self.assertEqual(payload["fifo_ledger"]["status"], "LOCAL_REPLAY_ONLY")
+            self.assertEqual(payload["fifo_ledger"]["live_order_permission"], "DENIED")
+            self.assertEqual(payload["live_release"], "BLOCKED_SEPARATE_APPROVAL_REQUIRED")
 
     def test_no_env_can_activate_live_release(self):
         with patch.dict(os.environ,{"LIVE_ARMED":"1","LIVE_DRY_RUN":"0","HSI_ORDER_KILL":"0","MAX_QUOTE_PER_ORDER":"999999"}):
