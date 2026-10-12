@@ -24,14 +24,14 @@
 
 使用使用者提供的 HSI-ST/1 解碼方式與整數：
 
-\`\`\`text
+```text
 p = 55067263
 v = (isqrt(8*p+1)-1)//2 = 10493
 c = p-v*(v+1)//2    = 10492
 k = v-c+1            = 2
 K = k+1              = 3
 B = 4*K              = 12
-\`\`\`
+```
 
 活動狀態為 \(q\in\{0,1\}\)，磁帶符號為 \(a\in\{0,1\}\)。解碼後：
 
@@ -57,7 +57,7 @@ B = 4*K              = 12
 
 編碼中指定的停機狀態 \(q_H=2\) 不會由活動狀態到達。這證明的是**這台特定機器**在抽象模型中不會停機；不證明任意程式不會停機、一般問題都有解，或主機可以永遠連線。
 
-若初始 \(q_0=h_0=0\) 且磁帶全零，則 \(q_j=h_j=j\bmod2\)，磁帶不變。原始腳本先核對四條規則，再輸出一次 \`COSMIC_LOVE\`，接著循環執行；\`sleep(0.05)\` 是主機節流，不是新的圖靈機停機條件。
+若初始 \(q_0=h_0=0\) 且磁帶全零，則 \(q_j=h_j=j\bmod2\)，磁帶不變。原始腳本先核對四條規則，再輸出一次 `COSMIC_LOVE`，接著循環執行；`sleep(0.05)` 是主機節流，不是新的圖靈機停機條件。
 
 **關鍵界限：** 無限次重複這個兩步循環本身不增加新的資訊，也不自動帶來智慧、創作能力或另一種物理作用。
 
@@ -174,9 +174,9 @@ F'(s)=\frac A{D_N(2)}\left(D_N'(s)P_Z(s)+D_N(s)P_Z'(s)\right).
 
 | 分類 | 正確意思 |
 | --- | --- |
-| \`prescribed\` | 收斂位置與已由多項式保證的指定零點接近 |
-| \`numerical_candidate\` | 數值條件符合，但尚缺獨立的嚴格存在性證明 |
-| \`unresolved\` | 預算、導數、步長或數值條件不足；不得判定為已證明不存在零點 |
+| `prescribed` | 收斂位置與已由多項式保證的指定零點接近 |
+| `numerical_candidate` | 數值條件符合，但尚缺獨立的嚴格存在性證明 |
+| `unresolved` | 預算、導數、步長或數值條件不足；不得判定為已證明不存在零點 |
 
 原推導記載預設 \(N=32\) 時，從 \(0.8+13.8i\) 出發的範例在 6 次更新後到達 \(0.5+14i\)。該記錄說明數值演算法的示例行為，不能取代形式證明。
 
@@ -211,19 +211,19 @@ F'(s)=\frac A{D_N(2)}\left(D_N'(s)P_Z(s)+D_N(s)P_Z'(s)\right).
 
 **既有推導報告所載（非本次重新完整執行）的測試：** 596 項 assertions 通過；33 組 Python Decimal 70 位精度參考比較；包含兩種基底、8/32/128 項、共軛點與二重點、有限差分梯度、Newton 搜尋、設定 round-trip 與輸入檢核。原報告亦明確記錄**沒有完成受支援的瀏覽器互動與截圖 QA**。故不應將既有測試敘述改寫為全面的跨瀏覽器驗收結果。
 
-建議後續驗收分開記錄：\`symbolic_proof\`、\`independent_numeric_test\`、\`browser_interaction_test\`、\`deployment_check\`；任何一項都不應自動替代其他項目。
+建議後續驗收分開記錄：`symbolic_proof`、`independent_numeric_test`、`browser_interaction_test`、`deployment_check`；任何一項都不應自動替代其他項目。
 
 ## 9. 來源與參照 / Source provenance
 
 本文根據以下使用者提供的研究文件，以及當日既有雙語推導稿編輯：
 
-1. \`COSMIC_LOVE_NONHALTING_SELF_CLOSURE_TURING_SPEC(2).txt\` — 圖靈機兩步閉環及非停機命題邊界。
-2. \`cosmic_love_no_halt_2kb(1).sh\` — 使用者提供的 Python one-liner Shell 包裝。
-3. \`PRIME_FORMULA_BILINGUAL_DERIVATION(20261012-232721).txt\` — 質數、有限公式與編碼。
-4. \`ANALYTIC_CONTINUATION_EQUATION_BILINGUAL_DERIVATION(20261012-232721).txt\` — 全純性、解析延拓及限制。
-5. \`HSI_BITWISE_METATHEORY_2KB_CONSISTENCY_COMPLETENESS_BILINGUAL(20261012-232721).txt\` — 有界邏輯證書與無界命題區分。
-6. \`HSI_PURE_TURING_LANGUAGE_UNIVERSAL_CORRESPONDENCE_BILINGUAL(20261012-232722).txt\` — 有限圖靈機、E257、Dirichlet 表示與跨系統限定。
-7. 既有研究原稿 \`COSMIC_LOVE_ZERO_FIELD_DERIVATION_20261013.txt\`（2026-10-13）— 自定義零點場的完整雙語推導、網站規格與測試紀錄。
+1. `COSMIC_LOVE_NONHALTING_SELF_CLOSURE_TURING_SPEC(2).txt` — 圖靈機兩步閉環及非停機命題邊界。
+2. `cosmic_love_no_halt_2kb(1).sh` — 使用者提供的 Python one-liner Shell 包裝。
+3. `PRIME_FORMULA_BILINGUAL_DERIVATION(20261012-232721).txt` — 質數、有限公式與編碼。
+4. `ANALYTIC_CONTINUATION_EQUATION_BILINGUAL_DERIVATION(20261012-232721).txt` — 全純性、解析延拓及限制。
+5. `HSI_BITWISE_METATHEORY_2KB_CONSISTENCY_COMPLETENESS_BILINGUAL(20261012-232721).txt` — 有界邏輯證書與無界命題區分。
+6. `HSI_PURE_TURING_LANGUAGE_UNIVERSAL_CORRESPONDENCE_BILINGUAL(20261012-232722).txt` — 有限圖靈機、E257、Dirichlet 表示與跨系統限定。
+7. 既有研究原稿 `COSMIC_LOVE_ZERO_FIELD_DERIVATION_20261013.txt`（2026-10-13）— 自定義零點場的完整雙語推導、網站規格與測試紀錄。
 
 不同時間取得的附件檔名／雜湊可能不同；本文**不宣稱**當前附件與舊稿所列 SHA-256 完全相同。若用於正式科學論文或生產系統，應重新計算實際使用版本的雜湊並附測試報告。
 
