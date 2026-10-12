@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'Notes/**'
+      - '.gitignore'
       - 'hsi_notes_review.py'
       - 'hsi_notes_review.lock.json'
       - 'tests/test_hsi_notes_review.py'
@@ -28,6 +29,7 @@ on:
       - 'hsi_native_renderer.py'
       - 'validation_snapshots/**'
       - 'tests/test_hsi_notes_validate.py'
+      - 'tests/test_hsi_sub2k_synth.py'
       - 'docs/HSI_NOTES_FOUR_SYSTEM_REVIEW.md'
       - 'docs/HSI_NOTES_LOCAL_VALIDATION_RESULT.md'
       - '.github/workflows/hsi-notes-review.yml'

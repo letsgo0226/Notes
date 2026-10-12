@@ -1,10 +1,15 @@
 # Notes-bound deployment
 
-Music, UTM, Trader_42 and Omega use the complete 12-file `Notes/` snapshot.
-The source inventory digest is
-`817dd6a4c19ac9c1c844396188f1af27035eb4de624d1da0d2287d80574c2dd7`.
+Music, UTM, Trader_42 and Omega use the complete 16-file `Notes/` snapshot.
+The source inventory digest is emitted by `hsi_notes_domains.py` and is checked
+against the current locked inventory during build and startup.
 Source files remain unchanged. The declared creative mappings are analogies;
 finite certificates are not proofs of universal solvability or profitability.
+
+The snapshot now includes `Notes/HSI_Sub2K_Program_Synthesizer/`.  That release
+accepts a generated program only after isolated execution and exact byte
+comparison.  A bounded failure is reported as unresolved; it is never promoted
+to a proof that no sub-2KiB program exists.
 
 ## macOS / Linux
 

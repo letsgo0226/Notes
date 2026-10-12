@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Finite HSI OriginalXY Turing-machine-driven research writer: NO AI models.
 
-All 12 files of the locked Notes corpus are audited and fingerprinted. Only the
+All 16 files of the locked Notes corpus are audited and fingerprinted. Only the
 pinned, readable TM reference is executed with bounded steps, in a temp dir.
 Crossref bibliographic metadata is optional; no copyrighted full text is copied.
 The outputs are NOT original philosophical books or proven philosophical claims.
@@ -74,10 +74,10 @@ def inventory():
     lock=json.loads(LOCK.read_text(encoding="utf-8"))
     inv=audit(ROOT,lock)
     expected={x["path"] for x in lock["entries"]}
-    if inv["inventory_status"]!="SOURCE_INVENTORY_VERIFIED" or len(expected)!=12:
+    if inv["inventory_status"]!="SOURCE_INVENTORY_VERIFIED" or len(expected)!=16:
         raise RuntimeError("Locked Notes source audit failed: "+str(inv["issues"]))
     if expected!=set(inv["observed"]) or TM_SOURCE not in expected:
-        raise RuntimeError("Pinned twelve-source inventory differs from the repository")
+        raise RuntimeError("Pinned sixteen-source inventory differs from the repository")
     return lock,inv
 
 def chapters():
@@ -183,7 +183,7 @@ def crossref_metadata(query,offline=False,fetcher=None):
                 "error":str(exc)[:180],"records":[]}
 
 def source_profiles(inv):
-    """Actually read and lexically characterize all 12 pinned file contents."""
+    """Actually read and lexically characterize all 16 pinned file contents."""
     categories={
         "finite_computation":("有限","finite","bounded","limit","budget"),
         "encoding":("gödel","哥德爾","e257","encode","編碼"),
@@ -227,6 +227,8 @@ def quotes():
 
 def make_text(ch,mode,excerpts,research,fingerprint,profiles):
     slug,title,thesis,num,heading,_=ch
+    source_count=len(profiles)
+    concept_count=len(excerpts)
     s=[
       "# %s｜第 %d 章：%s"%(title,num,heading),"",
       "本檔案是由有限圖靈機與顯式文字規則產生的研究札記；不是完整書籍正文、學術真理證明或已審訂的出版稿。","",
@@ -254,10 +256,11 @@ def make_text(ch,mode,excerpts,research,fingerprint,profiles):
     ]
     for x in excerpts:
         s.append("- %s 第 %d 行：「%s」"%(x["path"],x["line"],x["excerpt"]))
-    s+=["","鎖定清單中全部 12 個檔案均納入雜湊檢查。上述四份文本節錄為研究線索；"
-         "其餘八個程式、證書與規格檔亦逐檔讀取並統計下列概念字詞的出現次數，"
-         "但字詞計數不等於對檔案內容的理解或論證。","",
-         "## 全部 12 份來源的機械內容索引",""]
+    s+=["","鎖定清單中全部 %d 個檔案均納入雜湊檢查。上述 %d 份文本節錄為研究線索；"
+         "其餘 %d 個程式、證書與規格檔亦逐檔讀取並統計下列概念字詞的出現次數，"
+         "但字詞計數不等於對檔案內容的理解或論證。"%
+         (source_count,concept_count,source_count-concept_count),"",
+         "## 全部 %d 份來源的機械內容索引"%source_count,""]
     for source in profiles:
         flags=", ".join(label+":"+str(count) for label,count in source["concept_counts"].items()
                         if count>0) or "無關鍵字匹配"

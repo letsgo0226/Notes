@@ -4,7 +4,11 @@
 
 ## Inventory scope
 
-The 'hsi_notes_review.lock.json' file records all **12 files** observed in 'Notes/' at the 2026-10-11 snapshot of 'letsgo0226/Notes' main, commit 5084ffadcce34d6460d313eb7b6a0c4451d9a5e6: four numbered documents and eight files under 'HSI_Prime_Analytic_2KB_Release/'.
+The 'hsi_notes_review.lock.json' file records all **16 files** in the reviewed
+2026-10-11 snapshot: four numbered documents, eight files under
+'HSI_Prime_Analytic_2KB_Release/', and four files under
+'HSI_Sub2K_Program_Synthesizer/'.  The latter adds bounded program synthesis,
+exact reconstruction tests, documentation, and a finite certificate.
 
 The read-only audit compares file byte lengths and Git blob IDs, rejects missing, unexpected or changed files and symlinks, and emits SHA-256 content fingerprints. It does not execute any one-line program, nor does any matching fingerprint establish mathematical truth or service health.
 
@@ -15,6 +19,7 @@ python3 -m unittest discover -s tests -v
 python3 hsi_notes_review.py --json-out /tmp/hsi-notes-review.json
 # Optional, separately execute finite reference replay in temp directories:
 python3 Notes/HSI_Prime_Analytic_2KB_Release/verify_prime_analytic.py
+python3 Notes/HSI_Sub2K_Program_Synthesizer/verify_sub2k_synth.py
 ~~~
 
 A change in 'Notes/' requires human-reviewed changes to the lock; do not automatically accept drift. The lock is a local snapshot check, not code signing or a formal proof.
@@ -44,11 +49,11 @@ The existing 'hsi_deploy.py --target all --plan' resolves the HSI core, UTM, Tra
 4. After inspecting local output, canary-deploy each adapter in the authorized environment, preserving rollback and evidence of real endpoint behavior.
 5. Review the concrete production/paid API scope before rollout. Live orders are outside this integration.
 
-Passing 'SOURCE_INVENTORY_VERIFIED' proves only presence and byte identity of the selected 12 files. All six domain gates remain 'NOT_TESTED_NOT_DEPLOYED'; it makes no claims about audio output, license rights, production correctness, universal problem solving, or ethical axioms.
+Passing 'SOURCE_INVENTORY_VERIFIED' proves only presence and byte identity of the selected 16 files. All six domain gates remain 'NOT_TESTED_NOT_DEPLOYED'; it makes no claims about audio output, license rights, production correctness, universal problem solving, or ethical axioms.
 
 ## Review-only semantic adapter (stage 2)
 
-The new `hsi_notes_domains.py` is a **deterministic planning tool**, not a deployer. It refuses to create plans if the 12-file inventory differs from the pinned lock. All 12 files contribute to an exact manifest fingerprint. Only `Notes/1` through `Notes/4` are treated as **concept source documents**, using exact bilingual heading markers. The eight other files are **reference/audit materials**, not musical training data.
+The new `hsi_notes_domains.py` is a **deterministic planning tool**, not a deployer. It refuses to create plans if the 16-file inventory differs from the pinned lock. All 16 files contribute to an exact manifest fingerprint. Only `Notes/1` through `Notes/4` are treated as **concept source documents**, using exact bilingual heading markers. The twelve other files are **reference/audit materials**, not musical training data.
 
 Declared human-curated, contestable analogies:
 
@@ -79,7 +84,7 @@ Any mapping from prime numbers, formal correspondence, or mathematical continuat
 
 ## Offline execution and independent verification (stage 3)
 
-`hsi_notes_validate.py` consumes the current locked 12-file plan, verifies the pinned local renderer and common invariant gate, and produces a new directory of real output and evidence:
+`hsi_notes_validate.py` consumes the current locked 16-file plan, verifies the pinned local renderer and common invariant gate, and produces a new directory of real output and evidence:
 
 ~~~sh
 python3 hsi_notes_validate.py --out "$HOME/Music/HSI-Notes/validation-01"
@@ -95,7 +100,7 @@ Use a new output directory each time; existing directories are preserved. Python
 | Prime/analytic finite release | Run the existing seven-case audit in an isolated copy because that verifier rewrites its own certificate. Original locked sources stay unchanged. Finite replay and interpolation tests remain distinct from universal equivalence or unique analytic continuation. |
 | Corpus and AI Bridge | Remain unexecuted. Corpus discovery, source license review and rendered audio are still needed; AI Bridge requires a successful real provider request within the authorized cost scope. |
 
-All 12 files contribute to the exact manifest fingerprint appended to the Native prompt. Four documents also provide the previously declared creative keywords; the other eight remain reference/audit sources. Fingerprint conditioning is a deterministic input binding, not extraction of the full philosophical meaning of each document.
+All 16 files contribute to the exact manifest fingerprint appended to the Native prompt. Four documents also provide the previously declared creative keywords; the other twelve remain reference/audit sources. Fingerprint conditioning is a deterministic input binding, not extraction of the full philosophical meaning of each document.
 
 The runtime lock records Native source commit and SHA-256, plus all three upstream commits whose `hsi_common/core.py` files match the stored snapshot. It is a versioned integrity check, not a signed attestation. The runner clears inherited HSI environment variables, sets finite subprocess timeouts, rejects source drift before execution, checks drift again after execution, and writes no output into the locked Notes tree.
 

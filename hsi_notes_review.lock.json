@@ -2,7 +2,7 @@
   "protocol": "HSI-NOTES-FOUR-SYSTEM-REVIEW/0.1",
   "source_repo": "letsgo0226/Notes",
   "source_ref": "main",
-  "source_commit": "5084ffadcce34d6460d313eb7b6a0c4451d9a5e6",
+  "source_commit": "42f6d95d9d295ef889f7873707afa7a83f24652f",
   "snapshot_date": "2026-10-11",
   "entries": [
     {
@@ -64,6 +64,26 @@
       "path": "Notes/HSI_Prime_Analytic_2KB_Release/verify_prime_analytic.py",
       "bytes": 9705,
       "git_blob_sha1": "ec3528c55c8a5c5dc0075eade392e0ada165105e"
+    },
+    {
+      "path": "Notes/HSI_Sub2K_Program_Synthesizer/README.md",
+      "bytes": 2507,
+      "git_blob_sha1": "5ffeb6a18ce0fb23d8bc88f538c67d102ef898ad"
+    },
+    {
+      "path": "Notes/HSI_Sub2K_Program_Synthesizer/hsi_sub2k_synth.py",
+      "bytes": 14114,
+      "git_blob_sha1": "964c7e05daeecfa4d4fc7de53800afd7072a8621"
+    },
+    {
+      "path": "Notes/HSI_Sub2K_Program_Synthesizer/verification_certificate.json",
+      "bytes": 2099,
+      "git_blob_sha1": "03885997676853f769df9d2b18c836eaddd0a35d"
+    },
+    {
+      "path": "Notes/HSI_Sub2K_Program_Synthesizer/verify_sub2k_synth.py",
+      "bytes": 4104,
+      "git_blob_sha1": "0baa96225c0ef62545a99dfabb41abeb2b71cd75"
     }
   ]
 }

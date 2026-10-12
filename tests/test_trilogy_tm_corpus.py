@@ -7,9 +7,9 @@ import unittest
 import trilogy_tm_corpus as m
 
 class TMWriterTests(unittest.TestCase):
-    def test_locked_twelve_sources(self):
+    def test_locked_sixteen_sources(self):
         lock, inv=m.inventory()
-        self.assertEqual(len(inv["observed"]),12)
+        self.assertEqual(len(inv["observed"]),16)
         self.assertEqual(inv["inventory_status"],"SOURCE_INVENTORY_VERIFIED")
         self.assertEqual(lock["source_repo"],"letsgo0226/Notes")
     def test_real_tm_checkpoint(self):
@@ -27,15 +27,20 @@ class TMWriterTests(unittest.TestCase):
             one=m.build(offline=True,output=target)
             self.assertEqual(one["model_calls"],0)
             self.assertEqual(one["web_research"]["status"],"OFFLINE")
-            self.assertEqual(len(m.load_state(target)["completed"]),1)
+            first_state=m.load_state(target)
+            self.assertEqual(len(first_state["completed"]),1)
+            dossier=(target/first_state["completed"][0]["folder"]/
+                     "dossier.md").read_text(encoding="utf-8")
+            self.assertIn("全部 16 個檔案",dossier)
+            self.assertIn("全部 16 份來源",dossier)
             two=m.build(offline=True,output=target)
             self.assertNotEqual((one["book"],one["chapter"]),(two["book"],two["chapter"]))
             self.assertEqual(len(m.load_state(target)["completed"]),2)
             self.assertEqual(m.load_state(target)["tm_checkpoint"]["n"],32)
-    def test_all_twelve_files_have_content_profiles(self):
+    def test_all_sixteen_files_have_content_profiles(self):
         _, inv=m.inventory()
         rows=m.source_profiles(inv)
-        self.assertEqual(len(rows),12)
+        self.assertEqual(len(rows),16)
         self.assertEqual({x["file"] for x in rows},set(inv["observed"]))
         self.assertTrue(all(x["bytes"]>0 and x["line_count"]>0 for x in rows))
         self.assertTrue(all(x["summarization"]=="MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS" for x in rows))
