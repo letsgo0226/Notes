@@ -31,8 +31,7 @@ into a chat or commit them. Do not execute `POST /orders/submit`.
 
 ## Auto Mode boundary
 
-`.github/workflows/trader42_spot_auto_review.yml` runs regression tests
-and emits a finite review-only JSON risk report on PR / manually / daily.
+The proposed daily read-only Auto Mode workflow is not yet installed. Existing pull-request CI runs tests; local review output is available via `python3 -m hsi_spot_risk`.
 It neither self-merges nor publishes unreviewed trading strategy code,
 and cannot submit orders. Every strategy upgrade must pass independent
 tests, risk review, and a human-controlled release. GitHub branch
