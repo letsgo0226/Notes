@@ -13,7 +13,7 @@ from pathlib import Path
 import re
 
 from hsi_spot_risk import MAX_DAILY_REALIZED_LOSS_USDT
-from hsi_spot_trade_digest import PROTOCOL as DIGEST_PROTOCOL, normalized_trade, digest_trades
+from hsi_spot_trade_digest import PROTOCOL as DIGEST_PROTOCOL, normalized_trade, digest_trades, exact_decimal
 
 PROTOCOL = "HSI-BINANCE-SPOT-FIFO-REPLAY/1"
 MAX_FILLS = 2000
@@ -100,7 +100,7 @@ def replay_day(record):
         earliest_day = True
         digest_rows = []
         with localcontext() as ctx:
-            ctx.prec = 60
+            ctx.prec = 128
             for row in fills:
                 if not isinstance(row, dict) or row.get("symbol") != "BTCUSDT":
                     raise IncompleteLedger("INVALID_SYMBOL")
@@ -172,8 +172,8 @@ def replay_day(record):
                 "snapshot_ms": as_of,
                 "trade_fingerprint_sha256": digest_trades(digest_rows),
                 "trade_fingerprint_scheme": DIGEST_PROTOCOL,
-                "candidate_daily_realized_pnl_usdt": format(running.normalize(), "f"),
-                "worst_intraday_running_realized_pnl_usdt": format(worst.normalize(), "f"),
+                "candidate_daily_realized_pnl_usdt": exact_decimal(running),
+                "worst_intraday_running_realized_pnl_usdt": exact_decimal(worst),
                 "stop_threshold_reached_during_replay": crossed,
                 "replay_sha256": fingerprint,
                 "unproven": [
