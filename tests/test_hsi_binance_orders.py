@@ -36,7 +36,8 @@ class ManualOrderTests(unittest.TestCase):
 
     @contextmanager
     def armed(self):
-        with patch.dict(os.environ, {'LIVE_ARMED': '1', 'LIVE_DRY_RUN': '0', 'HSI_ORDER_KILL': '0'}), patch('os.path.ismount', return_value=True):
+        with patch.dict(os.environ, {'LIVE_ARMED': '1', 'LIVE_DRY_RUN': '0', 'HSI_ORDER_KILL': '0'}), patch('os.path.ismount', return_value=True), patch('hsi_binance_orders.assert_live_release'):
+            # Unit-only simulation of a hypothetical approved release.
             yield
 
     def test_prepare_is_offline_and_enforces_explicit_fields(self):
@@ -169,6 +170,14 @@ class ManualOrderTests(unittest.TestCase):
         broker.assert_not_called()
         with patch('os.path.ismount', return_value=False):
             self.assertFalse(self.orders.status()['durable_journal'])
+
+
+    def test_actual_release_gate_blocks_broker_even_when_armed(self):
+        ticket = self.prepare()
+        with patch.dict(os.environ, {'LIVE_ARMED': '1', 'LIVE_DRY_RUN': '0', 'HSI_ORDER_KILL': '0'}), patch('os.path.ismount', return_value=True), patch.object(self.orders, 'broker') as broker:
+            with self.assertRaisesRegex(ValueError, 'LIVE_BLOCKED'):
+                self.orders.submit({**ticket, 'confirm_live_order': True})
+            broker.assert_not_called()
 
     def test_signer_matches_known_vector_and_rejects_other_hosts(self):
         with patch('time.time', return_value=1700000000), patch('urllib.request.build_opener') as opener:
