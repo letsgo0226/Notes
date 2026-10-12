@@ -67,7 +67,7 @@ def init_db(db_path):
     return connection
 
 
-def step(connection, source_path):
+def step(connection, source_path, triple=None):
     residuals, source_status, source_digest = load_source(source_path)
     score = dirichlet(residuals)
     now = dt.datetime.now(dt.timezone.utc).isoformat()
@@ -77,11 +77,14 @@ def step(connection, source_path):
                            "score_imag=? WHERE id=1",
                            (now, source_status, source_digest, score.real, score.imag))
         ticks = connection.execute("SELECT ticks FROM heartbeat WHERE id=1").fetchone()[0]
-    return {"protocol": "HSI-PLEIADIAN-BLUE-DAEMON/1.0", "ticks": ticks,
+    result = {"protocol": "HSI-PLEIADIAN-BLUE-DAEMON/1.0", "ticks": ticks,
             "observed_at": now, "source_status": source_status,
             "source_sha256": source_digest, "dirichlet_real": score.real,
             "dirichlet_imag": score.imag, "online_fetches": 0,
             "model_calls": 0, "orders": 0, "autonomous_changes": 0}
+    if triple is not None:
+        result["triple_kernel"] = triple
+    return result
 
 
 def atomic_json(path, obj):
@@ -93,12 +96,18 @@ def atomic_json(path, obj):
 
 
 def serve(db_path, status_path, source_path, interval, max_ticks,
-          reload_every=60):
+          reload_every=60, triple_every=0, triple_p=1829, triple_bits="1", triple_steps=8):
     global STOP
     if not (0 < interval <= 60):
         raise ValueError("interval must be in (0,60]")
     if max_ticks < 0 or max_ticks > 1000000:
         raise ValueError("max_ticks must be 0..1000000")
+    if not (0 <= triple_every <= 86400):
+        raise ValueError("triple_every must be 0..86400")
+    if not (0 <= triple_p <= 100000 and 0 <= triple_steps <= 256):
+        raise ValueError("triple parameters out of bounds")
+    if len(triple_bits) > 128 or any(b not in "01" for b in triple_bits):
+        raise ValueError("triple_bits must be binary and <=128 bits")
     if reload_every < 1 or reload_every > 86400:
         raise ValueError("reload_every must be 1..86400")
     # Only one instance may own this database. SQLite BEGIN EXCLUSIVE does not
@@ -114,6 +123,7 @@ def serve(db_path, status_path, source_path, interval, max_ticks,
         with init_db(db_path) as connection:
             start = time.monotonic()
             cached = None
+            triple_receipt = None
             for index in range(max_ticks if max_ticks else 10**18):
                 if STOP:
                     break
@@ -127,7 +137,16 @@ def serve(db_path, status_path, source_path, interval, max_ticks,
                     break
                 if index % reload_every == 0 or cached is None:
                     cached = source_path if source_path and source_path.is_file() else None
-                receipt = step(connection, cached)
+                if triple_every and index % triple_every == 0:
+                    from pleiadian_blue.cross_kernel import compare
+                    try:
+                        checked = compare(triple_p, triple_bits, triple_steps)
+                        triple_receipt = {"status": "FINITE_VERIFIED", **checked,
+                                          "checked_at": dt.datetime.now(dt.timezone.utc).isoformat()}
+                    except Exception as exc:
+                        triple_receipt = {"status": "FAILED", "error_type": type(exc).__name__,
+                                          "checked_at": dt.datetime.now(dt.timezone.utc).isoformat()}
+                receipt = step(connection, cached, triple_receipt if triple_every else None)
                 receipt["interval_requested_seconds"] = interval
                 atomic_json(status_path, receipt)
                 print(json.dumps({"ticks": receipt["ticks"],
@@ -151,11 +170,17 @@ def main():
     parser.add_argument("--max-ticks", type=int, default=0,
                         help="0 = continuous until stopped")
     parser.add_argument("--reload-every", type=int, default=60)
+    parser.add_argument("--triple-every", type=int, default=0,
+                        help="0=disabled; otherwise verify finite triple semantics every N ticks")
+    parser.add_argument("--triple-p", type=int, default=1829)
+    parser.add_argument("--triple-bits", default="1")
+    parser.add_argument("--triple-steps", type=int, default=8)
     args = parser.parse_args()
     signal.signal(signal.SIGTERM, _stop)
     signal.signal(signal.SIGINT, _stop)
     serve(args.db, args.status, args.source, args.interval,
-          args.max_ticks, args.reload_every)
+          args.max_ticks, args.reload_every, args.triple_every,
+          args.triple_p, args.triple_bits, args.triple_steps)
 
 
 if __name__ == "__main__":
