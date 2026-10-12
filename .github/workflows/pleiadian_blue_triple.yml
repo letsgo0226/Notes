@@ -1,0 +1,31 @@
+name: Pleiadian Blue integrated triple heartbeat
+on:
+  pull_request:
+    paths:
+      - 'pleiadian_blue/daemon.py'
+      - 'pleiadian_blue/test_triple_daemon.py'
+      - '.github/workflows/pleiadian_blue_triple.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  finite-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python3 -m unittest discover -s pleiadian_blue -p 'test_triple_daemon.py' -v
+      - name: Verify bounded one-second triple heartbeat
+        run: |
+          python3 -m pleiadian_blue.daemon --db "$RUNNER_TEMP/triple.sqlite3" --status "$RUNNER_TEMP/triple.json" --interval 1 --max-ticks 3 --triple-every 1 --triple-p 1829 --triple-bits 1 --triple-steps 8
+          python3 -c 'import json,sys; x=json.load(open(sys.argv[1])); assert x["ticks"]==3 and x["triple_kernel"]["status"]=="FINITE_VERIFIED" and x["orders"]==0' "$RUNNER_TEMP/triple.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bounded-triple-daemon-status
+          path: ${{ runner.temp }}/triple.json
+          retention-days: 7
