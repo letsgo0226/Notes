@@ -23,6 +23,9 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+      - name: Build isolated Docker image used by Railway (no trade sources)
+        run: |
+          docker build --file Dockerfile.cosmic-love --tag cosmic-love-ci:local .
       - name: Check the exact user-supplied program decoding and cycle
         run: |
           python3 hsi_cosmic_love.py
