@@ -89,7 +89,7 @@ def main():
     p.add_argument("--ledger-file", type=Path,
                    help="optional offline fill fixture; not broker-verified")
     args = p.parse_args()
-    report = review_report(a.ledger_file)
+    report = review_report(args.ledger_file)
     output = json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
