@@ -125,3 +125,15 @@ jobs:
           assert r['live_trading_authorized'] is False
           print('PACKAGED_CANARY_PROBE_VERIFIED')
           PY
+      - name: Verify formal zero-point field evaluator boundaries
+        run: |
+          python3 -m unittest cosmic_love.test_zero_point_field -v
+          python3 -m py_compile cosmic_love/zero_point_field.py
+          python3 - <<'PY'
+          from cosmic_love.zero_point_field import zpf
+          r=zpf({'s':[0.5,14.134725],'dirichlet':[[1,1]],'zeros':[[0.5,14.134725]]})
+          assert r['energy_dimensionless'] == 0.0
+          assert r['physical_energy_claim'] is False
+          assert r['orders_submitted'] == 0
+          print('FORMAL_ZPF_BOUNDARY_VERIFIED')
+          PY
