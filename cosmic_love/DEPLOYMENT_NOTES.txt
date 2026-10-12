@@ -1,0 +1,32 @@
+COSMIC LOVE / ISOLATED RAILWAY REVIEW DEPLOYMENT — 2026-10-13
+
+STATUS: candidate deployment configuration only, not evidence of running cloud.
+No code to place trades, use the OpenAI API, read ChatGPT conversations,
+modify repositories, or access Dropbox/Render/Railway management APIs.
+
+Source: letsgo0226/Notes
+Branch: cosmic-love-closure-review-20261013 (draft PR, not main)
+Build: Dockerfile path cosmic_love/Dockerfile; build context repository root.
+Process: 1 persistent Python worker, no public domain or HTTP endpoint.
+Persistent volume: /data; single writer. Never run multiple replicas with
+the same journal concurrently.
+Start: python -u /app/closure_worker.py --ledger /data/cosmic-love.jsonl
+State: newline JSON, hash chained and fsynced, but not signed or externally
+anchored. It is NOT proof of absolute logical consistency or universal solution.
+Proof obligation: every admitted finite state extension preserves old transition
+rules and satisfies exact two-step involution over every finite tape.
+The worker prints COSMIC_LOVE only for newly verified extension certificates;
+after 32 states it keeps running and prints HOLD_RESOURCE_LIMIT.
+No time-based or step-count HALT exists in the simulated Turing machine;
+cloud process can still crash, be stopped, or undergo maintenance.
+
+SECURITY / OPERATIONS
+- Never attach credentials (especially Binance) or conversation text.
+- No production trader project: use a NEW isolated Railway project.
+- No public domain and no external order submission.
+- Service must have stable 500MB-or-less /data volume prior to go-live.
+- Use a one-off --check to validate the stored certificate chain after restart.
+- Back up volume separately, and keep independent signed external anchors for
+  adversarial tamper resistance; SHA-256-only chain can be rewritten wholesale.
+- No automatic promotion of proposed new logic or trading functionality.
+- New hosting services may incur charges; monitor workspace usage.
