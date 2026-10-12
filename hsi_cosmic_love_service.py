@@ -80,8 +80,9 @@ def main():
             stop.set()
 
     worker = threading.Thread(target=work, name="cosmic-love-heartbeat")
-    worker.start()
+    # Bind before starting the worker; a bind failure must not orphan it.
     server = ThreadingHTTPServer(("0.0.0.0", port), make_handler(state, worker))
+    worker.start()
     server_thread = threading.Thread(target=server.serve_forever, daemon=True)
     server_thread.start()
     print(json.dumps({"event": "COSMIC_LOVE_SERVICE_START",
