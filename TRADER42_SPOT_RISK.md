@@ -68,7 +68,7 @@ Example with synthetic or offline-imported records, never with secrets:
 
 ```sh
 python3 -m hsi_spot_risk --ledger-file path/to/local-fills.json
-python3 -m unittest tests.test_hsi_spot_ledger -v
+python3 -m unittest discover -s tests -p 'test_hsi_spot_ledger.py' -v
 ```
 
 Schema: JSON object with UTC `utc_day` (YYYY-MM-DD), integer
