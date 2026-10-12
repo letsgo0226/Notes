@@ -144,9 +144,9 @@ class BinanceSignedReadAuditTests(unittest.TestCase):
                 self.assertEqual(order.history_audit(payload)["reason"], "UNSAFE_DEPLOYMENT_CONFIGURATION")
                 broker.assert_not_called()
             with patch.dict(os.environ, {"LIVE_ARMED":"0", "LIVE_DRY_RUN":"1",
-                "HSI_ORDER_KILL":"1","HSI_READONLY_HISTORY_AUDIT_ENABLED":"1"}), patch.object(order,"broker",side_effect=response()) as broker:
+                "HSI_ORDER_KILL":"1","HSI_READONLY_HISTORY_AUDIT_ENABLED":"1"}), patch("hsi_binance_readonly_audit.time.time", return_value=NOW / 1000), patch.object(order,"broker",side_effect=response()) as broker:
                 outcome=order.history_audit(payload)
-                self.assertEqual(outcome["status"], "UNKNOWN_FAIL_CLOSED" if outcome["status"] != "READ_ONLY_SNAPSHOT_UNVERIFIED" else "READ_ONLY_SNAPSHOT_UNVERIFIED")
+                self.assertEqual(outcome["status"], "READ_ONLY_SNAPSHOT_UNVERIFIED")
                 self.assertEqual(broker.call_count, 4)
             with self.assertRaises(ValueError):
                 order.history_audit({"notes_manifest_sha256":"wrong","acknowledge_read_only":True})
