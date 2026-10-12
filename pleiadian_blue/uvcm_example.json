@@ -1,0 +1,16 @@
+{
+  "start": "q0",
+  "halt": "HALT",
+  "transitions": {
+    "q0:0": [
+      1,
+      1,
+      "HALT"
+    ],
+    "q0:1": [
+      0,
+      -1,
+      "HALT"
+    ]
+  }
+}
