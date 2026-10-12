@@ -161,10 +161,10 @@ def validate_target(name,root):
         sys.path.insert(0,str(root))
         try:
             from hsi_notes_review import audit
-            from hsi_notes_domains import make_plan
+            from hsi_notes_domains import make_plan, EXPECTED_SOURCES
             lock=json.loads(read("hsi_notes_review.lock.json"))
             plan=make_plan(root,lock)
-            checks["complete_notes_inventory"]=plan["source_count"]==16
+            checks["complete_notes_inventory"]=plan["source_count"]==EXPECTED_SOURCES
             checks["bundle_hashes"]=all(sha256_bytes((root/r["path"]).read_bytes())==r["sha256"] for r in _bundle["files"])
         finally:
             sys.path.pop(0)

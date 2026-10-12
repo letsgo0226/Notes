@@ -43,7 +43,7 @@ class BootstrapTests(unittest.TestCase):
         self.assertTrue(all(validate_target('self', ROOT).values()))
         after = {p.relative_to(ROOT).as_posix(): p.read_bytes() for p in (ROOT / 'Notes').rglob('*') if p.is_file()}
         self.assertEqual(before, after)
-        self.assertEqual(len(after), 16)
+        self.assertEqual(len(after), 22)
 
 
 if __name__ == '__main__':

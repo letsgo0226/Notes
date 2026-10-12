@@ -24,6 +24,36 @@
       "sha256": "84f761ab888ff24e422f1a82a472d76525a32d93fce85aecac5fd700f081a1f5"
     },
     {
+      "path": "Notes/Dolphin_Logos_Riemann_Feedback/README.md",
+      "bytes": 5483,
+      "sha256": "efc6a6937b82162fc0c225a4313f8807793ec320994cbb9fed25df660197370d"
+    },
+    {
+      "path": "Notes/Dolphin_Logos_Riemann_Feedback/dolphin_logos.py",
+      "bytes": 24230,
+      "sha256": "920913f0c393fe6e9ca4d360b6cd61b6683ba8cf0666ba6810de4cad0fa859de"
+    },
+    {
+      "path": "Notes/Dolphin_Logos_Riemann_Feedback/source_config.json",
+      "bytes": 1544,
+      "sha256": "9c48f6bcc5d8220eb694d850ee7ac8b098cb9214f0d0e898b7f37cea596b917d"
+    },
+    {
+      "path": "Notes/Dolphin_Logos_Riemann_Feedback/sources.py",
+      "bytes": 7985,
+      "sha256": "c2fdc5e5037994ff02b65c493b69e8e7a91337763722d9c36502eee4fa944ebd"
+    },
+    {
+      "path": "Notes/Dolphin_Logos_Riemann_Feedback/verification_certificate.json",
+      "bytes": 1184,
+      "sha256": "d5d8602ea4bd046496ba43392ff123e5122d58b64e08b54e1e42a0832bea592b"
+    },
+    {
+      "path": "Notes/Dolphin_Logos_Riemann_Feedback/verify_feedback.py",
+      "bytes": 4746,
+      "sha256": "0de78c40061828f72b80e1102c465698b83ebc2141a01b394c4b24a32ce09813"
+    },
+    {
       "path": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_POSIX_2KB_OneLiner.sh",
       "bytes": 2043,
       "sha256": "679f8118985635ea7eeb963ac92839acd4c97a4d3ada5607339aa2766c189e7d"
@@ -105,8 +135,8 @@
     },
     {
       "path": "hsi_deploy.py",
-      "bytes": 21821,
-      "sha256": "4ccc5e602def18dd516c9cefc202d72f73026f3e1fb9e7d57561bbb18ca04721"
+      "bytes": 21853,
+      "sha256": "1d56a0fa24f6a20e65d84c80d6e65ec67f40dcaacb05de89016bd8d72e84132d"
     },
     {
       "path": "hsi_native_renderer.py",
@@ -120,13 +150,13 @@
     },
     {
       "path": "hsi_notes_domains.py",
-      "bytes": 7166,
-      "sha256": "a1d8b127d744ebb25fdbea14d13fd6d95e1fae9e363f71861ced8a65ce505d51"
+      "bytes": 7183,
+      "sha256": "886fa9fbea6627baa98b8c1fa629e77b7b70b57295af402e6e1d01d14f50d909"
     },
     {
       "path": "hsi_notes_review.lock.json",
-      "bytes": 2912,
-      "sha256": "321c49ba14e3fac8a28c0392c0794f16f8719ec46e780fc29fcb8380ad1b3d44"
+      "bytes": 3943,
+      "sha256": "3f553da2e0ce199f5bfc018b5b570875c9bfafcbd74658da166369b5f7f176be"
     },
     {
       "path": "hsi_notes_review.py",
@@ -150,8 +180,8 @@
     },
     {
       "path": "hsi_notes_validate.py",
-      "bytes": 16070,
-      "sha256": "667a6368341a3ead8831c6b143826c80d81026116fd72725d4a7b8226207211e"
+      "bytes": 16091,
+      "sha256": "4436e547505e44f8059bc8493f254674c50c5670c2b24b171404964693b3e551"
     },
     {
       "path": "hsi_open_corpus.py",

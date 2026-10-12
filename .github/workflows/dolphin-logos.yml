@@ -1,0 +1,102 @@
+name: Dolphin-Logos local AI feedback
+on:
+  pull_request:
+    paths:
+      - 'Notes/Dolphin_Logos_Riemann_Feedback/**'
+      - 'tests/test_dolphin_logos.py'
+      - '.github/workflows/dolphin-logos.yml'
+  push:
+    branches: [main, 'hsi/dolphin-logos-feedback']
+    paths:
+      - 'Notes/Dolphin_Logos_Riemann_Feedback/**'
+      - 'tests/test_dolphin_logos.py'
+      - '.github/workflows/dolphin-logos.yml'
+  schedule:
+    - cron: '17 11 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dolphin-logos
+  cancel-in-progress: false
+jobs:
+  offline-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python3 -m unittest discover -s tests -p 'test_dolphin_logos.py' -v
+  reflection:
+    needs: offline-tests
+    if: ${{ vars.DOLPHIN_LOGOS_ENABLED != 'false' && (github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: write
+    env:
+      OLLAMA_MODELS: ${{ runner.temp }}/dolphin-models
+      OLLAMA_HOST: '127.0.0.1:11434'
+      OLLAMA_NO_CLOUD: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python3 -m pip install yt-dlp==2026.8.19
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ${{ runner.temp }}/dolphin-models
+            ${{ runner.temp }}/dolphin-ollama
+          key: dolphin-ollama-0.40.3-qwen3-4b-v1
+      - name: Install pinned local runtime
+        run: |
+          if [ ! -x "$RUNNER_TEMP/dolphin-ollama/bin/ollama" ]; then
+            mkdir -p "$RUNNER_TEMP/dolphin-ollama"
+            curl -fsSL --retry 2 https://github.com/ollama/ollama/releases/download/v0.40.3/ollama-linux-amd64.tar.zst -o "$RUNNER_TEMP/ollama.tar.zst"
+            tar --zstd -xf "$RUNNER_TEMP/ollama.tar.zst" -C "$RUNNER_TEMP/dolphin-ollama" --exclude='lib/ollama/cuda*' --exclude='lib/ollama/vulkan*' --exclude='lib/ollama/rocm*'
+          fi
+          echo "$RUNNER_TEMP/dolphin-ollama/bin" >> "$GITHUB_PATH"
+      - name: Run one real AI reflection round
+        run: |
+          ollama serve > "$RUNNER_TEMP/ollama-serve.log" 2>&1 &
+          DOLPHIN_OLLAMA_PID=$!
+          trap 'kill "$DOLPHIN_OLLAMA_PID" 2>/dev/null || true' EXIT
+          python3 - <<'PY'
+          import time, urllib.request
+          for _ in range(30):
+              try:
+                  urllib.request.urlopen('http://127.0.0.1:11434/api/version', timeout=2)
+                  break
+              except Exception:
+                  time.sleep(1)
+          else:
+              raise SystemExit('LOCAL_MODEL_SERVER_UNAVAILABLE')
+          PY
+          ollama pull qwen3:4b
+          python3 Notes/Dolphin_Logos_Riemann_Feedback/dolphin_logos.py --sync
+          python3 Notes/Dolphin_Logos_Riemann_Feedback/dolphin_logos.py --run --rounds 1
+          python3 Notes/Dolphin_Logos_Riemann_Feedback/verify_feedback.py books/dolphin-logos
+      - name: Preserve completed rounds and failed-attempt ledger
+        if: ${{ always() && github.ref == 'refs/heads/main' }}
+        run: |
+          if [ ! -f books/dolphin-logos/state.json ]; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add books/dolphin-logos/
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'docs: record bounded Dolphin-Logos reflection'
+          git pull --rebase origin main
+          git push origin HEAD:main
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dolphin-logos-journal
+          path: books/dolphin-logos/
+          retention-days: 14

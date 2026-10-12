@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 from hsi_notes_review import git_blob_sha1
-from hsi_notes_domains import DOCUMENT_RULES, ReviewError, make_plan
+from hsi_notes_domains import DOCUMENT_RULES, EXPECTED_SOURCES, ReviewError, make_plan
 
 
 class DomainPlanTests(unittest.TestCase):
@@ -19,6 +19,8 @@ class DomainPlanTests(unittest.TestCase):
             samples[f'Notes/HSI_Prime_Analytic_2KB_Release/reference{i}'] = f'audit-{i}\n'.encode()
         for i in range(4):
             samples[f'Notes/HSI_Sub2K_Program_Synthesizer/reference{i}'] = f'synth-audit-{i}\n'.encode()
+        for i in range(EXPECTED_SOURCES - 16):
+            samples[f'Notes/Dolphin_Logos_Riemann_Feedback/reference{i}'] = f'feedback-audit-{i}\n'.encode()
         for path, raw in samples.items():
             dest = self.root / path
             dest.parent.mkdir(exist_ok=True, parents=True)
@@ -30,13 +32,13 @@ class DomainPlanTests(unittest.TestCase):
         b = make_plan(self.root, self.lock)
         self.assertEqual(a, b)
         self.assertEqual(a['plan_status'], 'READY_FOR_HUMAN_REVIEW_NOT_DEPLOYED')
-        self.assertEqual(a['source_count'], 16)
+        self.assertEqual(a['source_count'], EXPECTED_SOURCES)
         self.assertEqual(len(a['documents']), 4)
 
-    def test_four_documents_twelve_reference_sources(self):
+    def test_four_documents_and_locked_reference_sources(self):
         a = make_plan(self.root, self.lock)
         self.assertEqual(sum(x['role'] == 'concept_source' for x in a['all_source_files']), 4)
-        self.assertEqual(sum(x['role'] == 'reference_and_audit_source' for x in a['all_source_files']), 12)
+        self.assertEqual(sum(x['role'] == 'reference_and_audit_source' for x in a['all_source_files']), EXPECTED_SOURCES - 4)
 
     def test_all_domains_remain_unexecuted(self):
         a = make_plan(self.root, self.lock)

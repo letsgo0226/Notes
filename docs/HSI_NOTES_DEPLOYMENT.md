@@ -1,6 +1,6 @@
 # Notes-bound deployment
 
-Music, UTM, Trader_42 and Omega use the complete 16-file `Notes/` snapshot.
+Music, UTM, Trader_42 and Omega use the complete 22-file `Notes/` snapshot.
 The source inventory digest is emitted by `hsi_notes_domains.py` and is checked
 against the current locked inventory during build and startup.
 Source files remain unchanged. The declared creative mappings are analogies;
