@@ -1,0 +1,27 @@
+name: HSI-UVCM finite correspondence verification
+on:
+  pull_request:
+    paths:
+      - 'pleiadian_blue/uvcm.py'
+      - 'pleiadian_blue/test_uvcm.py'
+      - 'pleiadian_blue/uvcm_example.json'
+      - '.github/workflows/uvcm_verify.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python3 -m unittest discover -s pleiadian_blue -p 'test_uvcm.py' -v
+      - name: Run and resume finite checkpoint
+        run: |
+          python3 pleiadian_blue/uvcm.py --spec pleiadian_blue/uvcm_example.json --checkpoint "$RUNNER_TEMP/uvcm.json" --steps 1
+          python3 pleiadian_blue/uvcm.py --checkpoint "$RUNNER_TEMP/uvcm.json" --resume --steps 2
