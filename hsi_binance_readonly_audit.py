@@ -7,12 +7,11 @@ No fill history or balances are returned to the caller. Synthetic tests only.
 """
 from datetime import datetime, timezone
 from decimal import Decimal
-import hashlib
-import json
 import re
 import time
 
 from hsi_spot_risk import MAX_DAILY_REALIZED_LOSS_USDT
+from hsi_spot_trade_digest import PROTOCOL as DIGEST_PROTOCOL, normalized_trade, digest_trades
 
 PROTOCOL = "HSI-TRADER42-BINANCE-READONLY-AUDIT/1"
 SYMBOL = "BTCUSDT"
@@ -152,14 +151,15 @@ def read_only_audit(broker, *, enabled=False, now_ms=None):
                 raise ReviewFailure("INCONSISTENT_QUOTE_QUANTITY")
             side = "BUY" if row["isBuyer"] else "SELL"
             side_counts[side] += 1
-            digest_rows.append([id_, timestamp, side, str(qty), str(price), str(quote), str(fee), asset])
-        proof = hashlib.sha256(json.dumps(digest_rows, separators=(",", ":")).encode()).hexdigest()
+            digest_rows.append(normalized_trade(id_, timestamp, side, qty, price, fee, asset))
+        proof = digest_trades(digest_rows)
         return {
             "protocol": PROTOCOL, "status": "READ_ONLY_SNAPSHOT_UNVERIFIED",
             "symbol": SYMBOL, "utc_day": datetime.fromtimestamp(midnight / 1000, timezone.utc).date().isoformat(),
             "snapshot_ms": now_ms, "trade_count": len(trades),
             "buy_fill_count": side_counts["BUY"], "sell_fill_count": side_counts["SELL"],
             "trade_fingerprint_sha256": proof,
+            "trade_fingerprint_scheme": DIGEST_PROTOCOL,
             "api_spot_trading_enabled": trading_permission,
             "account_can_trade": account["canTrade"],
             "btc_inventory_present": btc_nonzero,
