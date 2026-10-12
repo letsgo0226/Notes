@@ -6,7 +6,7 @@ No order creation, order testing, cancel, persistence or live authorization.
 No fill history or balances are returned to the caller. Synthetic tests only.
 """
 from datetime import datetime, timezone
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 import hashlib
 import json
 import re
@@ -18,8 +18,7 @@ PROTOCOL = "HSI-TRADER42-BINANCE-READONLY-AUDIT/1"
 SYMBOL = "BTCUSDT"
 MAX_TRADES = 1000
 MILLISECONDS_DAY = 86400000
-MAX_CLOCK_SKEW_MS = 60000
-_DECIMAL = re.compile(r"[0-9]+(?:\\.[0-9]+)?\\Z")
+_DECIMAL = re.compile(r"[0-9]+(?:\.[0-9]+)?\Z")
 
 
 class ReviewFailure(ValueError):
