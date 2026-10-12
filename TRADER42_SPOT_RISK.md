@@ -88,7 +88,7 @@ with the exchange before a separate operator-approved implementation
 could ever rely on a daily loss gate. There is no such verified
 implementation or live activation in this PR.
 
-The strict Notes inventory lock now lists all 28 reviewed source files.
+The strict Notes inventory lock now lists all 32 reviewed source files (including four existing COSMIC_LOVE oscillator sources from main).
 CI verifies that inventory, and the runtime bundle pins file hashes.
 Any later addition or modification must update the appropriate reviewed
 lock; do **not** bypass either verification before promotion.
