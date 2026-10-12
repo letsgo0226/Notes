@@ -1,0 +1,48 @@
+name: Pleiadian Blue — bounded one-second daemon
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'pleiadian_blue/daemon.py'
+      - 'pleiadian_blue/test_daemon.py'
+      - 'pleiadian_blue/DAEMON.md'
+      - '.github/workflows/pleiadian_blue_daemon.yml'
+  # Periodic finite online verification, not a continuous GitHub-hosted service.
+  schedule:
+    - cron: '43 12 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: pleiadian-blue-daemon-smoke
+  cancel-in-progress: false
+jobs:
+  bounded-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Offline heartbeat unit tests
+        run: python3 -m unittest discover -s pleiadian_blue -p 'test_daemon.py' -v
+      - name: Create finite observation without network
+        run: python3 pleiadian_blue/agent.py --offline --out "$RUNNER_TEMP/blue-observation"
+      - name: Real one-second cadence on ephemeral GitHub runner (3 ticks)
+        run: |
+          python3 pleiadian_blue/daemon.py \
+            --db "$RUNNER_TEMP/blue-state.sqlite3" \
+            --status "$RUNNER_TEMP/blue-status.json" \
+            --source "$RUNNER_TEMP/blue-observation/receipt.json" \
+            --interval 1 --max-ticks 3
+          python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); assert d["ticks"]==3 and d["orders"]==0 and d["model_calls"]==0 and d["source_status"]=="LOCAL_EVIDENCE_ONLY"' "$RUNNER_TEMP/blue-status.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pleiadian-blue-daemon-smoke
+          path: |
+            ${{ runner.temp }}/blue-status.json
+            ${{ runner.temp }}/blue-observation/receipt.json
+          retention-days: 7
+          if-no-files-found: error
