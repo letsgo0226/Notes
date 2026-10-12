@@ -1,0 +1,27 @@
+name: Cosmic zero field finite math smoke
+on:
+  pull_request:
+    paths:
+      - 'zero_field/**'
+      - 'Dockerfile'
+      - '.github/workflows/cosmic_zero_field_math_ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  zero-field-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Finite field model and read-only API tests
+        run: python -m unittest discover -s zero_field -p 'test_*.py' -v
+      - name: Real Docker build and internal self-test
+        run: |
+          docker build -t cosmic-zero-field:ci .
+          docker run --rm --entrypoint python cosmic-zero-field:ci -c "from zero_field.model import evaluate; assert abs(evaluate(2,0)['field']['re']-1)<1e-12; assert evaluate(.5,14.134725141734693)['energy_proxy']<1e-20; print('ZERO_FIELD_MATH_IMAGE_VERIFIED')"
