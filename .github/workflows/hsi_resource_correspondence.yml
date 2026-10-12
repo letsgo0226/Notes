@@ -1,0 +1,28 @@
+name: HSI finite host resource correspondence
+on:
+  pull_request:
+    paths:
+      - 'pleiadian_blue/resource_correspondence.py'
+      - 'pleiadian_blue/test_resource_correspondence.py'
+      - '.github/workflows/hsi_resource_correspondence.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python3 -m unittest discover -s pleiadian_blue -p test_resource_correspondence.py -v
+      - run: python3 -m pleiadian_blue.resource_correspondence --output "$RUNNER_TEMP/resource.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: finite-host-resource-observation
+          path: ${{ runner.temp }}/resource.json
+          retention-days: 7
