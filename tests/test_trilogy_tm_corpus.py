@@ -27,7 +27,12 @@ class TMWriterTests(unittest.TestCase):
             one=m.build(offline=True,output=target)
             self.assertEqual(one["model_calls"],0)
             self.assertEqual(one["web_research"]["status"],"OFFLINE")
-            self.assertEqual(len(m.load_state(target)["completed"]),1)
+            first_state=m.load_state(target)
+            self.assertEqual(len(first_state["completed"]),1)
+            dossier=(target/first_state["completed"][0]["folder"]/
+                     "dossier.md").read_text(encoding="utf-8")
+            self.assertIn("全部 16 個檔案",dossier)
+            self.assertIn("全部 16 份來源",dossier)
             two=m.build(offline=True,output=target)
             self.assertNotEqual((one["book"],one["chapter"]),(two["book"],two["chapter"]))
             self.assertEqual(len(m.load_state(target)["completed"]),2)
