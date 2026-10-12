@@ -13,7 +13,7 @@ from pathlib import Path
 from hsi_notes_review import audit
 
 PROTOCOL = 'HSI-NOTES-DOMAIN-PLAN/0.1'
-EXPECTED_SOURCES = 32
+EXPECTED_SOURCES = 34
 # Mapping is a declared editorial interpretation, not a mathematical deduction.
 DOCUMENT_RULES = (
     ('Notes/1', 'prime', ('質數公式', 'Prime Formula'), ('prime', 'pulse', 'counterpoint')),

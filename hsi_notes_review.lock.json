@@ -2,7 +2,7 @@
   "protocol": "HSI-NOTES-FOUR-SYSTEM-REVIEW/0.1",
   "source_repo": "letsgo0226/Notes",
   "source_ref": "main",
-  "source_commit": "72b79fd4683538e04b72ef4851fe5683f8f13218",
+  "source_commit": "1555333581b12dd7beb46eaa97d30a1c930ee913",
   "snapshot_date": "2026-10-13",
   "entries": [
     {
@@ -26,14 +26,14 @@
       "git_blob_sha1": "f51c80a27404426ab8c85d3ca414a5d248e1e9ef"
     },
     {
+      "path": "Notes/5",
+      "bytes": 3642,
+      "git_blob_sha1": "a096d82f67a341385dd83cb35c34acc9153bb7b6"
+    },
+    {
       "path": "Notes/COSMIC_LOVE_Oscillator_TM/.gitignore",
       "bytes": 28,
       "git_blob_sha1": "96ee521af7e57cd95c51d3fb9fd3813309125e0e"
-    },
-    {
-      "path": "Notes/COSMIC_LOVE_Oscillator_TM/README.md",
-      "bytes": 1158,
-      "git_blob_sha1": "8d0a949ec7baae60b023582cbee69d38402b3f63"
     },
     {
       "path": "Notes/COSMIC_LOVE_Oscillator_TM/cosmic_love_oscillator_daemon.sh",
@@ -46,14 +46,24 @@
       "git_blob_sha1": "982231f6ec3330c2f3672c565eda6a5e7b7e5396"
     },
     {
-      "path": "Notes/Dolphin_Logos_Riemann_Feedback/README.md",
-      "bytes": 5483,
-      "git_blob_sha1": "9958e665e38e4075ad60410292f10c6de0d9cdb1"
+      "path": "Notes/COSMIC_LOVE_Oscillator_TM/README.md",
+      "bytes": 1158,
+      "git_blob_sha1": "8d0a949ec7baae60b023582cbee69d38402b3f63"
+    },
+    {
+      "path": "Notes/COSMIC_LOVE_ZERO_POINT_FIELD_EXPLANATION_20261013.md",
+      "bytes": 12462,
+      "git_blob_sha1": "3369e168939fd2a9bde08e26badc3216eef03e31"
     },
     {
       "path": "Notes/Dolphin_Logos_Riemann_Feedback/dolphin_logos.py",
       "bytes": 24230,
       "git_blob_sha1": "2c668b250582a969950b975aad8490e26c629f23"
+    },
+    {
+      "path": "Notes/Dolphin_Logos_Riemann_Feedback/README.md",
+      "bytes": 5483,
+      "git_blob_sha1": "9958e665e38e4075ad60410292f10c6de0d9cdb1"
     },
     {
       "path": "Notes/Dolphin_Logos_Riemann_Feedback/source_config.json",
@@ -76,11 +86,6 @@
       "git_blob_sha1": "59e8abd14e2663f2d962bde2a0f6823fc0e390e2"
     },
     {
-      "path": "Notes/HSI_LogicTape_2KB_Release/README.md",
-      "bytes": 9711,
-      "git_blob_sha1": "0dcba584ebbed7128b672f8e4b06089c4f89a621"
-    },
-    {
       "path": "Notes/HSI_LogicTape_2KB_Release/core.py",
       "bytes": 1823,
       "git_blob_sha1": "ca6324bc406603c543ef2f394553b0e44e2e17fa"
@@ -89,6 +94,11 @@
       "path": "Notes/HSI_LogicTape_2KB_Release/hsi_logic_tape_2kb.sh",
       "bytes": 1929,
       "git_blob_sha1": "0f26ea12cb9d5875bc8a62c45a171cb36ab692f5"
+    },
+    {
+      "path": "Notes/HSI_LogicTape_2KB_Release/README.md",
+      "bytes": 9711,
+      "git_blob_sha1": "0dcba584ebbed7128b672f8e4b06089c4f89a621"
     },
     {
       "path": "Notes/HSI_LogicTape_2KB_Release/simulation_certificate.json",
@@ -106,11 +116,6 @@
       "git_blob_sha1": "343ad42aec098e7dede72fe9f4be0ae03bd4c422"
     },
     {
-      "path": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_POSIX_2KB_OneLiner.sh",
-      "bytes": 2043,
-      "git_blob_sha1": "0201324b31756ea3c800f29cc5f368a406892fb6"
-    },
-    {
       "path": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_2KB_OneLiner.sh",
       "bytes": 2027,
       "git_blob_sha1": "eac7a28f9d138d2c44a7550cb67130176ab7fbe9"
@@ -119,6 +124,11 @@
       "path": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_Core.py",
       "bytes": 1983,
       "git_blob_sha1": "ccce79783ab2bffe10292d7e6926fec48878badd"
+    },
+    {
+      "path": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_POSIX_2KB_OneLiner.sh",
+      "bytes": 2043,
+      "git_blob_sha1": "0201324b31756ea3c800f29cc5f368a406892fb6"
     },
     {
       "path": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_PRIME_ANALYTIC_PLAINTEXT_2KB_BILINGUAL_SPEC.txt",
@@ -146,14 +156,14 @@
       "git_blob_sha1": "ec3528c55c8a5c5dc0075eade392e0ada165105e"
     },
     {
-      "path": "Notes/HSI_Sub2K_Program_Synthesizer/README.md",
-      "bytes": 2507,
-      "git_blob_sha1": "5ffeb6a18ce0fb23d8bc88f538c67d102ef898ad"
-    },
-    {
       "path": "Notes/HSI_Sub2K_Program_Synthesizer/hsi_sub2k_synth.py",
       "bytes": 14114,
       "git_blob_sha1": "964c7e05daeecfa4d4fc7de53800afd7072a8621"
+    },
+    {
+      "path": "Notes/HSI_Sub2K_Program_Synthesizer/README.md",
+      "bytes": 2507,
+      "git_blob_sha1": "5ffeb6a18ce0fb23d8bc88f538c67d102ef898ad"
     },
     {
       "path": "Notes/HSI_Sub2K_Program_Synthesizer/verification_certificate.json",

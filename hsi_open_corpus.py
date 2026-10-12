@@ -9,7 +9,7 @@ CORRESPONDENCE_PROTOCOL="HSI-RC/1.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
 COSMIC_LOVE_TM_PROTOCOL="HSI-COSMIC-LOVE-TM/1.0"
 COSMIC_LOVE_TM_PROGRAM=55067263
-VERSION="1.9.2"
+VERSION="1.9.3"
 MIN_HSI_SEARCH_VERSION=(1,4,0)
 
 def _semver_tuple(v):
@@ -24,6 +24,8 @@ if _semver_tuple(HSI_SEARCH_VERSION) < MIN_HSI_SEARCH_VERSION:
         "Rerun the public launcher so both components are refreshed together."
         % (VERSION, HSI_SEARCH_VERSION)
     )
+from hsi_cosmic_zero_field import build_zero_field
+
 API=os.getenv("HSI_OPENVERSE_BASE","https://api.openverse.org/v1/audio/").rstrip("/")+"/"
 CACHE=Path(os.getenv("HSI_CORPUS_CACHE",str(Path.home()/".hsi-corpus"/"cache"))).expanduser()
 MAX_ITEMS=max(2,min(8,int(os.getenv("HSI_CORPUS_ITEMS","5"))))
@@ -419,11 +421,14 @@ def render(items,text,out,candidate_index=0):
             print("source-warning>",item.get("title") or item["openverse_id"],str(e),file=sys.stderr)
     if not decoded:raise SystemExit("no usable CC0/PDM WAV sources found")
     event_count=max(len(decoded)*2,5+rng.pick(7))+RENDER_POLICY["event_boost"]+int(tm_control.get("event_boost",0))
+    zero_control=build_zero_field(tm_control,event_count)
     for ei in range(event_count):
         item,audio,sr=decoded[rng.pick(len(decoded))]
         clock=cosmic_love_event_clock(tm_control,ei)
+        zero_event=zero_control["events"][ei] if zero_control.get("enabled") else None
         rate=.84+rng.unit()*.34
         if clock:rate=max(.80,min(1.22,rate+clock["direction"]*.0125))
+        if zero_event:rate=max(.80,min(1.22,rate+zero_event["rate_delta"]))
         shifted=resample(audio,sr,TARGET_SR,rate)
         frag_sec=1.5+rng.unit()*5.5
         frag_n=min(len(shifted),int(frag_sec*TARGET_SR))
@@ -432,8 +437,12 @@ def render(items,text,out,candidate_index=0):
         dst_start=rng.pick(max(1,total-frag_n))
         pan=rng.unit()*2-1
         if clock:pan=max(-1.0,min(1.0,pan+clock["direction"]*.075))
+        if zero_event:pan=max(-1.0,min(1.0,pan+zero_event["pan_delta"]))
         lg=math.sqrt((1-pan)*.5)*(.20+.20*rng.unit())*RENDER_POLICY["gain_scale"]
         rg=math.sqrt((1+pan)*.5)*(.20+.20*rng.unit())*RENDER_POLICY["gain_scale"]
+        if zero_event:
+            lg*=zero_event["gain_multiplier"]
+            rg*=zero_event["gain_multiplier"]
         fade=min(int(RENDER_POLICY["fade_ms"]*.001*TARGET_SR),frag_n//4)
         for j in range(frag_n):
             env=1.0
@@ -449,6 +458,7 @@ def render(items,text,out,candidate_index=0):
             "pan":round(pan,6),"left_gain":round(lg,6),"right_gain":round(rg,6)
         }
         if clock:event["cosmic_love_tm_clock"]=clock
+        if zero_event:event["zero_field"]=zero_event
         events.append(event)
     if not events:raise SystemExit("no render events")
     # finite traditional DSP: short feed-forward stereo delay.
@@ -457,7 +467,7 @@ def render(items,text,out,candidate_index=0):
         left[i]+=right[i-delay]*feedback
         right[i]+=left[i-delay]*feedback
     wav=out/"song.wav";write_wav(wav,left,right,TARGET_SR)
-    return wav,basis,seed_text,seconds,events,decoded,tm_control
+    return wav,basis,seed_text,seconds,events,decoded,tm_control,zero_control
 
 def write_e257(path,raw,chunk=512):
     ok=True;n=0
@@ -540,7 +550,7 @@ def main():
         try:candidate_index=max(0,int(json.loads(state_path.read_text(encoding="utf-8")).get("next_candidate",0)))
         except Exception:candidate_index=0
     while True:
-        wav,basis,render_seed_text,seconds,events,decoded,tm_control=render(items,text,out,candidate_index)
+        wav,basis,render_seed_text,seconds,events,decoded,tm_control,zero_control=render(items,text,out,candidate_index)
         features=audio_features(wav)
         residual,rc_terms,rc_closed=correspondence(features)
         effective_rc_closed=int((not RC_ENABLED) or rc_closed)
@@ -564,6 +574,7 @@ def main():
         "render_policy":RENDER_POLICY,
         "render_policy_uid":RENDER_POLICY_UID,
         "cosmic_love_tm":tm_control,
+        "cosmic_zero_field":zero_control,
         "terms":rc_terms,
         "residual":residual,
         "closed":effective_rc_closed,
@@ -581,6 +592,7 @@ def main():
         "render_policy":RENDER_POLICY,
         "render_policy_uid":RENDER_POLICY_UID,
         "cosmic_love_tm":tm_control,
+        "cosmic_zero_field":zero_control,
         "correspondence_protocol":CORRESPONDENCE_PROTOCOL,
         "sources":used,
         "license_filter":["cc0","pdm"],
@@ -622,6 +634,7 @@ def main():
             for x in used
         ),
         "cosmic_love_tm_verified":(not tm_control.get("enabled")) or bool(tm_control.get("verified")),
+        "cosmic_zero_field_verified":(not zero_control.get("enabled")) or bool(zero_control.get("verified")),
         "no_ai":True,
         "youtube_audio_unused":True
     }
@@ -651,7 +664,7 @@ def main():
         "notes_manifest_sha256":notes_plan["manifest_sha256"] if notes_plan else None,
         "notes_source_count":notes_plan["source_count"] if notes_plan else 0,
         "search_input":search_input,
-        "generation_input":"runtime-keywords-plus-candidate-index-plus-cosmic-love-tm-control",
+        "generation_input":"runtime-keywords-plus-candidate-index-plus-cosmic-love-tm-and-zero-field-control",
         "runtime_keywords_basis_e257":keyword_basis,
         "generation_basis_e257":basis,
         "generation_seed_text":render_seed_text,
@@ -660,6 +673,7 @@ def main():
         "render_policy":RENDER_POLICY,
         "render_policy_uid":RENDER_POLICY_UID,
         "cosmic_love_tm":tm_control,
+        "cosmic_zero_field":zero_control,
         "correspondence":rc_cert,
         "renderer":"open-corpus-retrieval-dsp",
         "hsi_search_version":HSI_SEARCH_VERSION,
@@ -705,7 +719,7 @@ def main():
     (out/"song.hsicert").write_text(canon(cert)+"\n",encoding="utf-8")
     files=["keywords.txt","search.hsicert","corpus.lock.json","events.json","correspondence.hsicert","song.wav","song.hsicert"]
     if E257_ENABLED:files.append("song.e257")
-    (out/"manifest.json").write_text(canon({"protocol":PROTOCOL,"output":str(out),"files":files,"closed":closed,"technical_closed":technical_closed,"correspondence_closed":effective_rc_closed,"rights_closed":rights_closed,"render_policy_uid":RENDER_POLICY_UID,"cosmic_love_tm_uid":tm_control.get("control_uid")})+"\n",encoding="utf-8")
+    (out/"manifest.json").write_text(canon({"protocol":PROTOCOL,"output":str(out),"files":files,"closed":closed,"technical_closed":technical_closed,"correspondence_closed":effective_rc_closed,"rights_closed":rights_closed,"render_policy_uid":RENDER_POLICY_UID,"cosmic_love_tm_uid":tm_control.get("control_uid"),"cosmic_zero_field_uid":zero_control.get("control_uid")})+"\n",encoding="utf-8")
     print("audio>",wav);print("sources>",len(provenance));print("events>",len(events))
     print("candidate_index>",candidate_index);print("E_half>",format(residual,".12g"))
     print("technical_closed>",technical_closed);print("correspondence_closed>",effective_rc_closed);print("rights_closed>",rights_closed)

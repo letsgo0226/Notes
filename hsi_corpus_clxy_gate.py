@@ -159,7 +159,7 @@ def artifact_witness(out,expected_policy=None):
     cert = load(out/"song.hsicert")
     rc = load(out/"correspondence.hsicert")
     manifest = load(out/"manifest.json")
-    require(cert["version"] in {"1.9.0", "1.9.1"}, "unexpected Open-Corpus version")
+    require(cert["version"] in {"1.9.0", "1.9.1", "1.9.2", "1.9.3"}, "unexpected Open-Corpus version")
     require(cert["closed"] == 1 and cert["technical_closed"] == 1
             and cert["correspondence_closed"] == 1 and manifest["closed"] == 1,
             "audio not technically and correspondentially closed")

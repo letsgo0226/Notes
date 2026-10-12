@@ -7,6 +7,8 @@ on:
       - "hsi-corpus.sh"
       - "hsi-corpus.ps1"
       - "hsi_open_corpus.py"
+      - "hsi_cosmic_zero_field.py"
+      - "tests/test_hsi_cosmic_zero_field.py"
       - "hsi_corpus_clxy_gate.py"
       - "hsi_corpus_autoevolve.py"
       - "hsi_render_policy.json"
@@ -20,6 +22,8 @@ on:
       - "hsi-corpus.sh"
       - "hsi-corpus.ps1"
       - "hsi_open_corpus.py"
+      - "hsi_cosmic_zero_field.py"
+      - "tests/test_hsi_cosmic_zero_field.py"
       - "hsi_corpus_clxy_gate.py"
       - "hsi_corpus_autoevolve.py"
       - "hsi_render_policy.json"
@@ -40,7 +44,8 @@ jobs:
         run: |
           set -eu
           sh -n hsi-corpus.sh
-          python3 -m py_compile hsi_net.py hsi_search.py hsi_open_corpus.py hsi_corpus_clxy_gate.py hsi_corpus_autoevolve.py
+          python3 -m py_compile hsi_net.py hsi_search.py hsi_open_corpus.py hsi_corpus_clxy_gate.py hsi_corpus_autoevolve.py hsi_cosmic_zero_field.py
+          python3 -m unittest discover -s tests -p "test_hsi_cosmic_zero_field.py" -q
           grep -q 'ai_model":False' hsi_open_corpus.py
           grep -q 'neural_renderer":False' hsi_open_corpus.py
           grep -q 'machine_learning":False' hsi_open_corpus.py
@@ -186,7 +191,7 @@ jobs:
           l=json.loads((p/"corpus.lock.json").read_text())
           sh=json.loads((p/"search.hsicert").read_text())
           assert c["protocol"]=="HSI-OPEN-CORPUS/1.0"
-          assert c["version"]=="1.9.1"
+          assert c["version"]=="1.9.3"
           assert c["hsi_search_version"]=="1.4.0"
           assert c["minimum_hsi_search_version"]=="1.4.0"
           assert c["closed"]==1 and c["technical_closed"]==1
