@@ -240,8 +240,8 @@
     },
     {
       "path": "hsi_open_corpus.py",
-      "bytes": 34715,
-      "sha256": "3e101bbbb8e4390b117fa9fe9cf0b1fcec0254a07a6f25c2738bcbbe4ab03ba6"
+      "bytes": 34716,
+      "sha256": "9e1bbba41f5f1fe373d33c5266f6d0a017e40ba895e83233a207bf913b7d0f77"
     },
     {
       "path": "hsi_render_policy.json",
