@@ -7,9 +7,9 @@ import unittest
 import trilogy_tm_corpus as m
 
 class TMWriterTests(unittest.TestCase):
-    def test_locked_sixteen_sources(self):
+    def test_locked_sources(self):
         lock, inv=m.inventory()
-        self.assertEqual(len(inv["observed"]),16)
+        self.assertEqual(len(inv["observed"]),m.EXPECTED_SOURCES)
         self.assertEqual(inv["inventory_status"],"SOURCE_INVENTORY_VERIFIED")
         self.assertEqual(lock["source_repo"],"letsgo0226/Notes")
     def test_real_tm_checkpoint(self):
@@ -31,19 +31,34 @@ class TMWriterTests(unittest.TestCase):
             self.assertEqual(len(first_state["completed"]),1)
             dossier=(target/first_state["completed"][0]["folder"]/
                      "dossier.md").read_text(encoding="utf-8")
-            self.assertIn("全部 16 個檔案",dossier)
-            self.assertIn("全部 16 份來源",dossier)
+            self.assertIn("全部 %d 個檔案" % m.EXPECTED_SOURCES,dossier)
+            self.assertIn("全部 %d 份來源" % m.EXPECTED_SOURCES,dossier)
             two=m.build(offline=True,output=target)
             self.assertNotEqual((one["book"],one["chapter"]),(two["book"],two["chapter"]))
             self.assertEqual(len(m.load_state(target)["completed"]),2)
             self.assertEqual(m.load_state(target)["tm_checkpoint"]["n"],32)
-    def test_all_sixteen_files_have_content_profiles(self):
+    def test_all_locked_files_have_content_profiles(self):
         _, inv=m.inventory()
         rows=m.source_profiles(inv)
-        self.assertEqual(len(rows),16)
+        self.assertEqual(len(rows),m.EXPECTED_SOURCES)
         self.assertEqual({x["file"] for x in rows},set(inv["observed"]))
         self.assertTrue(all(x["bytes"]>0 and x["line_count"]>0 for x in rows))
         self.assertTrue(all(x["summarization"]=="MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS" for x in rows))
+
+    def test_new_locked_epoch_preserves_previous_checkpoint(self):
+        with tempfile.TemporaryDirectory() as temp:
+            target=Path(temp)/"book-output"
+            m.build(offline=True,output=target)
+            state=m.load_state(target)
+            previous=state["tm_checkpoint"]
+            state["tm_word"]="old-reviewed-word"
+            (target/"state.json").write_text(json.dumps(state),encoding="utf-8")
+            m.build(offline=True,output=target)
+            state=m.load_state(target)
+            self.assertEqual(state["source_epochs"][-1]["tm_checkpoint"],previous)
+            self.assertEqual(state["source_epochs"][-1]["completed_count"],1)
+            self.assertEqual(len(state["completed"]),2)
+            self.assertEqual(state["tm_checkpoint"]["n"],16)
 
     def test_crossref_rejects_unrelated_subjects(self):
         payload={"message":{"items":[

@@ -1,2 +1,6 @@
 **/__pycache__/
 *.py[cod]
+
+.venv-dolphin/
+books/dolphin-logos/.run.lock
+books/dolphin-logos/*.tmp
