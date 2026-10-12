@@ -3,7 +3,6 @@ import argparse, hashlib, json, math, os, random, struct, sys, time, urllib.requ
 from array import array
 from pathlib import Path
 from hsi_search import run_search, VERSION as HSI_SEARCH_VERSION
-from hsi_cosmic_zero_field import build_zero_field
 
 PROTOCOL="HSI-OPEN-CORPUS/1.0"
 CORRESPONDENCE_PROTOCOL="HSI-RC/1.0"
@@ -25,6 +24,8 @@ if _semver_tuple(HSI_SEARCH_VERSION) < MIN_HSI_SEARCH_VERSION:
         "Rerun the public launcher so both components are refreshed together."
         % (VERSION, HSI_SEARCH_VERSION)
     )
+from hsi_cosmic_zero_field import build_zero_field
+
 API=os.getenv("HSI_OPENVERSE_BASE","https://api.openverse.org/v1/audio/").rstrip("/")+"/"
 CACHE=Path(os.getenv("HSI_CORPUS_CACHE",str(Path.home()/".hsi-corpus"/"cache"))).expanduser()
 MAX_ITEMS=max(2,min(8,int(os.getenv("HSI_CORPUS_ITEMS","5"))))
