@@ -46,12 +46,12 @@
     {
       "path": "hsi_notes_domains.py",
       "bytes": 7183,
-      "sha256": "4b580a5e5f8aeeb21ab6ba2d39689c118f17ff234b40cf8d5e4d6f27801ee4ed"
+      "sha256": "0999e362c875ecbf12208a1f90b4afea829ae6ed537a023a6eacdfa965384f0f"
     },
     {
       "path": "hsi_notes_review.lock.json",
-      "bytes": 4945,
-      "sha256": "c5323e6dd29bf6fec7d4ba39dd094c1c396fc51e3537cffd9e1c51dc531d9040"
+      "bytes": 5621,
+      "sha256": "85f4940f55e1ba136801bd00d492669c108b0542f1e79ab7ff6915ed0c7cf739"
     },
     {
       "path": "hsi_notes_review.py",
@@ -147,6 +147,26 @@
       "path": "Notes/4",
       "bytes": 38042,
       "sha256": "84f761ab888ff24e422f1a82a472d76525a32d93fce85aecac5fd700f081a1f5"
+    },
+    {
+      "path": "Notes/COSMIC_LOVE_Oscillator_TM/.gitignore",
+      "bytes": 28,
+      "sha256": "3e28e99263845fc0acbe0c82eb0e85f91d10c64143cc82f7ad20a8f0a374a6c6"
+    },
+    {
+      "path": "Notes/COSMIC_LOVE_Oscillator_TM/cosmic_love_oscillator_daemon.sh",
+      "bytes": 1227,
+      "sha256": "925c2d1806a8191afa46b7483739a00d3ba554b60914af9a330160b887d7b23e"
+    },
+    {
+      "path": "Notes/COSMIC_LOVE_Oscillator_TM/cosmic_love_oscillator_tm.sh",
+      "bytes": 492,
+      "sha256": "dc9ad4d87275cfd1362f7ff0519824164f7df9af64535846438c3e8f041fc7a9"
+    },
+    {
+      "path": "Notes/COSMIC_LOVE_Oscillator_TM/README.md",
+      "bytes": 1158,
+      "sha256": "86fe0e116f2b934af5a323cb59cc07eb92dbc4c20d7650c166383a18dfa1672e"
     },
     {
       "path": "Notes/Dolphin_Logos_Riemann_Feedback/dolphin_logos.py",
