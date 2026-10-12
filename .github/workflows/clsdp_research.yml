@@ -30,9 +30,13 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_clsdp_*.py' -v
           python3 -m py_compile research/clsdp/*.py
 
-  # Neither PR checks nor other branches run scheduled public network reads.
+  # Neither PR checks nor other branches run public network reads. Even on
+  # main, research remains opt-in through a repository variable.
   public-research:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: >-
+      github.event_name != 'pull_request' &&
+      github.ref == 'refs/heads/main' &&
+      vars.CLSDP_ALLOW_SCHEDULED_RESEARCH == 'true'
     needs: offline-tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -69,9 +73,13 @@ jobs:
           retention-days: 14
 
   # Only the default branch can propose a new draft after independent
-  # offline-tests and strictly public research. Never merge or deploy.
+  # offline-tests, explicit repository opt-in, and strictly public research.
+  # Never merge or deploy.
   draft-review:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: >-
+      github.event_name != 'pull_request' &&
+      github.ref == 'refs/heads/main' &&
+      vars.CLSDP_ALLOW_SCHEDULED_RESEARCH == 'true'
     needs: [offline-tests, public-research]
     permissions:
       contents: write
