@@ -1,0 +1,56 @@
+name: Cosmic Love — finite TM closure smoke
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'cosmic_love/**'
+      - '.github/workflows/cosmic_love_smoke.yml'
+permissions:
+  contents: read
+jobs:
+  finite-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify strict one-liner size and shell syntax
+        run: |
+          test "$(wc -c < cosmic_love/cosmic_love_evolve_2kb.sh)" -lt 2048
+          sh -n cosmic_love/cosmic_love_evolve_2kb.sh
+      - name: Independently verify canonical finite transition stages
+        run: |
+          python3 - <<'PY'
+          from math import isqrt
+          def encode(k):
+              K=k+1;B=4*K
+              c=sum(((2*a+1-q%2)*K+(q^1))*B**(2*q+a) for q in range(k) for a in (0,1))
+              v=c+k-1
+              return v*(v+1)//2+c
+          def table(p):
+              v=(isqrt(8*p+1)-1)//2;c=p-v*(v+1)//2;k=v-c+1;K=k+1;B=4*K
+              return [(q,a,(u:=c//B**(2*q+a)%B)%K,u//K//2,2*((u//K)%2)-1)
+                      for q in range(k) for a in (0,1)]
+          old=[]
+          for k in (2,4,6,8):
+              p=encode(k); rows=table(p)
+              assert k!=2 or p==55067263
+              assert rows[:len(old)]==old
+              for q,a,r,b,d in rows:
+                  assert (r,b,d)==(q^1,a,1-2*(q%2))
+                  assert rows[2*r+b][2:]==(q,a,-d)
+              old=rows
+          print("FINITE_TM_CLOSURE_VERIFIED")
+          PY
+      - name: Verify nonhalting behavior with an EXTERNAL time limit
+        run: |
+          set +e
+          CL_MAX_STATES=4 CL_INTERVAL=.05 timeout 4s sh cosmic_love/cosmic_love_evolve_2kb.sh > /tmp/cosmic-love.out
+          status=$?
+          set -e
+          test "$status" -eq 124
+          test "$(grep -xc 'COSMIC_LOVE' /tmp/cosmic-love.out)" -eq 2
