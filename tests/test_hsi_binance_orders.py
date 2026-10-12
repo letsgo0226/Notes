@@ -36,7 +36,9 @@ class ManualOrderTests(unittest.TestCase):
 
     @contextmanager
     def armed(self):
-        with patch.dict(os.environ, {'LIVE_ARMED': '1', 'LIVE_DRY_RUN': '0', 'HSI_ORDER_KILL': '0'}), patch('os.path.ismount', return_value=True):
+        with patch.dict(os.environ, {'LIVE_ARMED': '1', 'LIVE_DRY_RUN': '0', 'HSI_ORDER_KILL': '0'}), patch('os.path.ismount', return_value=True), patch('hsi_binance_orders.assert_live_release'), patch('hsi_binance_orders.enforce_pretrade'):
+            # Synthetic-only test of older journal behavior: BOTH independent
+            # release guards are mocked. Real code never does this.
             yield
 
     def test_prepare_is_offline_and_enforces_explicit_fields(self):
@@ -47,6 +49,16 @@ class ManualOrderTests(unittest.TestCase):
             for changes in ({'price': 'NaN'}, {'quantity': 0.1}, {'quantity': '0.1'}, {'symbol': 'ETHUSDT'}, {'notes_manifest_sha256': 'bad'}):
                 with self.subTest(changes=changes), self.assertRaises(ValueError):
                     self.prepare(**changes)
+            broker.assert_not_called()
+
+    def test_risk_status_never_claims_broker_reconciliation(self):
+        """Status remains conservative even with credentials preconfigured."""
+        with patch.object(self.orders, 'broker') as broker:
+            report = self.orders.status()
+            self.assertEqual(report['daily_realized_pnl_status'], 'UNKNOWN_FAIL_CLOSED')
+            self.assertFalse(report['daily_loss_latch_review_only'])
+            self.assertEqual(report['live_release'], 'BLOCKED_PENDING_SEPARATE_APPROVAL')
+            self.assertFalse(report['automatic_trading'])
             broker.assert_not_called()
 
     def test_account_check_only_signed_reads_and_no_account_details(self):
@@ -169,6 +181,20 @@ class ManualOrderTests(unittest.TestCase):
         broker.assert_not_called()
         with patch('os.path.ismount', return_value=False):
             self.assertFalse(self.orders.status()['durable_journal'])
+
+
+    def test_actual_release_gate_blocks_broker_even_when_armed(self):
+        ticket = self.prepare()
+        with patch.dict(os.environ, {'LIVE_ARMED': '1', 'LIVE_DRY_RUN': '0', 'HSI_ORDER_KILL': '0'}), patch('os.path.ismount', return_value=True), patch.object(self.orders, 'broker') as broker:
+            with self.assertRaisesRegex(ValueError, 'RISK_UNKNOWN_BROKER_RECONCILIATION'):
+                self.orders.submit({**ticket, 'confirm_live_order': True})
+            broker.assert_not_called()
+            # Independently, the unconditional reviewed-code release gate also
+            # blocks even if a unit test hypothetically bypasses the PnL gate.
+            with patch('hsi_binance_orders.enforce_pretrade'):
+                with self.assertRaisesRegex(ValueError, 'LIVE_BLOCKED'):
+                    self.orders.submit({**ticket, 'confirm_live_order': True})
+            broker.assert_not_called()
 
     def test_signer_matches_known_vector_and_rejects_other_hosts(self):
         with patch('time.time', return_value=1700000000), patch('urllib.request.build_opener') as opener:

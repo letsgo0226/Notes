@@ -52,7 +52,7 @@ class HttpContractTests(unittest.TestCase):
         self.runtime.selftest = {'status': 'PASSED'}
         status, body = self.request('/health')
         self.assertEqual(status, 200)
-        self.assertEqual(body['notes']['source_count'], 22)
+        self.assertEqual(body['notes']['source_count'], 32)
         self.assertEqual(body['default_engine'], 'native')
 
     def test_legacy_certify_preserves_contract_and_provenance(self):
@@ -85,6 +85,23 @@ class HttpContractTests(unittest.TestCase):
             self.assertEqual(status, 200)
             self.assertEqual(result['status'], 'PERMISSIONS_VERIFIED')
             self.assertFalse(result['order_submission'])
+
+    def test_history_audit_requires_operator_and_safe_readonly_enable(self):
+        """HTTP control token is required before any signed broker reads."""
+        from datetime import datetime, timezone
+        manifest = self.runtime.plan['manifest_sha256']
+        self.runtime.orders = BinanceOrders(self.runtime.directory / 'orders.sqlite', manifest)
+        payload = {'notes_manifest_sha256': manifest, 'acknowledge_read_only': True}
+        with patch.dict(os.environ, {'HSI_ORDER_CONTROL_TOKEN': 'test-operator',
+            'HSI_READONLY_HISTORY_AUDIT_ENABLED': '0',
+            'LIVE_ARMED': '0', 'LIVE_DRY_RUN': '1', 'HSI_ORDER_KILL': '1'}), patch.object(self.runtime.orders, 'broker') as broker:
+            self.assertEqual(self.request('/orders/history-audit', payload)[0], 401)
+            broker.assert_not_called()
+            status, body = self.request('/orders/history-audit', payload, 'test-operator')
+            self.assertEqual(status, 200)
+            self.assertEqual(body['status'], 'UNKNOWN_FAIL_CLOSED')
+            self.assertEqual(body['live_order_permission'], 'DENIED')
+            broker.assert_not_called()
 
     def test_non_object_and_large_inputs_rejected(self):
         self.assertEqual(self.request('/certify', [1, 2])[0], 400)

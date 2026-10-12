@@ -4,6 +4,8 @@ Operator supplies every order. A durable journal records the client ID before
 the single POST; uncertain results are reconciled with GET, never resubmitted.
 """
 from contextlib import contextmanager
+from hsi_spot_risk import enforce_order, restricted_order_limit, assert_live_release, review_report
+from hsi_spot_pretrade_gate import ensure_schema, enforce_pretrade, status as daily_stop_status
 from decimal import Decimal, InvalidOperation
 import hashlib
 import hmac
@@ -49,6 +51,7 @@ class BinanceOrders:
         self.account_result = None
         with self.database() as db:
             db.execute('CREATE TABLE IF NOT EXISTS orders (id TEXT PRIMARY KEY, payload TEXT NOT NULL, digest TEXT NOT NULL, created REAL NOT NULL, submitted REAL, state TEXT NOT NULL, result TEXT)')
+            ensure_schema(db)
 
     @contextmanager
     def database(self):
@@ -62,6 +65,8 @@ class BinanceOrders:
             db.close()
 
     def status(self):
+        with self.database() as db:
+            local_stop = daily_stop_status(db)
         return {'broker': 'Binance Spot', 'execution': 'manual LIMIT/FOK only',
                 'credentials_present': bool(os.getenv('BINANCE_API_KEY') and os.getenv('BINANCE_API_SECRET')),
                 'credentials_verified': self.credentials_verified, 'live_armed': os.getenv('LIVE_ARMED', '0') == '1',
@@ -72,8 +77,13 @@ class BinanceOrders:
                 'kill_switch': os.getenv('HSI_ORDER_KILL', '1') != '0',
                 'durable_journal': os.getenv('HSI_ORDER_JOURNAL_DURABLE', '0') == '1' and os.path.ismount(self.journal.parent),
                 'operator_token_configured': bool(os.getenv('HSI_ORDER_CONTROL_TOKEN')),
-                'max_quote_per_order': os.getenv('MAX_QUOTE_PER_ORDER', '10'),
-                'symbol_allowlist': os.getenv('HSI_ORDER_SYMBOL_ALLOWLIST', 'BTCUSDT').split(','),
+                'max_quote_per_order': str(restricted_order_limit(os.getenv('MAX_QUOTE_PER_ORDER', '10'))),
+                'daily_realized_loss_limit_usdt': '2',
+                'daily_realized_pnl_status': local_stop['status'],
+                'daily_loss_latch_review_only': local_stop['status'] == 'HALT_DAILY_LOSS_REVIEW_LATCHED',
+                'live_release': 'BLOCKED_PENDING_SEPARATE_APPROVAL',
+                'auto_strategy_promotion': False,
+                'symbol_allowlist': [s for s in os.getenv('HSI_ORDER_SYMBOL_ALLOWLIST', 'BTCUSDT').split(',') if s == 'BTCUSDT'],
                 'automatic_trading': False, 'notes_manifest_sha256': self.manifest}
 
     def broker(self, path, params=None, method='GET', signed=False):
@@ -152,6 +162,27 @@ class BinanceOrders:
             self.account_result = result
             return dict(result)
 
+    def history_audit(self, request):
+        """Operator-authorized, bounded signed GETs only; NEVER place orders.
+
+        Separately opted-in by deployment config; safe standby is mandatory.
+        Returns summary flags, not balances/UID/fills. No live-trade release.
+        """
+        if request.get('notes_manifest_sha256') != self.manifest:
+            raise ValueError('Notes manifest mismatch')
+        if request.get('acknowledge_read_only') is not True:
+            raise ValueError('explicit read-only audit acknowledgement required')
+        from hsi_binance_readonly_audit import read_only_audit
+        if (os.getenv('LIVE_ARMED', '0') != '0'
+                or os.getenv('LIVE_DRY_RUN', '1') != '1'
+                or os.getenv('HSI_ORDER_KILL', '1') != '1'):
+            return {**read_only_audit(self.broker, enabled=False),
+                    'reason': 'UNSAFE_DEPLOYMENT_CONFIGURATION'}
+        if os.getenv('HSI_READONLY_HISTORY_AUDIT_ENABLED', '0') != '1':
+            return read_only_audit(self.broker, enabled=False)
+        with self.lock:
+            return read_only_audit(self.broker, enabled=True)
+
     def prepare(self, request):
         if request.get('notes_manifest_sha256') != self.manifest:
             raise ValueError('Notes manifest mismatch')
@@ -159,8 +190,7 @@ class BinanceOrders:
         if symbol not in self.status()['symbol_allowlist'] or side not in {'BUY', 'SELL'}:
             raise ValueError('unsupported symbol or side')
         quantity, price = amount(request.get('quantity')), amount(request.get('price'))
-        if quantity * price > amount(os.getenv('MAX_QUOTE_PER_ORDER', '10')):
-            raise ValueError('order exceeds the configured quote limit')
+        enforce_order(symbol, str(price), str(quantity), os.getenv('MAX_QUOTE_PER_ORDER', '10'))
         client_id = 'hsi' + uuid.uuid4().hex[:24]
         payload = {'symbol': symbol, 'side': side, 'type': 'LIMIT', 'timeInForce': 'FOK',
                    'quantity': format(quantity, 'f'), 'price': format(price, 'f'), 'newClientOrderId': client_id}
@@ -221,6 +251,11 @@ class BinanceOrders:
                 raise ValueError('this exact order requires explicit live confirmation')
             if not settings['live_armed'] or settings['dry_run'] or settings['kill_switch'] or not settings['durable_journal'] or not settings['operator_token_configured'] or not settings['credentials_present']:
                 raise ValueError('live order is blocked by the deployment configuration')
+            # The independent SQLite daily stop/unknown gate also blocks sends,
+            # including if a future developer loosens the code-release gate.
+            with self.database() as db:
+                enforce_pretrade(db)
+            assert_live_release()  # independent, separately reviewed release still required
             if row['state'] != 'TESTED':
                 raise ValueError('order must pass broker test once; used orders are never resubmitted')
             if amount(payload['quantity']) * amount(payload['price']) > amount(os.getenv('MAX_QUOTE_PER_ORDER', '10')):
