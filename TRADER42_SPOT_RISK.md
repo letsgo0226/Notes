@@ -88,10 +88,10 @@ with the exchange before a separate operator-approved implementation
 could ever rely on a daily loss gate. There is no such verified
 implementation or live activation in this PR.
 
-The existing Notes full-suite CI has a separate locked-source inventory
-failure: the pinned count is 22 but new files under `Notes/` are
-not included in the lock. Do **not** bypass or auto-approve that
-check to promote this trading proposal.
+The strict Notes inventory lock now lists all 28 reviewed source files.
+CI verifies that inventory, and the runtime bundle pins file hashes.
+Any later addition or modification must update the appropriate reviewed
+lock; do **not** bypass either verification before promotion.
 
 ## Optional authenticated Binance signed-GET audit (NOT enabled)
 
@@ -169,3 +169,24 @@ that realized or unrealized losses will stay within 2 USDT.
 Read-only audit is deliberately opt-in and **not deployed**. The user's
 Railway service remains in safe standby; PR #27 stays draft and cannot
 unlock live order submission via environment variables.
+
+## Additional fail-closed edge checks
+
+The offline FIFO ledger computes candidate proceeds and historical cost
+basis using at least 128 significant decimal digits, and renders exact
+decimal strings without applying the process-wide 28-digit default
+rounding context. In particular, a synthetic candidate loss just
+*above* -2 USDT must not be displayed as exactly -2 by formatting.
+Reaching or crossing -2 sets a stop flag, but neither result can
+authorize a real order.
+
+A future, explicitly approved signed-GET history audit now stops
+immediately after the API restriction check if it finds
+`enableSpotAndMarginTrading=true`. Its response is
+`UNKNOWN_FAIL_CLOSED / SPOT_TRADING_PERMISSION_ENABLED`, without
+querying open orders or trade history. This is a diagnostic alarm, not
+permission to change the key configuration or to trade.
+
+These controls exist only in this unmerged Draft PR. No live-account
+Binance queries, trading-key changes, or Railway deployments were
+performed to exercise these tests.
