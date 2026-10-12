@@ -1,0 +1,40 @@
+name: Cosmic Zero Field mathematical canary CI
+on:
+  pull_request:
+    paths:
+      - 'cosmic_zero_field/**'
+      - '.github/workflows/cosmic_zero_field_ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  finite-model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify source-constrained formulas and negative cases
+        run: |
+          python3 -m unittest cosmic_zero_field.test_model -v
+          python3 -m py_compile cosmic_zero_field/model.py cosmic_zero_field/worker.py
+      - name: Build exact Docker image and check bounded runtime
+        run: |
+          docker build -f cosmic_zero_field/Dockerfile -t zero-field-ci:local .
+          docker run --rm --entrypoint python zero-field-ci:local -m cosmic_zero_field.worker --once > "$RUNNER_TEMP/field.json"
+          python3 - <<'PY'
+          import json,os
+          x=json.load(open(os.environ['RUNNER_TEMP']+'/field.json'))
+          assert x['protocol']=='COSMIC-LOVE-ZERO-FIELD/1'
+          assert x['status']=='BOUNDED_MATHEMATICAL_MODEL_VERIFIED'
+          assert x['physical_energy_claim'] is False
+          assert x['zeta_zeros_claim'] is False
+          assert x['live_trading_authorized'] is False
+          assert len(x['prescribed_zero_checks'])==3
+          assert all(e['e_numeric']==0 for e in x['prescribed_zero_checks'])
+          print('FIELD_CANARY_IMAGE_CHECK_PASSED')
+          PY
