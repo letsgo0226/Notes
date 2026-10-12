@@ -235,8 +235,8 @@
     },
     {
       "path": "hsi_cosmic_zero_field.py",
-      "bytes": 4926,
-      "sha256": "9037328cd827e6d85a58d0464bacdb325c92bdd1287bcc49557666d370ede711"
+      "bytes": 5998,
+      "sha256": "3936e64ea0c8237ae307d284e4ebbffea65e77fe42236a11ffb9e5d236160e42"
     },
     {
       "path": "hsi_open_corpus.py",
