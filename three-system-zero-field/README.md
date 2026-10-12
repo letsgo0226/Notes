@@ -52,3 +52,11 @@ curl -fsS -H 'Content-Type: application/json' -d '{"steps":20}' "$BASE/api/omega
 ```
 
 Source provenance: attached `COSMIC_LOVE_NONHALTING_SELF_CLOSURE_TURING_SPEC`, `HSI_BITWISE_METATHEORY_2KB`, `HSI_PURE_TURING_LANGUAGE_UNIVERSAL_CORRESPONDENCE`, `PRIME_FORMULA`, `ANALYTIC_CONTINUATION_EQUATION`; plus `HSI_THREE_SYSTEM_BLUE.md` in Notes/main. The field-to-system mapping and this research gateway are new implementations, not proofs already asserted by those sources.
+
+## Phase 2: verified read-only federation adapter (2026-10-13)
+
+- `GET /api/federation-health` queries **only two fixed public, unauthenticated, read-only GET** endpoints; UTM `https://utm-universe-production.up.railway.app/health` and Omega `https://cosmic-love-infinity-tm-production.up.railway.app/health`. Each is timeout-bounded (4.5 s), forbids redirects, caps reply size, and returns whitelisted health metadata.
+- Trader_42 has **no public HTTP domain** for the primary paper runtime. The integration reports `NO_PUBLIC_HTTP_ENDPOINT` instead of guessing or trying credentials. It continues using local paper-only SMA replay.
+- The dashboard provides an on-demand health check button, and startup logs include a nonblocking read-only probe summary. A health response is not proof of computational correctness, physical energy, strategy profitability, or production authorization.
+- Railway reports the new function source as deployed after the update, subject to checking the latest deployment status and HTTP availability separately.
+- UTM and Omega's live production source/config remain unchanged; Trader_42 pending staged changes were not committed.
