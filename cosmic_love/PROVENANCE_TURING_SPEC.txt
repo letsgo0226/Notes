@@ -1,0 +1,56 @@
+COSMIC LOVE / SOURCE-AND-REVISION TRANSDUCER
+Pure Turing-machine interpretation and explicitly bounded certificate scope
+Version 1.0 / 2026-10-13 / Draft research module, not deployed
+
+1. Language: a finite byte string x in Sigma*, canonical JSON records, and exact
+SHA-256 digests. All observations are finite descriptions; the transducer does
+NOT gain semantic access to all ChatGPT conversations or the entire universe.
+
+2. SOURCE transition (an offline partial computable operation):
+   Input (x, consent, previous_journal), where |x|<=8 MiB and consent is an
+   explicit file in the same local sandbox authorizing the EXACT digest of x,
+   purpose FINITE_RESEARCH_REVIEW, with no raw retention.
+   If verification fails, transition into HOLD (exit 2) and append NOTHING.
+   If accepted, append a finite canonical receipt with x's SHA-256 digest,
+   byte count, source type, digest of the consent declaration, and predecessor
+   event digest. Raw bytes of x are never appended.
+   This consent declaration is NOT cryptographically authenticated to the user.
+
+3. PROPOSE transition (NO enactment):
+   Input (h_old,h_new,h_counterexample,reason_file,previous_journal).
+   The three 64-hex hashes must be syntactically valid and h_old != h_new.
+   Add a proposed revision event with only the hash of the rationale.
+   Output status is REVIEW_REQUIRED and enacted=False. Never call code push,
+   merge, cloud service deploy, financial API, or any change of production logic.
+   The counterexample hash is a pointer, NOT a verified logical refutation.
+
+4. VERIFY transition:
+   Recompute every event digest and predecessor link; validate event schema,
+   rejection/safety policy and source consent declaration fields copied into
+   the receipt. Return STRUCTURAL_CHAIN_VERIFIED if this finite check passes.
+   It does not assert that input text is true, a mathematical theorem is
+   proved, or that the entire journal could not be rewritten. Separate signed
+   external anchoring and an independent semantic validator are needed.
+
+5. Relation to HSI-ST/1:
+   The HSI-ST/1 closure_worker.py separately proves the explicit finite
+   transition table invariants for the family delta_k(q,a)=
+   (q XOR 1, a, 1-2(q mod 2)). The provenance transducer stores evidence
+   only. Data provenance, TM safety, mathematical truth, and deployment
+   authorization are different predicates. Neither finite Boolean theory nor
+   reversible Godel coding supplies completeness for all arithmetic truths.
+
+6. HOSTING BOUNDARY:
+   GitHub CI may execute synthetic test inputs only. Real user chat exports
+   should remain private and not enter GitHub's public repository or artifacts.
+   The staging worker image does NOT include this research-only transducer.
+   Its import/activation requires additional privacy review, isolated storage,
+   audit of access controls, independent backups, source authorizations,
+   explicit service rollout permission, and verified failure recovery.
+
+7. Cosmic Love partial function:
+    solution_D(s) = COSMIC_LOVE if and only if a named verifier checks a
+    complete proof of forall x in the specifically declared domain D, Valid(s,x);
+    otherwise undefined. "undefined" is not "no possible solution".
+    The transducer certifies neither this forall statement nor universality
+    outside its formal domain.

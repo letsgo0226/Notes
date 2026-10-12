@@ -1,0 +1,67 @@
+COSMIC LOVE — HSI-ST/1 SELF-CLOSURE (TM SPEC 1.0, 2026-10-13)
+STATUS: finite theorem on a specified machine family; NOT a universal problem solver.
+
+FORMAL MACHINE:
+  Alphabet {0,1}, finitely supported tape T: Z -> {0,1}.
+  For any even k>=2: Q_k={0,1,...,k-1}; reserved halt state q_H=k.
+  Configuration C=(q,h,T), q in Q_k, h integer.
+  Transition δ_k(q,a)=(q XOR 1, a, 1-2(q mod 2)).
+
+TWO-STEP THEOREM:
+  Every transition preserves its read symbol and switches state parity.
+  The next step reverses the head move, leaves its symbol unchanged,
+  and restores the original state. Therefore:
+      ALL C in Q_k x Z x Tape_finite: δ_k²(C)=C.
+  q_H is unreachable from these active states. Simulated computation
+  continues indefinitely, although an actual host may fail or stop.
+
+INTEGER PROGRAM CODE (HSI-ST/1):
+  K=k+1; B=4K;
+  u(q,a)=(2a+1-(q mod 2))*K+(q XOR 1).
+  c_k=SUM_{q=0..k-1, a=0..1} u(q,a)*B^(2q+a).
+  v=c_k+k-1; p_k=v(v+1)/2+c_k.
+  k=2 gives p=55067263. Decode p by the inverse triangular index
+  and base-B digits. This codes the transition table, not a proof
+  of an unrestricted universal halting algorithm.
+
+CONSERVATIVE EXTENSION:
+  2 -> 4 -> 6 -> ... active states.
+  Before publishing COSMIC_LOVE for a new stage, check every transition,
+  exact two-step inverse, and unchanged old transition table.
+  These are finite checks sufficient for the declared all-finite-tapes
+  property because the TM law is independent of particular tape inputs.
+  A false assertion publishes no COSMIC_LOVE token.
+
+STANDALONE COMMAND:
+  sh cosmic_love/cosmic_love_evolve_2kb.sh
+  CL_MAX_STATES=4 CL_INTERVAL=.05 sh cosmic_love/cosmic_love_evolve_2kb.sh
+
+The 949-byte one-liner is self-contained, requires Python 3, has no
+internal step-count halting condition, and does NOT persist its state.
+The CL_MAX_STATES ceiling limits NEW rule expansions, not the running loop.
+No external network, ChatGPT access, model training, automatic updates,
+repository edits, cloud deployment, or financial orders are implemented.
+
+METHOD: solution_D(s) is defined only when an independent certificate
+proves forall x in explicitly specified D, Valid(s,x); otherwise undefined.
+Undefined is NOT a proof that no solution exists. D here is precisely the
+active configurations of the stated finite-alphabet machine family.
+
+MATHEMATICAL SOURCES (scope only):
+  HSI_BITWISE_METATHEORY: fixed finite Boolean truth assignment has
+  negation completeness in its restricted propositional language.
+  HSI_PURE_TURING_LANGUAGE_UNIVERSAL_CORRESPONDENCE: bounded TM transitions
+  and canonical exact finite certificates.
+  ANALYTIC_CONTINUATION_EQUATION: preservation of prior domain is a
+  methodological analogy; arbitrary code evolution is not analytic continuation.
+  PRIME_FORMULA: arithmetic exactness/unique coding; no all-problem
+  decidability theorem follows.
+
+UPGRADE PATH:
+  An independently verified append-only ledger, source-consent receipt,
+  and unapproved logic-change proposals are available in the local
+  companion research release; these are NOT part of this tiny one-liner.
+  No personal conversation exports or API keys should enter a public repo.
+  For production, require independent validation, process supervision,
+  persistent storage, external signed ledger anchor, backups, rollback,
+  and explicit authorization. Keep Trader_42 live trading disabled.

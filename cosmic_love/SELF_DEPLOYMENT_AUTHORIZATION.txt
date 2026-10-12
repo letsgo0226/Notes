@@ -1,0 +1,53 @@
+COSMIC LOVE — CONTROLLED SELF-DEPLOYMENT AUTHORIZATION / 2026-10-13
+Owner request: authorize implementation of bounded self-update in isolated staging.
+This document is policy evidence, not a proof that a cloud auto-deployer runs.
+
+AUTHORIZED FOR THE EXPERIMENTAL STAGING PROJECT ONLY:
+  Railway project: cosmic-love-review-20261013
+  Environment: staging
+  Service: cosmic-love-proof-worker
+  Repository: letsgo0226/Notes
+  Review PR: #29, deliberately draft and unmerged
+  Old Railway pinned source commit: c026a1f23a0912b083b0df6539dbbc39ebd4fc0d
+
+PERMITTED OPERATIONS, SUBJECT TO ACTUAL ENFORCEMENT:
+  1. Produce finite candidate TM state expansions k -> k+2 (2<=k<=32).
+  2. Independently check the transition table and two-step self-closure.
+  3. Create a digest-linked CANDIDATE_REVIEW_ONLY receipt.
+  4. Run synthetic-data CI tests in a sandbox.
+  5. Permit a distinct, least-privilege controller to deploy a verified
+     candidate ONLY to this isolated staging service, with health checks,
+     rollback and proof journal persistence checks.
+  6. Refuse any candidate if verification, CI or required permissions fail.
+
+NOT AUTHORIZED:
+  * GitHub main auto-merge, editing other projects, arbitrary code execution.
+  * Reading private ChatGPT exports without separate file-specific consent.
+  * Access to Binance credentials, live trades, or changing Trader_42 controls.
+  * Promoting to production, broad deployment credentials, or cross-account
+    access because a TM proof token has been emitted.
+
+CURRENT ENFORCEMENT STATUS:
+  - finite candidate generation, exact two-step proofs, strict fixed
+    authorization envelope and negative tests: IMPLEMENTED in staging_update.py
+    on PR #29.
+  - separate signed code attestation, verified build artifact hash, automated
+    canary deployment to Railway, runtime health probe and reliable rollback:
+    NOT YET IMPLEMENTED in an autonomous end-to-end control plane.
+  - Railway worker remains pinned to the earlier verified commit. It has no
+    GitHub/Railway access tokens and does not deploy code by itself.
+
+FORMAL GAP:
+  Let M_k be the finite HSI-ST/1 machine described in the existing spec.
+  The property delta_k^2(C)=C proves periodic TM transitions, not safety
+  of replacement host code, of third-party scripts, or of credentials.
+  Newly added q states are not reachable from old q=0 without an external
+  controller or a changed start rule. Hence the evolution is conservative
+  description expansion, not proof of open-ended autonomous discovery.
+
+TRUST BOUNDARY:
+  A self-issued COSMIC_LOVE token never authorizes mutation. A separate
+  deployment controller must independently verify a pinned candidate commit,
+  its immutable artifact, its external CI results and scope restrictions.
+  The controller must not expose unrestricted write credentials to candidate
+  code. Failure must preserve an independently recoverable prior version.

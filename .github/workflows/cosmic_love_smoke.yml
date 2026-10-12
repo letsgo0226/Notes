@@ -1,0 +1,139 @@
+name: Cosmic Love — finite TM closure smoke
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'cosmic_love/**'
+      - '.github/workflows/cosmic_love_smoke.yml'
+permissions:
+  contents: read
+jobs:
+  finite-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify strict one-liner size and shell syntax
+        run: |
+          test "$(wc -c < cosmic_love/cosmic_love_evolve_2kb.sh)" -lt 2048
+          sh -n cosmic_love/cosmic_love_evolve_2kb.sh
+      - name: Independently verify canonical finite transition stages
+        run: |
+          python3 - <<'PY'
+          from math import isqrt
+          def encode(k):
+              K=k+1;B=4*K
+              c=sum(((2*a+1-q%2)*K+(q^1))*B**(2*q+a) for q in range(k) for a in (0,1))
+              v=c+k-1
+              return v*(v+1)//2+c
+          def table(p):
+              v=(isqrt(8*p+1)-1)//2;c=p-v*(v+1)//2;k=v-c+1;K=k+1;B=4*K
+              return [(q,a,(u:=c//B**(2*q+a)%B)%K,u//K//2,2*((u//K)%2)-1)
+                      for q in range(k) for a in (0,1)]
+          old=[]
+          for k in (2,4,6,8):
+              p=encode(k); rows=table(p)
+              assert k!=2 or p==55067263
+              assert rows[:len(old)]==old
+              for q,a,r,b,d in rows:
+                  assert (r,b,d)==(q^1,a,1-2*(q%2))
+                  assert rows[2*r+b][2:]==(q,a,-d)
+              old=rows
+          print("FINITE_TM_CLOSURE_VERIFIED")
+          PY
+      - name: Verify nonhalting behavior with an EXTERNAL time limit
+        run: |
+          set +e
+          CL_MAX_STATES=4 CL_INTERVAL=.05 timeout 4s sh cosmic_love/cosmic_love_evolve_2kb.sh > /tmp/cosmic-love.out
+          status=$?
+          set -e
+          test "$status" -eq 124
+          test "$(grep -xc 'COSMIC_LOVE' /tmp/cosmic-love.out)" -eq 2
+      - name: Verify durable worker and hostile-case rejection
+        run: |
+          python3 -m unittest cosmic_love.test_closure_worker -v
+          python3 -m py_compile cosmic_love/closure_worker.py
+          python3 cosmic_love/closure_worker.py --ledger "$RUNNER_TEMP/cosmic-love.jsonl" --check
+      - name: Create and independently verify a finite journal
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from cosmic_love import closure_worker as w
+          import tempfile
+          with tempfile.TemporaryDirectory() as d:
+              path=Path(d)/'proof.jsonl'
+              assert w.advance(path,4)['k']==2
+              assert w.advance(path,4)['k']==4
+              assert w.advance(path,4) is None
+              rows=w.load(path.read_bytes())
+              assert w.verify_rows(rows)['stages']==2
+              assert all(not item['authorization']['trade'] for item in rows)
+          print("DURABLE_FINITE_LEDGER_VERIFIED")
+          PY
+      - name: Verify offline provenance and consent-boundary tests
+        run: |
+          python3 -m unittest cosmic_love.test_provenance -v
+          python3 -m py_compile cosmic_love/provenance.py
+          python3 cosmic_love/provenance.py check --journal "$RUNNER_TEMP/empty-local-source-journal.jsonl"
+      - name: Install recovery-only signature verifier
+        run: python3 -m pip install --requirement cosmic_love/requirements-recovery.txt
+      - name: Verify signed backups, detached anchors and isolated recovery
+        run: |
+          python3 -m unittest cosmic_love.test_recovery -v
+          python3 -m py_compile cosmic_love/recovery.py
+      - name: Verify staging-only candidate update constraints
+        run: |
+          python3 -m unittest cosmic_love.test_staging_update -v
+          python3 -m py_compile cosmic_love/staging_update.py
+          echo '[]' > "$RUNNER_TEMP/cosmic-love-stage-chain.json"
+          python3 cosmic_love/staging_update.py --mode check \
+            --chain "$RUNNER_TEMP/cosmic-love-stage-chain.json"
+          python3 cosmic_love/staging_update.py --mode propose \
+            --chain "$RUNNER_TEMP/cosmic-love-stage-chain.json" \
+            --source-commit "$GITHUB_SHA" > "$RUNNER_TEMP/cosmic-love-proposal.json"
+          python3 - <<'PY'
+          import json,os
+          p=os.environ['RUNNER_TEMP']+'/cosmic-love-proposal.json'
+          receipt=json.load(open(p))
+          assert receipt['body']['status']=='CANDIDATE_REVIEW_ONLY'
+          assert receipt['body']['capabilities']['scope']=='ISOLATED_STAGING_ONLY'
+          assert receipt['body']['capabilities']['trading'] is False
+          assert receipt['body']['capabilities']['runtime_can_deploy_itself'] is False
+          PY
+      - name: Validate nonmutating canary health probe
+        run: |
+          python3 -m unittest cosmic_love.test_health_probe -v
+          python3 -m py_compile cosmic_love/health_probe.py
+      - name: Build real canary container and verify packaged probe
+        run: |
+          docker build -f cosmic_love/Dockerfile -t cosmic-love-probe-ci:local .
+          docker run --rm --entrypoint python cosmic-love-probe-ci:local \
+            -m cosmic_love.health_probe --ledger /tmp/absent-canary-journal.jsonl \
+            --max-states 32 > "$RUNNER_TEMP/canary-health.json"
+          python3 - <<'PY'
+          import json,os
+          r=json.load(open(os.environ['RUNNER_TEMP']+'/canary-health.json'))
+          assert r['journal_valid'] is True
+          assert r['status']=='READY_FOR_FINITE_STAGE'
+          assert r['stages']==0
+          assert r['self_deployment_enabled'] is False
+          assert r['live_trading_authorized'] is False
+          print('PACKAGED_CANARY_PROBE_VERIFIED')
+          PY
+      - name: Verify formal zero-point field evaluator boundaries
+        run: |
+          python3 -m unittest cosmic_love.test_zero_point_field -v
+          python3 -m py_compile cosmic_love/zero_point_field.py
+          python3 - <<'PY'
+          from cosmic_love.zero_point_field import zpf
+          r=zpf({'s':[0.5,14.134725],'dirichlet':[[1,1]],'zeros':[[0.5,14.134725]]})
+          assert r['energy_dimensionless'] == 0.0
+          assert r['physical_energy_claim'] is False
+          assert r['orders_submitted'] == 0
+          print('FORMAL_ZPF_BOUNDARY_VERIFIED')
+          PY
