@@ -141,7 +141,7 @@ def serve(db_path, status_path, source_path, interval, max_ticks,
                     from pleiadian_blue.cross_kernel import compare
                     try:
                         checked = compare(triple_p, triple_bits, triple_steps)
-                        triple_receipt = {"status": "FINITE_VERIFIED", **checked,
+                        triple_receipt = {**checked, "status": "FINITE_VERIFIED",
                                           "checked_at": dt.datetime.now(dt.timezone.utc).isoformat()}
                     except Exception as exc:
                         triple_receipt = {"status": "FAILED", "error_type": type(exc).__name__,
