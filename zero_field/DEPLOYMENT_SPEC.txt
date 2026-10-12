@@ -1,0 +1,49 @@
+COSMIC LOVE / SELF-SOLVED FINITE DIRICHLET ZERO FIELD / HSI-ST/1
+Version 2.0 — 2026-10-13 — review-only mathematical research
+
+Seed and exact closed two-state Turing machine:
+  p=55067263
+  delta(q,a)=(1-q,a,1-2q), q,a in {0,1}
+  initial q=0, head h=0, blank binary tape.
+  State sequence q_n = 0,1,0,1,...; tape and head return every 2 steps.
+  This is a fixed two-cycle, not an evolving knowledge source.
+
+EXPLICIT ADDITIONAL DEFINITION (not contained in original program):
+  a_n=1+q_(n-1), so a_1,a_2,...=1,2,1,2,...
+  D_N(s)=sum_(n=1)^N a_n n^(-s), 2<=N<=64 EVEN.
+  F_N(s)=A D_N(s)/D_N(2).
+  E_N(s)=|F_N(s)|² (dimensionless mathematical proxy).
+  No planted zero polynomial factor P_Z and no manually chosen zeros.
+
+SOLVE D_N(s)=0, NOT A PRESET ZERO:
+  For N=2: D_2(s)=1+2^(1-s); exact complete zero family
+     s_m=1+(2m+1)*pi*i/ln 2, m any integer.
+  For N>2: bounded Newton mesh search over -2<=Re(s)<=4 and
+     |Im(s)|<=tmax<=60, then verify |D_N(s)|<=1e-8.
+  Any reported numerical root is only a finite-residual candidate, not
+  a certified exact root or proof that all roots have been found.
+  UNRESOLVED_IN_BOUNDED_SEARCH means no candidates found, NOT no zero exists.
+  Search results can depend on mesh, iteration and floating-point rounding.
+  Even N is limited to 64, candidates per request limited to 16.
+
+Read-only API:
+  GET /health
+  GET /evaluate?n=16&sigma=0.5&t=0&amplitude=1
+  GET /solve?n=2&tmax=15&max_roots=12
+  POST/PUT/DELETE denied. No external broker calls, secrets, data import,
+  ChatGPT transcript access or updates to any repository.
+  No public HTTP domain should be created without independent security review.
+
+MATHEMATICAL LIMITS:
+  This D_N is a finite Dirichlet polynomial, NOT the Riemann zeta function.
+  A constructed coefficient sequence does not encode RH and does not imply
+  a unique physical interpretation. E_N is not joules, zero-point energy
+  extraction, a vacuum field apparatus, or a physical result.
+  The closed-loop TM theorem does NOT authorize self-deployment.
+
+DEPLOYMENT:
+  Isolated Railway staging only at new commit after green read-only CI
+  and actual Docker-image probe. No volume, no public URL, no production
+  main merge, no trade permissions, no changes to Cosmic Love primary,
+  prior canary, Corpus or Trader_42.
+  Continuous hosting can incur charges.
