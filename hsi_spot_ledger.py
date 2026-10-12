@@ -158,8 +158,8 @@ def replay_day(record):
                 "broker_requests": 0,
                 "utc_day": date_str,
                 "fill_count": len(fills), "sell_fills_today": sells_today,
-                "candidate_daily_realized_pnl_usdt": str(running),
-                "worst_intraday_running_realized_pnl_usdt": str(worst),
+                "candidate_daily_realized_pnl_usdt": format(running.normalize(), "f"),
+                "worst_intraday_running_realized_pnl_usdt": format(worst.normalize(), "f"),
                 "stop_threshold_reached_during_replay": crossed,
                 "replay_sha256": fingerprint,
                 "unproven": [
