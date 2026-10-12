@@ -1,0 +1,64 @@
+COSMIC LOVE — SIGNED SNAPSHOT AND RECOVERY TRANSDUCER (2026-10-13)
+This is a finite, offline and review-only program. It does NOT read Railway
+volume data via API, export private ChatGPT transcripts, or place trades.
+
+MACHINE:
+  M_k transition: δ_k(q,a)=(q XOR 1,a,1-2(q mod 2)).
+  For every ACTIVE q and every finite tape, δ_k²(C)=C.
+  The closure_worker.py independently checks finite stage certificates.
+
+SNAPSHOT:
+  Input existing, canonical finite worker journal W, canonical finite
+  provenance journal P, and owner-only Ed25519 private key SK.
+  Individually lock W and P, re-run independent finite validators.
+  Output signed snapshot A containing both JSONL byte sequences and precise
+  SHA-256 digests plus scope claims, and detached receipt R which binds
+  SHA-256(A), the two journal heads and the signer fingerprint.
+  These two different files have NOT been snapshotted atomically together.
+
+VERIFY:
+  Input A, R, and a separately TRUSTED Ed25519 PUBLIC KEY PK.
+  Check both cryptographic signatures, exact archive digest, byte lengths,
+  SHA-256 blob digests, canonical serialization, both proof chain validators,
+  and matching signed journal heads. Reject with no restore if any check fails.
+  Merely including an alleged public key in a snapshot does NOT make it
+  trustworthy. A key fingerprint should be pinned out of band.
+
+RESTORE:
+  Recreate worker and provenance journals only in a BRAND NEW local directory.
+  Never overwrite any existing folder, Railway /data, or live process.
+  Do not automatically switch or deploy anything.
+
+SECURITY SCOPE:
+  The detached receipt is only LOCAL until copied to an independently
+  controlled external store and recorded for future comparison. Neither
+  detached signed local files nor GitHub CI constitute real offsite backup.
+  Snapshots are SIGNED BUT NOT ENCRYPTED: keep the snapshots, receipts and
+  source digests private; SHA-256 digests can reveal low-entropy content.
+  Do not commit real journals, personal chats, signing private keys,
+  access tokens, or Binance credentials to public GitHub.
+  The Ed25519 signature asserts integrity under the supplied public key,
+  not logical truth, complete mathematics, irrevocable user consent,
+  global solveability, deployment authorization, or financial approval.
+  The actual Railway volume was NOT extracted, backed up, or recovered.
+
+EXECUTION:
+  python3 -m pip install -r cosmic_love/requirements-recovery.txt
+  python3 -m unittest cosmic_love.test_recovery -v
+
+  python3 -m cosmic_love.recovery keygen --private /private/signing.key \
+    --public /private/signing.pub
+
+  python3 -m cosmic_love.recovery snapshot --worker /private/cosmic-love.jsonl \
+    --source /private/source-receipts.jsonl --private /private/signing.key \
+    --snapshot /private/snapshot-001.json --anchor /private/anchor-001.json
+
+  python3 -m cosmic_love.recovery verify --snapshot /private/snapshot-001.json \
+    --anchor /private/anchor-001.json --trusted-public /trusted/signing.pub
+
+  python3 -m cosmic_love.recovery restore --snapshot /private/snapshot-001.json \
+    --anchor /private/anchor-001.json --trusted-public /trusted/signing.pub \
+    --dest-dir /private/restore-drill-001
+
+Logical revisions remain REVIEW_REQUIRED; Trader_42, live cloud rollouts and
+ChatGPT conversation access are excluded from this research implementation.
