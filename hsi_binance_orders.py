@@ -5,6 +5,7 @@ the single POST; uncertain results are reconciled with GET, never resubmitted.
 """
 from contextlib import contextmanager
 from hsi_spot_risk import enforce_order, restricted_order_limit, assert_live_release, review_report
+from hsi_spot_pretrade_gate import ensure_schema, enforce_pretrade, status as daily_stop_status
 from decimal import Decimal, InvalidOperation
 import hashlib
 import hmac
@@ -50,6 +51,7 @@ class BinanceOrders:
         self.account_result = None
         with self.database() as db:
             db.execute('CREATE TABLE IF NOT EXISTS orders (id TEXT PRIMARY KEY, payload TEXT NOT NULL, digest TEXT NOT NULL, created REAL NOT NULL, submitted REAL, state TEXT NOT NULL, result TEXT)')
+            ensure_schema(db)
 
     @contextmanager
     def database(self):
@@ -63,6 +65,8 @@ class BinanceOrders:
             db.close()
 
     def status(self):
+        with self.database() as db:
+            local_stop = daily_stop_status(db)
         return {'broker': 'Binance Spot', 'execution': 'manual LIMIT/FOK only',
                 'credentials_present': bool(os.getenv('BINANCE_API_KEY') and os.getenv('BINANCE_API_SECRET')),
                 'credentials_verified': self.credentials_verified, 'live_armed': os.getenv('LIVE_ARMED', '0') == '1',
@@ -75,7 +79,8 @@ class BinanceOrders:
                 'operator_token_configured': bool(os.getenv('HSI_ORDER_CONTROL_TOKEN')),
                 'max_quote_per_order': str(restricted_order_limit(os.getenv('MAX_QUOTE_PER_ORDER', '10'))),
                 'daily_realized_loss_limit_usdt': '2',
-                'daily_realized_pnl_status': 'UNKNOWN_FAIL_CLOSED',
+                'daily_realized_pnl_status': local_stop['status'],
+                'daily_loss_latch_review_only': local_stop['status'] == 'HALT_DAILY_LOSS_REVIEW_LATCHED',
                 'live_release': 'BLOCKED_PENDING_SEPARATE_APPROVAL',
                 'auto_strategy_promotion': False,
                 'symbol_allowlist': [s for s in os.getenv('HSI_ORDER_SYMBOL_ALLOWLIST', 'BTCUSDT').split(',') if s == 'BTCUSDT'],
@@ -246,7 +251,11 @@ class BinanceOrders:
                 raise ValueError('this exact order requires explicit live confirmation')
             if not settings['live_armed'] or settings['dry_run'] or settings['kill_switch'] or not settings['durable_journal'] or not settings['operator_token_configured'] or not settings['credentials_present']:
                 raise ValueError('live order is blocked by the deployment configuration')
-            assert_live_release()  # fail closed until a separately reviewed release
+            # The independent SQLite daily stop/unknown gate also blocks sends,
+            # including if a future developer loosens the code-release gate.
+            with self.database() as db:
+                enforce_pretrade(db)
+            assert_live_release()  # independent, separately reviewed release still required
             if row['state'] != 'TESTED':
                 raise ValueError('order must pass broker test once; used orders are never resubmitted')
             if amount(payload['quantity']) * amount(payload['price']) > amount(os.getenv('MAX_QUOTE_PER_ORDER', '10')):
