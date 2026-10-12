@@ -54,3 +54,24 @@ jobs:
           set -e
           test "$status" -eq 124
           test "$(grep -xc 'COSMIC_LOVE' /tmp/cosmic-love.out)" -eq 2
+      - name: Verify durable worker and hostile-case rejection
+        run: |
+          python3 -m unittest cosmic_love.test_closure_worker -v
+          python3 -m py_compile cosmic_love/closure_worker.py
+          python3 cosmic_love/closure_worker.py --ledger "$RUNNER_TEMP/cosmic-love.jsonl" --check
+      - name: Create and independently verify a finite journal
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from cosmic_love import closure_worker as w
+          import tempfile
+          with tempfile.TemporaryDirectory() as d:
+              path=Path(d)/'proof.jsonl'
+              assert w.advance(path,4)['k']==2
+              assert w.advance(path,4)['k']==4
+              assert w.advance(path,4) is None
+              rows=w.load(path.read_bytes())
+              assert w.verify_rows(rows)['stages']==2
+              assert all(not item['authorization']['trade'] for item in rows)
+          print("DURABLE_FINITE_LEDGER_VERIFIED")
+          PY
