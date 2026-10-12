@@ -1,0 +1,74 @@
+{
+  "cases": [
+    {
+      "compression_allowed": false,
+      "input_bytes": 0,
+      "name": "empty",
+      "program_bytes": 45,
+      "status": "VERIFIED_SUB_2KB_PROGRAM",
+      "strategy": "bytes_literal"
+    },
+    {
+      "compression_allowed": false,
+      "input_bytes": 44,
+      "name": "short_literal",
+      "program_bytes": 90,
+      "status": "VERIFIED_SUB_2KB_PROGRAM",
+      "strategy": "bytes_literal"
+    },
+    {
+      "compression_allowed": false,
+      "input_bytes": 700000,
+      "name": "large_periodic",
+      "program_bytes": 77,
+      "status": "VERIFIED_SUB_2KB_PROGRAM",
+      "strategy": "periodic_prefix"
+    },
+    {
+      "compression_allowed": false,
+      "input_bytes": 50000,
+      "name": "affine",
+      "program_bytes": 82,
+      "status": "VERIFIED_SUB_2KB_PROGRAM",
+      "strategy": "affine_mod256"
+    },
+    {
+      "compression_allowed": false,
+      "input_bytes": 50000,
+      "name": "quadratic",
+      "program_bytes": 96,
+      "status": "VERIFIED_SUB_2KB_PROGRAM",
+      "strategy": "quadratic_mod256"
+    },
+    {
+      "compression_allowed": false,
+      "input_bytes": 100000,
+      "name": "constant",
+      "program_bytes": 60,
+      "status": "VERIFIED_SUB_2KB_PROGRAM",
+      "strategy": "constant_byte"
+    },
+    {
+      "compression_allowed": false,
+      "input_bytes": 4096,
+      "name": "bounded_failure",
+      "program_bytes": null,
+      "status": "NO_VERIFIED_SUB_2KB_PROGRAM",
+      "strategy": null
+    }
+  ],
+  "claims": {
+    "global_minimum_proven": false,
+    "halting_decider": false,
+    "information_theory_bypassed": false,
+    "universal_sub2kb_representation": false
+  },
+  "limitations": [
+    "The search is complete only for the finite grammar implemented by this release.",
+    "NO_VERIFIED_SUB_2KB_PROGRAM is not a proof of mathematical nonexistence.",
+    "Default synthesis does not use compression; zlib/Base85 is separately opt-in.",
+    "Finite tests do not establish correctness for every Python runtime or input."
+  ],
+  "protocol": "HSI-SUB2K-SYNTH-VERIFICATION/1.0",
+  "status": "FINITE_TESTS_PASSED"
+}
