@@ -46,12 +46,12 @@
     {
       "path": "hsi_notes_domains.py",
       "bytes": 7183,
-      "sha256": "6747e0dfe2c6309bdb15c816d04fb939d0f91de486afb5aa5aa406709915cff4"
+      "sha256": "3330c90dd7aaebc8c6747c261b66b79722103178d5973459a9395bfaf7cfc6bc"
     },
     {
       "path": "hsi_notes_review.lock.json",
-      "bytes": 5798,
-      "sha256": "dd86337811d84d9b14855bb11dc5853d804d8160812d4c251fbcadaa965a6f76"
+      "bytes": 5923,
+      "sha256": "b2f212c51a3553280e159d61f6debffbeeb7a5d371adce15859dd17461ada038"
     },
     {
       "path": "hsi_notes_review.py",
@@ -122,6 +122,11 @@
       "path": "Notes/4",
       "bytes": 38042,
       "sha256": "84f761ab888ff24e422f1a82a472d76525a32d93fce85aecac5fd700f081a1f5"
+    },
+    {
+      "path": "Notes/5",
+      "bytes": 3642,
+      "sha256": "1c2fef4211fb1a9e629b9730450a947624a716267d248dc2a902c81aa77ef68e"
     },
     {
       "path": "Notes/COSMIC_LOVE_Oscillator_TM/.gitignore",
