@@ -52,7 +52,8 @@ class BootstrapTests(unittest.TestCase):
         self.assertTrue(all(validate_target('self', ROOT).values()))
         after = {p.relative_to(ROOT).as_posix(): p.read_bytes() for p in (ROOT / 'Notes').rglob('*') if p.is_file()}
         self.assertEqual(before, after)
-        self.assertEqual(len(after), 32)
+        locked = json.loads((ROOT / 'hsi_notes_review.lock.json').read_text(encoding='utf-8'))
+        self.assertEqual(set(after), {item['path'] for item in locked['entries']})
 
 
 if __name__ == '__main__':
