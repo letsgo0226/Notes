@@ -1,0 +1,117 @@
+name: CLSDP research closure (no live trading)
+
+on:
+  pull_request:
+    paths:
+      - 'research/clsdp/**'
+      - 'tests/test_clsdp_*.py'
+      - '.github/workflows/clsdp_research.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '25 2 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  offline-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify CLTP and CLSDP synthetic unit tests
+        run: |
+          python3 -m unittest discover -s tests -p 'test_cltp_offline.py' -v
+          python3 -m unittest discover -s tests -p 'test_clsdp_*.py' -v
+          python3 -m py_compile research/clsdp/*.py
+
+  # Neither PR checks nor other branches run scheduled public network reads.
+  public-research:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: offline-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Research public BTCUSDT klines only (fail closed)
+        run: python3 research/clsdp/run_research.py --out-dir clsdp-output --hours 720
+      - name: Ensure research always denies live order authority
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('clsdp-output/report.json').read_text())
+          assert p['protocol'] == 'HSI-CLSDP-PUBLIC-HISTORY-RESEARCH/1'
+          assert p['data']['source_endpoint'] == 'https://data-api.binance.vision/api/v3/klines'
+          assert p['data']['count'] == 720
+          assert p['live_order_permission'] == 'DENIED'
+          assert not p['auto_release_allowed'] and not p['deploy_allowed']
+          assert p['real_orders'] == 0 and p['broker_calls'] == 0
+          assert p['closure_review']['status'] == 'REVIEW_BLOCKED'
+          print('CLSDP_CLOSED_LOOP_RESEARCH_ONLY')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clsdp-public-btcusdt-research
+          path: clsdp-output/
+          retention-days: 14
+
+  # Only the default branch can propose a new draft after independent
+  # offline-tests and strictly public research. Never merge or deploy.
+  draft-review:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: [offline-tests, public-research]
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: clsdp-public-btcusdt-research
+          path: clsdp-input/
+      - name: Reject unsafe claims and produce limited review-only Markdown
+        run: |
+          python3 research/clsdp/render_review.py \
+            --report clsdp-input/report.json \
+            --out clsdp-proposed-review.md
+          grep -q 'Binance live order permission: DENIED' clsdp-proposed-review.md
+          grep -q 'REVIEW_BLOCKED' clsdp-proposed-review.md
+      - name: Make new branch with ONLY a draft research memo
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          : "${GITHUB_RUN_ID:?}"
+          branch="research/clsdp-weekly-${GITHUB_RUN_ID}"
+          memo="research/clsdp/reports/$(date -u +%Y-%m-%d)-${GITHUB_RUN_ID}.md"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          mkdir -p research/clsdp/reports
+          cp clsdp-proposed-review.md "$memo"
+          git add -- "$memo"
+          git commit -m "research: CLSDP public BTCUSDT report (review only)"
+          git push origin "$branch"
+          gh pr create --draft --base main --head "$branch" \
+            --title "CLSDP public BTCUSDT research — review only" \
+            --body-file "$memo"
