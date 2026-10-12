@@ -36,8 +36,9 @@ class ManualOrderTests(unittest.TestCase):
 
     @contextmanager
     def armed(self):
-        with patch.dict(os.environ, {'LIVE_ARMED': '1', 'LIVE_DRY_RUN': '0', 'HSI_ORDER_KILL': '0'}), patch('os.path.ismount', return_value=True), patch('hsi_binance_orders.assert_live_release'):
-            # Unit-only simulation of a hypothetical approved release.
+        with patch.dict(os.environ, {'LIVE_ARMED': '1', 'LIVE_DRY_RUN': '0', 'HSI_ORDER_KILL': '0'}), patch('os.path.ismount', return_value=True), patch('hsi_binance_orders.assert_live_release'), patch('hsi_binance_orders.enforce_pretrade'):
+            # Synthetic-only test of older journal behavior: BOTH independent
+            # release guards are mocked. Real code never does this.
             yield
 
     def test_prepare_is_offline_and_enforces_explicit_fields(self):
@@ -175,8 +176,14 @@ class ManualOrderTests(unittest.TestCase):
     def test_actual_release_gate_blocks_broker_even_when_armed(self):
         ticket = self.prepare()
         with patch.dict(os.environ, {'LIVE_ARMED': '1', 'LIVE_DRY_RUN': '0', 'HSI_ORDER_KILL': '0'}), patch('os.path.ismount', return_value=True), patch.object(self.orders, 'broker') as broker:
-            with self.assertRaisesRegex(ValueError, 'LIVE_BLOCKED'):
+            with self.assertRaisesRegex(ValueError, 'RISK_UNKNOWN_BROKER_RECONCILIATION'):
                 self.orders.submit({**ticket, 'confirm_live_order': True})
+            broker.assert_not_called()
+            # Independently, the unconditional reviewed-code release gate also
+            # blocks even if a unit test hypothetically bypasses the PnL gate.
+            with patch('hsi_binance_orders.enforce_pretrade'):
+                with self.assertRaisesRegex(ValueError, 'LIVE_BLOCKED'):
+                    self.orders.submit({**ticket, 'confirm_live_order': True})
             broker.assert_not_called()
 
     def test_signer_matches_known_vector_and_rejects_other_hosts(self):
