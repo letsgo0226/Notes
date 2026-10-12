@@ -100,6 +100,11 @@ def read_only_audit(broker, *, enabled=False, now_ms=None):
         if not isinstance(restrictions, dict) or type(restrictions.get("enableSpotAndMarginTrading")) is not bool:
             raise ReviewFailure("INVALID_KEY_RESTRICTIONS")
         trading_permission = restrictions["enableSpotAndMarginTrading"]
+        if trading_permission:
+            # Stop immediately when the API key unexpectedly permits trading.
+            # Never proceed to balances-independent trade history in this state.
+            return {**_denied("SPOT_TRADING_PERMISSION_ENABLED", calls),
+                    "api_spot_trading_enabled": True}
 
         open_orders = read("/api/v3/openOrders", {"symbol": SYMBOL})
         if not isinstance(open_orders, list):
