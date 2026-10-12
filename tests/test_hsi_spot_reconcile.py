@@ -74,6 +74,14 @@ class SpotBoundedCrosscheckTests(unittest.TestCase):
             normalized_trade(1, NOW, "BUY", "0.0100", "10000", "0.000", "BTC")
         ]))
 
+    def test_full_decimal_precision_never_rounds_hashes_together(self):
+        left = "0.123456789012345678901234567891"
+        right = "0.123456789012345678901234567892"
+        self.assertNotEqual(
+            digest_trades([normalized_trade(1, NOW, "BUY", left, "10000", "0", "BTC")]),
+            digest_trades([normalized_trade(1, NOW, "BUY", right, "10000", "0", "BTC")]),
+        )
+
     def test_empty_trades_match_but_not_authorize(self):
         snapshot, replay = make_pair(no_trades=True)
         result = crosscheck(snapshot, replay)
