@@ -3,8 +3,7 @@ from math import isfinite, isqrt, log
 import cmath
 
 SEED=55067263
-PROTOCOL="COSMIC-LOVE-MATH-ZERO-FIELD/1.0"
-DEFAULT_ZERO=complex(0.5,14.134725141734693)
+PROTOCOL="COSMIC-LOVE-SELF-SOLVED-ZERO-FIELD/2.0"
 
 def decode_machine(p=SEED):
     v=(isqrt(8*p+1)-1)//2
@@ -43,50 +42,78 @@ def bounded_float(value,lo,hi,label):
     if not isfinite(x) or not lo<=x<=hi:raise ValueError(label+" outside allowed domain")
     return x
 
-def zeros_from_pairs(pairs):
-    if not isinstance(pairs,(tuple,list)) or not 1<=len(pairs)<=4:
-        raise ValueError("zero count must be 1..4")
-    out=[]
-    for re,im in pairs:
-        z=complex(bounded_float(re,-3,3,"zero real part"),
-                  bounded_float(im,0,60,"zero imaginary part"))
-        if abs(2-z)<1e-12:raise ValueError("zero at normalization point forbidden")
-        out.append(z)
-    return tuple(out)
+def d_n(s,cs):
+    return sum(a*cmath.exp(-s*log(i)) for i,a in enumerate(cs,1))
 
-def d_n(s,coeff):
-    return sum(a*cmath.exp(-s*log(j)) for j,a in enumerate(coeff,1))
+def d_prime(s,cs):
+    return -sum(a*log(i)*cmath.exp(-s*log(i)) for i,a in enumerate(cs,1))
 
-def p_z(s,zeros):
-    result=1+0j
-    for z in zeros:
-        result*=((s-z)*(s-z.conjugate()))/((2-z)*(2-z.conjugate()))
-    return result
-
-def evaluate(sigma=0.5,t=0.0,n=16,zeros=(DEFAULT_ZERO,),amplitude=1.0):
+def evaluate(sigma=0.5,t=0.0,n=16,amplitude=1):
     sigma=bounded_float(sigma,-2,4,"sigma")
     t=bounded_float(t,-60,60,"t")
     amp=bounded_float(amplitude,0,10,"amplitude")
-    if type(n) is not int:raise ValueError("n must be integer")
-    coeff=tm_coefficients(n)
-    zs=zeros_from_pairs([(z.real,z.imag) for z in zeros])
-    s=complex(sigma,t)
-    baseline=d_n(complex(2,0),coeff)
-    value=amp*d_n(s,coeff)*p_z(s,zs)/baseline
-    energy=abs(value)**2
-    if not all(isfinite(v) for v in (value.real,value.imag,energy)):
-        raise ValueError("nonfinite calculation")
-    return {
-        "protocol":PROTOCOL,
-        "field_type":"FINITE_DIRICHLET_MATHEMATICAL_MODEL",
-        "not_physical_energy":True,
-        "is_riemann_zeta":False,
-        "universal_solution_proven":False,
-        "p":SEED,"n":n,"s":{"re":sigma,"im":t},
-        "zeros":[{"re":z.real,"im":z.imag} for z in zs],
-        "amplitude":amp,
-        "field":{"re":value.real,"im":value.imag},
-        "energy_proxy":energy,
-        "normalization":"P_Z(2)=1, D_N(2)>0; F(2)=amplitude",
-        "coefficient_source":"HSI-ST/1 two-step period q=0,1 -> 1,2 repeated"
-    }
+    cs=tm_coefficients(n)
+    f=amp*d_n(complex(sigma,t),cs)/d_n(2+0j,cs)
+    energy=abs(f)**2
+    if not all(isfinite(x) for x in (f.real,f.imag,energy)):
+        raise ValueError("nonfinite result")
+    return {"protocol":"COSMIC-LOVE-SELF-SOLVED-ZERO-FIELD/2.0",
+            "field_type":"FINITE_DIRICHLET_POLYNOMIAL",
+            "p":SEED,"n":n,"s":{"re":sigma,"im":t},
+            "coefficients":list(cs),"amplitude":amp,
+            "f":{"re":f.real,"im":f.imag},"energy_proxy":energy,
+            "zero_factor_inserted":False,
+            "physical_energy_generated":False,
+            "riemann_zeta_zero_proven":False,
+            "all_zeros_found":False}
+
+def _newton(z,cs):
+    for _ in range(40):
+        v=d_n(z,cs)
+        if abs(v)<1e-10:return z
+        deriv=d_prime(z,cs)
+        if abs(deriv)<1e-10:return None
+        step=v/deriv
+        if abs(step)>2:step=2*step/abs(step)
+        z-=step
+        if abs(z.real)>16 or abs(z.imag)>100 or not all(isfinite(x) for x in (z.real,z.imag)):
+            return None
+    return z if abs(d_n(z,cs))<1e-10 else None
+
+def solve(n=2,tmax=30,max_roots=12):
+    from math import pi
+    tmax=bounded_float(tmax,0,60,"tmax")
+    if type(max_roots) is not int or not 1<=max_roots<=16:
+        raise ValueError("max_roots must be 1..16")
+    cs=tm_coefficients(n)
+    if n==2:
+        # This exact family follows from D_2(s)=1+2**(1-s)=0.
+        roots=[complex(1,(2*m+1)*pi/log(2))
+               for m in range(-10,11)
+               if abs((2*m+1)*pi/log(2))<=tmax+1e-12]
+        roots.sort(key=lambda z:(abs(z.imag),z.imag))
+        method="ANALYTIC_ROOT_FAMILY_FILTERED_TO_WINDOW"
+    else:
+        roots=[]
+        for sigma in (-2+i*0.5 for i in range(13)):
+            for t in range(0,int(tmax)+1,2):
+                for sign in ((1,-1) if t else (1,)):
+                    z=_newton(complex(sigma,sign*t),cs)
+                    if (z is None or not(-2<=z.real<=4 and abs(z.imag)<=tmax)
+                        or abs(d_n(z,cs))>1e-8):
+                        continue
+                    if not any(abs(z-w)<1e-4 for w in roots):
+                        roots.append(z)
+        roots.sort(key=lambda z:(abs(z.imag),z.real,z.imag))
+        method="FINITE_RESIDUAL_VERIFIED_CANDIDATES" if roots else "UNRESOLVED_IN_BOUNDED_SEARCH"
+    cut=roots[:max_roots]
+    return {"protocol":"COSMIC-LOVE-SELF-SOLVED-ZERO-FIELD/2.0",
+            "n":n,"status":method,
+            "zeros":[{"re":z.real,"im":z.imag,"residual":abs(d_n(z,cs)),
+                      "method":"analytic" if n==2 else "newton_finite_residual",
+                      "verified_within_tolerance":abs(d_n(z,cs))<=1e-8}
+                     for z in cut],
+            "complete_within_window":n==2 and len(roots)<=max_roots,
+            "search":{"real_min":-2,"real_max":4,"imag_abs_max":tmax},
+            "zero_factor_inserted":False,
+            "physical_energy_generated":False}
