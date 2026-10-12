@@ -1,0 +1,121 @@
+{
+  "protocol": "HSI-LOGIC-TAPE-TEST/1",
+  "timestamp_utc": "2026-10-12T17:22:50.816898+00:00",
+  "simulator_file_bytes": 1929,
+  "simulator_command_bytes": 1928,
+  "total_checks": 26,
+  "all_checks_passed": true,
+  "checks": [
+    {
+      "name": "whole_command_strictly_sub2KB",
+      "passed": true,
+      "including_LF": 1929,
+      "excluding_LF": 1928
+    },
+    {
+      "name": "one_physical_line",
+      "passed": true
+    },
+    {
+      "name": "shell_quoting_and_printf_exact_source",
+      "passed": true
+    },
+    {
+      "name": "no_SHA_network_or_compressed_payload",
+      "passed": true
+    },
+    {
+      "name": "default_1829_preserves_binary_file",
+      "passed": true,
+      "input_bytes": 76800
+    },
+    {
+      "name": "default_run_independently_replayed",
+      "passed": true
+    },
+    {
+      "name": "source_not_modified",
+      "passed": true
+    },
+    {
+      "name": "reversible_encode_empty",
+      "passed": true
+    },
+    {
+      "name": "independent_encode_replay_empty",
+      "passed": true
+    },
+    {
+      "name": "reversible_encode_all-bytes",
+      "passed": true
+    },
+    {
+      "name": "independent_encode_replay_all-bytes",
+      "passed": true
+    },
+    {
+      "name": "reversible_encode_zeros",
+      "passed": true
+    },
+    {
+      "name": "independent_encode_replay_zeros",
+      "passed": true
+    },
+    {
+      "name": "cross_byte_boundaries",
+      "passed": true
+    },
+    {
+      "name": "reversible_encode_then_resume_matches_direct_run",
+      "passed": true
+    },
+    {
+      "name": "negative_positions_and_full_image",
+      "passed": true
+    },
+    {
+      "name": "resume_matches_single_run_across_zero",
+      "passed": true
+    },
+    {
+      "name": "resume_independently_replayed",
+      "passed": true
+    },
+    {
+      "name": "resume_halted_machine_takes_no_extra_steps",
+      "passed": true
+    },
+    {
+      "name": "empty_input_and_program_zero",
+      "passed": true
+    },
+    {
+      "name": "unlimited_mode_can_halt",
+      "passed": true
+    },
+    {
+      "name": "head_crosses_65536_byte_load_boundary_without_reset",
+      "passed": true,
+      "transitions": 524289
+    },
+    {
+      "name": "512_state_program_without_artificial_state_cap",
+      "passed": true
+    },
+    {
+      "name": "48_random_tables_against_independent_bit_dictionary",
+      "passed": true
+    },
+    {
+      "name": "inconsistent_resume_image_length_rejected",
+      "passed": true
+    },
+    {
+      "name": "existing_output_not_overwritten",
+      "passed": true
+    }
+  ],
+  "platform": "linux",
+  "python": "3.12.14",
+  "scope": "Reversible finite-file tape embedding, finite execution evidence, and complete signed-coordinate tape images; not compression"
+}
