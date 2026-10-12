@@ -15,6 +15,11 @@
       "book": "01_Caduceus_如何閱讀一本書",
       "chapter": 3,
       "folder": "01_Caduceus_如何閱讀一本書/03_笛卡兒與懷疑"
+    },
+    {
+      "book": "01_Caduceus_如何閱讀一本書",
+      "chapter": 6,
+      "folder": "01_Caduceus_如何閱讀一本書/06_反例與可接近性的界限"
     }
   ],
   "source_epochs": [
@@ -32,5 +37,11 @@
       "closed_reason": "LOCKED_INVENTORY_EXPANDED_TO_16"
     }
   ],
-  "tm_word": null
+  "tm_word": "1100000100110100",
+  "tm_checkpoint": {
+    "n": 16,
+    "t": 0,
+    "w": "1100000100110100",
+    "v": 2
+  }
 }
