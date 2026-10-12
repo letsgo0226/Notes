@@ -5,8 +5,8 @@
   "files": [
     {
       "path": "hsi_binance_orders.py",
-      "bytes": 16793,
-      "sha256": "53f792c938f0796495aad84168e885975d14892cff663557ba3b93e393dbd78b"
+      "bytes": 17349,
+      "sha256": "6b0f47385582c5523d0c1ccbb035bfd391bb3b118dac4fa8a29e1450a6ca9f28"
     },
     {
       "path": "hsi_binance_readonly_audit.py",
@@ -97,6 +97,11 @@
       "path": "hsi_spot_ledger.py",
       "bytes": 9535,
       "sha256": "cfebb64ae5f364e2b8ff1516a6d5e659e24ddc22ebeb8d18204c459f46c839e5"
+    },
+    {
+      "path": "hsi_spot_pretrade_gate.py",
+      "bytes": 5788,
+      "sha256": "439ba7fac4bf311069b4fa8ec6c0c83ed08af3d90e72dd5044d2e1dd2d892408"
     },
     {
       "path": "hsi_spot_reconcile.py",
