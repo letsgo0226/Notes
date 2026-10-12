@@ -1,0 +1,24 @@
+name: HSI COSMIC_LOVE two-step invariant
+on:
+  pull_request:
+    paths:
+      - "hsi_cosmic_love.py"
+      - "tests/test_hsi_cosmic_love.py"
+      - "COSMIC_LOVE_TM_SPEC.md"
+      - ".github/workflows/hsi_cosmic_love.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  finite-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the exact user-supplied program decoding and cycle
+        run: |
+          python3 hsi_cosmic_love.py
+          python3 hsi_cosmic_love.py --json
+          python3 -m unittest discover -s tests -p 'test_hsi_cosmic_love.py' -v
