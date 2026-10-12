@@ -45,6 +45,29 @@ class TestSpotFifoReplay(unittest.TestCase):
         self.assertEqual(r["live_order_permission"], "DENIED")
         self.assertEqual(r["broker_requests"], 0)
 
+    def test_fractional_loss_just_below_stop_is_not_rounded_to_two(self):
+        """Do not report -2 when the exact candidate loss is still above -2."""
+        record = fixture([
+            trade(1, 1000, "SELL", "0.01",
+                  "9800.0000000000000000000000000001")
+        ])
+        result = replay_day(record)
+        self.assertEqual(result["status"], "LOCAL_REPLAY_ONLY")
+        self.assertEqual(
+            result["candidate_daily_realized_pnl_usdt"],
+            "-1.999999999999999999999999999999")
+        self.assertEqual(
+            result["worst_intraday_running_realized_pnl_usdt"],
+            "-1.999999999999999999999999999999")
+        self.assertFalse(result["stop_threshold_reached_during_replay"])
+        self.assertEqual(result["live_order_permission"], "DENIED")
+
+    def test_exact_two_dollar_stop_still_triggers(self):
+        record = fixture([trade(1, 1000, "SELL", "0.01", "9800")])
+        result = replay_day(record)
+        self.assertEqual(result["candidate_daily_realized_pnl_usdt"], "-2")
+        self.assertTrue(result["stop_threshold_reached_during_replay"])
+
     def test_fee_in_btc_reduces_buy_quantity(self):
         r = replay_day(fixture([
             trade(1, 1000, "BUY", "0.01", "10000", "0.0001", "BTC"),
