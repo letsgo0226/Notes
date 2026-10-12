@@ -1,0 +1,47 @@
+{
+  "channel_url": "https://www.youtube.com/user/777ALAJE/videos",
+  "channel_id": "UCLoHjca5L0KJ3i14MvhcroA",
+  "priority_ids": [
+    "oiSkrxINkHA",
+    "yr48-3M5nLU",
+    "yNtQYwPjKMo"
+  ],
+  "seed_catalog": {
+    "protocol": "DOLPHIN-SOURCE-CATALOG/1",
+    "channel_id": "UCLoHjca5L0KJ3i14MvhcroA",
+    "status": "VERIFIED_METADATA_SEED",
+    "scan_limit": 512,
+    "possibly_truncated": false,
+    "entries": [
+      {
+        "id": "oiSkrxINkHA",
+        "channel_id": "UCLoHjca5L0KJ3i14MvhcroA",
+        "title": "Episode 15 - PLEIADIAN ALAJE - SPIRITUAL EXTRATERRESTRIAL UFO DOCUMENTARY - Lightwork-Greece-English",
+        "url": "https://www.youtube.com/watch?v=oiSkrxINkHA",
+        "duration_seconds": 1441
+      },
+      {
+        "id": "yNtQYwPjKMo",
+        "channel_id": "UCLoHjca5L0KJ3i14MvhcroA",
+        "title": "ALAJE THE PLEIADIAN - CHANNEL INFORMATION - SPIRITUAL EXTRATERRESTRIAL UFO DOCUMENTARY",
+        "url": "https://www.youtube.com/watch?v=yNtQYwPjKMo",
+        "duration_seconds": 140
+      },
+      {
+        "id": "yr48-3M5nLU",
+        "channel_id": "UCLoHjca5L0KJ3i14MvhcroA",
+        "title": "ALAJE THE PLEIADIAN - HU Mantra -Theta Waves Meditation - MP3 Download",
+        "url": "https://www.youtube.com/watch?v=yr48-3M5nLU",
+        "duration_seconds": 91
+      }
+    ],
+    "priority_ids": [
+      "oiSkrxINkHA",
+      "yr48-3M5nLU",
+      "yNtQYwPjKMo"
+    ]
+  },
+  "model": "qwen3:4b",
+  "model_runtime_version": "0.40.3",
+  "caption_intake": "public en/zh captions only; no login or media download"
+}
