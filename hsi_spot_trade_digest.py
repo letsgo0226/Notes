@@ -11,13 +11,19 @@ import json
 PROTOCOL = "HSI-TRADER42-TRADE-FINGERPRINT/1"
 
 
+def exact_decimal(value):
+    """Normalize spelling but never round using the ambient Decimal context."""
+    rendered = format(Decimal(value), "f")
+    return rendered.rstrip("0").rstrip(".") if "." in rendered else rendered
+
+
 def normalized_trade(trade_id, stamp_ms, side, quantity, price, commission, commission_asset):
     """The caller validates order, origin, amounts, symbols and time bounds."""
     return [
         trade_id, stamp_ms, side,
-        format(Decimal(quantity).normalize(), "f"),
-        format(Decimal(price).normalize(), "f"),
-        format(Decimal(commission).normalize(), "f"),
+        exact_decimal(quantity),
+        exact_decimal(price),
+        exact_decimal(commission),
         commission_asset,
     ]
 
