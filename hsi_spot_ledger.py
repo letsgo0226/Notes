@@ -13,6 +13,7 @@ from pathlib import Path
 import re
 
 from hsi_spot_risk import MAX_DAILY_REALIZED_LOSS_USDT
+from hsi_spot_trade_digest import PROTOCOL as DIGEST_PROTOCOL, normalized_trade, digest_trades
 
 PROTOCOL = "HSI-BINANCE-SPOT-FIFO-REPLAY/1"
 MAX_FILLS = 2000
@@ -95,6 +96,9 @@ def replay_day(record):
         worst = Decimal("0")
         crossed = False
         sells_today = 0
+        buys_today = 0
+        earliest_day = True
+        digest_rows = []
         with localcontext() as ctx:
             ctx.prec = 60
             for row in fills:
@@ -117,7 +121,12 @@ def replay_day(record):
                 asset = row["commission_asset"]
                 if asset not in ("BTC", "USDT") and fee != 0:
                     raise IncompleteLedger("UNPRICED_FEE_ASSET")
+                digest_rows.append(normalized_trade(trade_id, stamp, side, qty, price, fee, asset))
+                if stamp < day_begin or stamp >= day_end:
+                    earliest_day = False
                 if side == "BUY":
+                    if day_begin <= stamp < day_end:
+                        buys_today += 1
                     owned = qty - fee if asset == "BTC" else qty
                     if owned <= 0:
                         raise IncompleteLedger("BUY_FEE_EXCEEDS_QUANTITY")
@@ -158,6 +167,11 @@ def replay_day(record):
                 "broker_requests": 0,
                 "utc_day": date_str,
                 "fill_count": len(fills), "sell_fills_today": sells_today,
+                "buy_fills_today": buys_today,
+                "all_fills_in_requested_utc_day": earliest_day,
+                "snapshot_ms": as_of,
+                "trade_fingerprint_sha256": digest_trades(digest_rows),
+                "trade_fingerprint_scheme": DIGEST_PROTOCOL,
                 "candidate_daily_realized_pnl_usdt": format(running.normalize(), "f"),
                 "worst_intraday_running_realized_pnl_usdt": format(worst.normalize(), "f"),
                 "stop_threshold_reached_during_replay": crossed,
