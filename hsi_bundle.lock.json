@@ -24,6 +24,26 @@
       "sha256": "84f761ab888ff24e422f1a82a472d76525a32d93fce85aecac5fd700f081a1f5"
     },
     {
+      "path": "Notes/COSMIC_LOVE_Oscillator_TM/.gitignore",
+      "bytes": 28,
+      "sha256": "3e28e99263845fc0acbe0c82eb0e85f91d10c64143cc82f7ad20a8f0a374a6c6"
+    },
+    {
+      "path": "Notes/COSMIC_LOVE_Oscillator_TM/README.md",
+      "bytes": 1158,
+      "sha256": "86fe0e116f2b934af5a323cb59cc07eb92dbc4c20d7650c166383a18dfa1672e"
+    },
+    {
+      "path": "Notes/COSMIC_LOVE_Oscillator_TM/cosmic_love_oscillator_daemon.sh",
+      "bytes": 1227,
+      "sha256": "925c2d1806a8191afa46b7483739a00d3ba554b60914af9a330160b887d7b23e"
+    },
+    {
+      "path": "Notes/COSMIC_LOVE_Oscillator_TM/cosmic_love_oscillator_tm.sh",
+      "bytes": 492,
+      "sha256": "dc9ad4d87275cfd1362f7ff0519824164f7df9af64535846438c3e8f041fc7a9"
+    },
+    {
       "path": "Notes/Dolphin_Logos_Riemann_Feedback/README.md",
       "bytes": 5483,
       "sha256": "efc6a6937b82162fc0c225a4313f8807793ec320994cbb9fed25df660197370d"
@@ -52,6 +72,36 @@
       "path": "Notes/Dolphin_Logos_Riemann_Feedback/verify_feedback.py",
       "bytes": 4746,
       "sha256": "0de78c40061828f72b80e1102c465698b83ebc2141a01b394c4b24a32ce09813"
+    },
+    {
+      "path": "Notes/HSI_LogicTape_2KB_Release/README.md",
+      "bytes": 9711,
+      "sha256": "b188a9db025fbc009002bb5af02cb70f7ec3b52d6ae7ad4a5452237e4b71e49f"
+    },
+    {
+      "path": "Notes/HSI_LogicTape_2KB_Release/core.py",
+      "bytes": 1823,
+      "sha256": "e20b0e67358af7cc2b3c82308b1a540c2554ac0ff6d7c9e8159334540e084e9f"
+    },
+    {
+      "path": "Notes/HSI_LogicTape_2KB_Release/hsi_logic_tape_2kb.sh",
+      "bytes": 1929,
+      "sha256": "8de38d15dbac873b5a1eeaccdd9828696a90f52197c74183191ead9a34d20b71"
+    },
+    {
+      "path": "Notes/HSI_LogicTape_2KB_Release/simulation_certificate.json",
+      "bytes": 2741,
+      "sha256": "003f3148ea3e86f4defed416fb4faa73744e94952f8704d9414a2bdd67493d0c"
+    },
+    {
+      "path": "Notes/HSI_LogicTape_2KB_Release/test_simulator.py",
+      "bytes": 8917,
+      "sha256": "43899c58dae1420ecfbfebe63d40eb2568a8f84a8acad29406975285e74cba5a"
+    },
+    {
+      "path": "Notes/HSI_LogicTape_2KB_Release/verify_single_tape.py",
+      "bytes": 5448,
+      "sha256": "a48790dee161209a6740af9329a5895bc090d34bd3fd5b5a0c3987eb1374188f"
     },
     {
       "path": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_POSIX_2KB_OneLiner.sh",
@@ -151,12 +201,12 @@
     {
       "path": "hsi_notes_domains.py",
       "bytes": 7183,
-      "sha256": "886fa9fbea6627baa98b8c1fa629e77b7b70b57295af402e6e1d01d14f50d909"
+      "sha256": "0999e362c875ecbf12208a1f90b4afea829ae6ed537a023a6eacdfa965384f0f"
     },
     {
       "path": "hsi_notes_review.lock.json",
-      "bytes": 3943,
-      "sha256": "3f553da2e0ce199f5bfc018b5b570875c9bfafcbd74658da166369b5f7f176be"
+      "bytes": 5621,
+      "sha256": "75eec35014320133dc8ff8033acd80a1cbfc946bcc70cdbcece53b897c8393df"
     },
     {
       "path": "hsi_notes_review.py",
