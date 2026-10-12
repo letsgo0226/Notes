@@ -81,7 +81,14 @@ class BinanceSignedReadAuditTests(unittest.TestCase):
         broker = mocked_broker(parts)
         report = read_only_audit(broker, enabled=True, now_ms=NOW)
         self.assertTrue(report["api_spot_trading_enabled"])
+        self.assertEqual(report["status"], "UNKNOWN_FAIL_CLOSED")
+        self.assertEqual(report["reason"], "SPOT_TRADING_PERMISSION_ENABLED")
+        self.assertEqual(report["signed_reads"], 2)
         self.assertEqual(report["live_order_permission"], "DENIED")
+        self.assertEqual(
+            [call.args[0] for call in broker.call_args_list],
+            ["/api/v3/account", "/sapi/v1/account/apiRestrictions"],
+        )
 
     def test_unknown_fee_open_orders_are_flagged(self):
         parts = response()
