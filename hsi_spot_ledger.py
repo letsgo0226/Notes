@@ -19,7 +19,7 @@ MAX_FILLS = 2000
 MAX_LOTS = 512
 MAX_INPUT_BYTES = 1024 * 1024
 FRESHNESS_MS = 60000
-_DECIMAL = re.compile(r"[0-9]+(?:\\.[0-9]+)?\\Z")
+_DECIMAL = re.compile(r"[0-9]+(?:\.[0-9]+)?\Z")
 
 
 class IncompleteLedger(ValueError):
@@ -63,7 +63,7 @@ def replay_day(record):
         return _fail("INVALID_INPUT")
     try:
         date_str = record["utc_day"]
-        if not isinstance(date_str, str) or not re.fullmatch(r"\\d{4}-\\d{2}-\\d{2}", date_str):
+        if not isinstance(date_str, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date_str):
             raise IncompleteLedger("INVALID_UTC_DAY")
         start = datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
         day_begin = int(start.timestamp() * 1000)
