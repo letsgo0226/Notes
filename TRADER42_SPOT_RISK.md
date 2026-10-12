@@ -53,3 +53,42 @@ protection/required checks should be enabled before promotion to live.
 
 Reviewing or merging this risk PR **must never** be confused with
 authorizing live trading.
+
+## Finite offline UTC FIFO replay (not account reconciliation)
+
+The proposed `hsi_spot_ledger.py` independently replays *supplied* BTCUSDT
+fills against supplied opening FIFO inventory lots. Each sell's UTC-day
+realized PnL is sale proceeds less matched BTC cost basis, net of fees in
+USDT or BTC. Unsupported nonzero fees in BNB/other currencies, missing
+cost basis, duplicate/unordered trades, stale timestamps and invalid
+records produce `UNKNOWN_FAIL_CLOSED`. A day crossing the -2 USDT
+threshold stays flagged, even if a later hypothetical sale recovers PnL.
+
+Example with synthetic or offline-imported records, never with secrets:
+
+```sh
+python3 -m hsi_spot_risk --ledger-file path/to/local-fills.json
+python3 -m unittest tests.test_hsi_spot_ledger -v
+```
+
+Schema: JSON object with UTC `utc_day` (YYYY-MM-DD), integer
+`as_of_ms`, `observed_at_ms`, `opening_lots` (objects with decimal
+string `quantity` and `cost_usdt`), and chronologically ordered
+`fills` (objects with `trade_id`, `time_ms`, `symbol`,
+`side`, `quantity`, `price`, `commission`, `commission_asset`).
+All monetary and quantity values must be decimal strings. The local
+report includes a reproducible SHA-256 of the supplied data, but **this
+hash does not authenticate the data's Binance origin or completeness**.
+
+A local fixture always reports `broker_reconciled=false` and
+`live_order_permission=DENIED` irrespective of computed PnL.
+The source history, fee conversions (including BNB), deposits,
+transfers, manual trades, cost basis and latest fills must be verified
+with the exchange before a separate operator-approved implementation
+could ever rely on a daily loss gate. There is no such verified
+implementation or live activation in this PR.
+
+The existing Notes full-suite CI has a separate locked-source inventory
+failure: the pinned count is 22 but new files under `Notes/` are
+not included in the lock. Do **not** bypass or auto-approve that
+check to promote this trading proposal.
