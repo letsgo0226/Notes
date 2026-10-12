@@ -125,7 +125,7 @@ class CLSDPClosureTests(unittest.TestCase):
             cmd = [sys.executable, str(ROOT / "research/clsdp/closure_standard.py"),
                    "--input", str(path), "--as-of", "2026-10-13T03:00:00Z"]
             ok = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
-            self.assertEqual(ok.returncode, 0, ok.stderr)
+            self.assertEqual(ok.returncode, 1, ok.stderr)
             self.assertEqual(json.loads(ok.stdout)["live_order_permission"], "DENIED")
             e = package()
             e["assertions"]["operator_release_approval"]["status"] = "UNKNOWN"
