@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import re
 
-NUMERIC = re.compile(r"-?[0-9]{1,15}(?:\.[0-9]{1,40})?\Z")
+NUMERIC = re.compile(r"-?[0-9]{1,40}(?:\.[0-9]{1,120})?\Z")
 DIGEST = re.compile(r"[0-9a-f]{64}\Z")
 
 
