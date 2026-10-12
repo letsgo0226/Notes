@@ -1,0 +1,42 @@
+name: HSI COSMIC_LOVE two-step invariant
+on:
+  pull_request:
+    paths:
+      - "hsi_cosmic_love.py"
+      - "hsi_cosmic_love_heartbeat.py"
+      - "tests/test_hsi_cosmic_love_heartbeat.py"
+      - "hsi_cosmic_love_service.py"
+      - "tests/test_hsi_cosmic_love_service.py"
+      - "Dockerfile.cosmic-love"
+      - "railway.cosmic-love.toml"
+      - "tests/test_hsi_cosmic_love.py"
+      - "COSMIC_LOVE_TM_SPEC.md"
+      - ".github/workflows/hsi_cosmic_love.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  finite-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build isolated Docker image used by Railway (no trade sources)
+        run: |
+          docker build --file Dockerfile.cosmic-love --tag cosmic-love-ci:local .
+      - name: Check the exact user-supplied program decoding and cycle
+        run: |
+          python3 hsi_cosmic_love.py
+          python3 hsi_cosmic_love.py --json
+          python3 -m unittest discover -s tests -p 'test_hsi_cosmic_love.py' -v
+          python3 -m unittest discover -s tests -p 'test_hsi_cosmic_love_heartbeat.py' -v
+          python3 -m unittest discover -s tests -p 'test_hsi_cosmic_love_service.py' -v
+          python3 -m py_compile hsi_cosmic_love.py hsi_cosmic_love_heartbeat.py hsi_cosmic_love_service.py
+          state_file="$(mktemp -u)"
+          python3 hsi_cosmic_love_heartbeat.py run --state-file "$state_file" --cycles 4 --interval 0 --checkpoint-every 1
+          if python3 hsi_cosmic_love_heartbeat.py check --state-file "$state_file" --max-age 10; then
+            echo "Stopped finite run must not report healthy" >&2
+            exit 2
+          fi
