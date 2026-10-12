@@ -105,3 +105,7 @@ jobs:
           assert receipt['body']['capabilities']['trading'] is False
           assert receipt['body']['capabilities']['runtime_can_deploy_itself'] is False
           PY
+      - name: Validate nonmutating canary health probe
+        run: |
+          python3 -m unittest cosmic_love.test_health_probe -v
+          python3 -m py_compile cosmic_love/health_probe.py
