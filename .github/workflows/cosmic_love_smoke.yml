@@ -80,3 +80,9 @@ jobs:
           python3 -m unittest cosmic_love.test_provenance -v
           python3 -m py_compile cosmic_love/provenance.py
           python3 cosmic_love/provenance.py check --journal "$RUNNER_TEMP/empty-local-source-journal.jsonl"
+      - name: Install recovery-only signature verifier
+        run: python3 -m pip install --requirement cosmic_love/requirements-recovery.txt
+      - name: Verify signed backups, detached anchors and isolated recovery
+        run: |
+          python3 -m unittest cosmic_love.test_recovery -v
+          python3 -m py_compile cosmic_love/recovery.py
