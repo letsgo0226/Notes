@@ -51,6 +51,16 @@ class ManualOrderTests(unittest.TestCase):
                     self.prepare(**changes)
             broker.assert_not_called()
 
+    def test_risk_status_never_claims_broker_reconciliation(self):
+        """Status remains conservative even with credentials preconfigured."""
+        with patch.object(self.orders, 'broker') as broker:
+            report = self.orders.status()
+            self.assertEqual(report['daily_realized_pnl_status'], 'UNKNOWN_FAIL_CLOSED')
+            self.assertFalse(report['daily_loss_latch_review_only'])
+            self.assertEqual(report['live_release'], 'BLOCKED_PENDING_SEPARATE_APPROVAL')
+            self.assertFalse(report['automatic_trading'])
+            broker.assert_not_called()
+
     def test_account_check_only_signed_reads_and_no_account_details(self):
         account = {'canTrade': True, 'accountType': 'SPOT', 'uid': 123,
                    'balances': [{'asset': 'BTC', 'free': '42'}]}
