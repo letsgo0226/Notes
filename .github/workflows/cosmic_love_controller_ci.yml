@@ -1,0 +1,45 @@
+name: Cosmic Love independent deployment controller audit
+on:
+  pull_request:
+    paths:
+      - 'cosmic_love_controller/**'
+      - '.github/workflows/cosmic_love_controller_ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+jobs:
+  reference-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Independent TM reference and 12 adversarial cases
+        run: |
+          python3 -m unittest cosmic_love_controller.test_controller -v
+          python3 -m py_compile cosmic_love_controller/controller.py
+      - name: Real GitHub pinned PR and CI read-only audit
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json,os,subprocess,sys
+          from urllib.request import Request,urlopen
+          url="https://api.github.com/repos/letsgo0226/Notes/pulls/29"
+          req=Request(url,headers={"Accept":"application/vnd.github+json",
+                 "Authorization":"Bearer "+os.environ["GITHUB_TOKEN"],
+                 "User-Agent":"cosmic-love-controller-ci"})
+          with urlopen(req,timeout=15) as f: pr=json.load(f)
+          assert pr["head"]["ref"]=="cosmic-love-closure-review-20261013"
+          result=subprocess.run([sys.executable,"cosmic_love_controller/controller.py",
+              "--candidate-sha",pr["head"]["sha"]],capture_output=True,text=True)
+          print(result.stdout)
+          if result.returncode: print(result.stderr,file=sys.stderr)
+          sys.exit(result.returncode)
+          PY
