@@ -57,14 +57,14 @@ class TestSpotFifoReplay(unittest.TestCase):
     def test_sell_fee_in_btc_uses_extra_cost_basis(self):
         r = replay_day(fixture([trade(1, 1000, "SELL", "0.009", "10000", "0.001", "BTC")]))
         self.assertEqual(r["status"], "LOCAL_REPLAY_ONLY")
-        self.assertEqual(r["candidate_daily_realized_pnl_usdt"], "-10.000")
+        self.assertEqual(r["candidate_daily_realized_pnl_usdt"], "-10")
 
     def test_prev_day_sale_not_in_today_pnl(self):
         r = replay_day(fixture([
             trade(1, -1000, "SELL", "0.01", "9000"),
             trade(2, 1000, "SELL", "0.01", "9900"),
         ], lots=[{"quantity": "0.02", "cost_usdt": "200"}]))
-        self.assertEqual(r["candidate_daily_realized_pnl_usdt"], "-1.00")
+        self.assertEqual(r["candidate_daily_realized_pnl_usdt"], "-1")
         self.assertFalse(r["stop_threshold_reached_during_replay"])
 
     def test_unpriced_fees_missing_history_and_duplicates_fail_closed(self):
