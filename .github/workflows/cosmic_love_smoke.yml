@@ -109,3 +109,19 @@ jobs:
         run: |
           python3 -m unittest cosmic_love.test_health_probe -v
           python3 -m py_compile cosmic_love/health_probe.py
+      - name: Build real canary container and verify packaged probe
+        run: |
+          docker build -f cosmic_love/Dockerfile -t cosmic-love-probe-ci:local .
+          docker run --rm --entrypoint python cosmic-love-probe-ci:local \
+            -m cosmic_love.health_probe --ledger /tmp/absent-canary-journal.jsonl \
+            --max-states 32 > "$RUNNER_TEMP/canary-health.json"
+          python3 - <<'PY'
+          import json,os
+          r=json.load(open(os.environ['RUNNER_TEMP']+'/canary-health.json'))
+          assert r['journal_valid'] is True
+          assert r['status']=='READY_FOR_FINITE_STAGE'
+          assert r['stages']==0
+          assert r['self_deployment_enabled'] is False
+          assert r['live_trading_authorized'] is False
+          print('PACKAGED_CANARY_PROBE_VERIFIED')
+          PY
