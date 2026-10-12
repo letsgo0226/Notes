@@ -157,6 +157,27 @@ class BinanceOrders:
             self.account_result = result
             return dict(result)
 
+    def history_audit(self, request):
+        """Operator-authorized, bounded signed GETs only; NEVER place orders.
+
+        Separately opted-in by deployment config; safe standby is mandatory.
+        Returns summary flags, not balances/UID/fills. No live-trade release.
+        """
+        if request.get('notes_manifest_sha256') != self.manifest:
+            raise ValueError('Notes manifest mismatch')
+        if request.get('acknowledge_read_only') is not True:
+            raise ValueError('explicit read-only audit acknowledgement required')
+        from hsi_binance_readonly_audit import read_only_audit
+        if (os.getenv('LIVE_ARMED', '0') != '0'
+                or os.getenv('LIVE_DRY_RUN', '1') != '1'
+                or os.getenv('HSI_ORDER_KILL', '1') != '1'):
+            return {**read_only_audit(self.broker, enabled=False),
+                    'reason': 'UNSAFE_DEPLOYMENT_CONFIGURATION'}
+        if os.getenv('HSI_READONLY_HISTORY_AUDIT_ENABLED', '0') != '1':
+            return read_only_audit(self.broker, enabled=False)
+        with self.lock:
+            return read_only_audit(self.broker, enabled=True)
+
     def prepare(self, request):
         if request.get('notes_manifest_sha256') != self.manifest:
             raise ValueError('Notes manifest mismatch')
