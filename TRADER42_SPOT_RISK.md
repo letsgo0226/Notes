@@ -92,3 +92,45 @@ The existing Notes full-suite CI has a separate locked-source inventory
 failure: the pinned count is 22 but new files under `Notes/` are
 not included in the lock. Do **not** bypass or auto-approve that
 check to promote this trading proposal.
+
+## Optional authenticated Binance signed-GET audit (NOT enabled)
+
+`hsi_binance_readonly_audit.py` defines a finite, private, signed-GET-only
+account snapshot. A protected service route
+`POST /orders/history-audit` (the **HTTP** request method; the broker
+requests themselves are GET only) will be available only after the
+reviewed code is separately deployed. It accepts a JSON body containing
+`notes_manifest_sha256` and `acknowledge_read_only: true`, plus the
+existing `Authorization: Bearer ...` control token header.
+
+The service **must** be in safe standby
+`LIVE_ARMED=0`, `LIVE_DRY_RUN=1`, `HSI_ORDER_KILL=1`.
+Even then, no Binance queries are performed unless
+`HSI_READONLY_HISTORY_AUDIT_ENABLED=1` is separately configured.
+This flag is deliberately **not** set or deployed by this PR.
+Do not add any key to GitHub and never paste secrets in a chat.
+
+With all conditions satisfied and explicit operator invocation, the
+finite snapshot uses exactly four signed GET operations:
+
+1. `/api/v3/account` (account type and BTC-inventory presence only).
+2. `/sapi/v1/account/apiRestrictions` (API-key Spot permission flag).
+3. `/api/v3/openOrders?symbol=BTCUSDT` (only an open-order count).
+4. `/api/v3/myTrades`, bounded from UTC midnight to the snapshot time
+   and at most 1,000 fills (a full page is rejected as possibly truncated).
+
+The returned report is a **redacted summary**: no API keys, balances,
+UIDs or raw fills. Read errors, unsupported response shapes, possible
+pagination truncation or incomplete data yield `UNKNOWN_FAIL_CLOSED`.
+Even a successful 4-GET snapshot reports
+`READ_ONLY_SNAPSHOT_UNVERIFIED`, `broker_reconciled=false`,
+`daily_pnl_verified=false` and `live_order_permission=DENIED`.
+
+A single-day query does not validate all trade history, opening cost
+basis, internal transfers, BNB fee conversion, external manual trades
+outside BTCUSDT or live exposure. Those gaps still require a
+separate audited reconciliation ledger. As a result, this read-only
+snapshot **cannot** enforce or certify the 2 USDT stop and never
+activates trading.
+
+Binance docs: https://developers.binance.com/en/docs/catalog/core-trading-spot-trading/api/rest-api/account
