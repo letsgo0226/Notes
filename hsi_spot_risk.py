@@ -58,8 +58,14 @@ def assert_live_release():
     raise ValueError("LIVE_BLOCKED: separately approved broker-reconciled risk engine not deployed")
 
 
-def review_report():
+def review_report(ledger_file=None):
+    from hsi_spot_ledger import review_file
+    ledger = review_file(ledger_file) if ledger_file is not None else None
     return {"protocol": PROFILE,
+            "fifo_ledger": ledger or {"status": "UNKNOWN_FAIL_CLOSED",
+                                      "reason": "NO_BROKER_RECONCILED_INPUT",
+                                      "broker_reconciled": False,
+                                      "live_order_permission": "DENIED"},
             "exchange": "Binance", "market": "Spot", "symbol": SYMBOL,
             "max_order_quote_usdt": str(MAX_ORDER_QUOTE_USDT),
             "max_daily_realized_loss_usdt": str(MAX_DAILY_REALIZED_LOSS_USDT),
@@ -80,8 +86,10 @@ def main():
     import argparse
     p = argparse.ArgumentParser()
     p.add_argument("--report", type=Path)
+    p.add_argument("--ledger-file", type=Path,
+                   help="optional offline fill fixture; not broker-verified")
     args = p.parse_args()
-    report = review_report()
+    report = review_report(a.ledger_file)
     output = json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
