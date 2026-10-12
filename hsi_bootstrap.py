@@ -29,8 +29,11 @@ def fetch(url):
 
 def install(root, ref):
     root = Path(root).expanduser()
-    meta = json.loads(fetch('https://api.github.com/repos/' + REPO + '/commits/' + urllib.parse.quote(ref, safe='')))
-    commit = meta['sha']
+    if re.fullmatch('[0-9a-f]{40}', ref):
+        commit = ref
+    else:
+        meta = json.loads(fetch('https://api.github.com/repos/' + REPO + '/commits/' + urllib.parse.quote(ref, safe='')))
+        commit = meta['sha']
     if not re.fullmatch('[0-9a-f]{40}', commit):
         raise ValueError('invalid source commit')
     base = 'https://raw.githubusercontent.com/' + REPO + '/' + commit + '/'

@@ -120,8 +120,8 @@
     },
     {
       "path": "hsi_bootstrap.py",
-      "bytes": 4287,
-      "sha256": "36bed23775fc673b75794426f2816f121ae6ebd5b35c7f2895628f926b241ff0"
+      "bytes": 4368,
+      "sha256": "4dc4c0d9061b3450eae7f15cda2b70b4b0bb9035689bd6c2a142d755574c4c45"
     },
     {
       "path": "hsi_corpus_autoevolve.py",

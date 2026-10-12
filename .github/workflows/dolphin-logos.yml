@@ -39,7 +39,6 @@ jobs:
     permissions:
       contents: write
     env:
-      OLLAMA_MODELS: ${{ runner.temp }}/dolphin-models
       OLLAMA_HOST: '127.0.0.1:11434'
       OLLAMA_NO_CLOUD: '1'
       PYTHONDONTWRITEBYTECODE: '1'
@@ -65,6 +64,7 @@ jobs:
           echo "$RUNNER_TEMP/dolphin-ollama/bin" >> "$GITHUB_PATH"
       - name: Run one real AI reflection round
         run: |
+          export OLLAMA_MODELS="$RUNNER_TEMP/dolphin-models"
           ollama serve > "$RUNNER_TEMP/ollama-serve.log" 2>&1 &
           DOLPHIN_OLLAMA_PID=$!
           trap 'kill "$DOLPHIN_OLLAMA_PID" 2>/dev/null || true' EXIT
