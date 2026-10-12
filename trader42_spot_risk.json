@@ -9,7 +9,7 @@
   "live_trading": "BLOCKED_PENDING_SEPARATE_APPROVAL",
   "auto_update": {
     "tests_on_pull_request": true,
-    "daily_readonly_review": true,
+    "daily_readonly_review": false,
     "automatic_strategy_promotion": false,
     "automatic_real_order_submission": false
   },
