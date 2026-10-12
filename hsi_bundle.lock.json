@@ -234,9 +234,14 @@
       "sha256": "4436e547505e44f8059bc8493f254674c50c5670c2b24b171404964693b3e551"
     },
     {
+      "path": "hsi_cosmic_zero_field.py",
+      "bytes": 4926,
+      "sha256": "9037328cd827e6d85a58d0464bacdb325c92bdd1287bcc49557666d370ede711"
+    },
+    {
       "path": "hsi_open_corpus.py",
-      "bytes": 33869,
-      "sha256": "646b8342d54350f2342412944d474c48f35ec7848b0a53e41c3fcba9f7f8990a"
+      "bytes": 34715,
+      "sha256": "3e101bbbb8e4390b117fa9fe9cf0b1fcec0254a07a6f25c2738bcbbe4ab03ba6"
     },
     {
       "path": "hsi_render_policy.json",
