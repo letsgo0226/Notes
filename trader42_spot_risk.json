@@ -1,0 +1,24 @@
+{
+  "protocol": "HSI-TRADER42-SPOT-RISK/1",
+  "broker": "Binance",
+  "market": "Spot",
+  "allowed_symbols": ["BTCUSDT"],
+  "max_quote_per_order_usdt": "50",
+  "daily_realized_loss_stop_usdt": "2",
+  "mode": "REVIEW_ONLY",
+  "live_trading": "BLOCKED_PENDING_SEPARATE_APPROVAL",
+  "auto_update": {
+    "tests_on_pull_request": true,
+    "daily_readonly_review": true,
+    "automatic_strategy_promotion": false,
+    "automatic_real_order_submission": false
+  },
+  "required_before_live": [
+    "verified Binance signed read permissions",
+    "audited UTC trade and inventory ledger including commissions",
+    "daily realized PnL reconciled against the exchange",
+    "freshness and crash-recovery tests for the risk engine",
+    "explicit separate operator authorization"
+  ],
+  "caveat": "A realized-loss stop is not a guarantee that market losses stay below the threshold."
+}
