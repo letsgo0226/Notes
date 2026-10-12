@@ -112,9 +112,20 @@ No evidence package can grant an order.
 The workflow declares a weekly Monday 02:25 UTC schedule and a manual
 workflow_dispatch entry. GitHub scheduled workflows run from the DEFAULT
 branch only; this branch remains a draft and no automatic schedule has been
-enabled on main. The GitHub repository must also allow GitHub Actions to
-create pull requests for the draft-proposal job to succeed. The workflow
-does not attempt to change those repository settings.
+enabled on main.
+
+Even if this workflow is later merged into the default branch, public-history
+research and draft-report generation stay disabled unless the repository
+variable `CLSDP_ALLOW_SCHEDULED_RESEARCH` is explicitly set to the exact
+string `true`. If the variable is absent, false, misspelled, or any other
+value, only the offline tests run; the public network read and draft PR job
+are skipped. This variable is a research-automation opt-in, not a broker or
+trading authorization.
+
+The GitHub repository must also allow GitHub Actions to create pull requests
+for the draft-proposal job to succeed. The workflow does not attempt to
+change repository settings, create variables, edit secrets, modify Railway,
+or change exchange credentials.
 
 Crucially, enabling **research automation** is different from enabling
 **broker execution**. Nothing in CLSDP can toggle LIVE_ARMED, LIVE_DRY_RUN,
