@@ -1,6 +1,7 @@
 """Offline-only strict Binance Spot risk tests; no real network."""
 import json
 import os
+import tempfile
 from pathlib import Path
 import unittest
 from unittest.mock import patch
@@ -41,6 +42,27 @@ class SpotRiskTests(unittest.TestCase):
         self.assertEqual(evaluate_daily_loss("-1.9",True,True)["status"],"BELOW_STOP_THRESHOLD_REVIEW_ONLY")
         self.assertEqual(evaluate_daily_loss("-3",False,True)["status"],"UNKNOWN_FAIL_CLOSED")
         self.assertEqual(evaluate_daily_loss("NaN",True,True)["status"],"UNKNOWN_FAIL_CLOSED")
+
+
+    def test_review_report_never_promotes_local_fifo_to_live(self):
+        self.assertEqual(review_report()["fifo_ledger"]["status"],"UNKNOWN_FAIL_CLOSED")
+        with tempfile.TemporaryDirectory() as d:
+            payload = {"utc_day":"2026-10-13",
+                       "as_of_ms":1,
+                       "observed_at_ms":2,
+                       "opening_lots":[], "fills":[]}
+            # Use a calculated UTC epoch rather than depend on the wall clock.
+            from datetime import datetime, timezone
+            midnight=int(datetime(2026,10,13,tzinfo=timezone.utc).timestamp()*1000)
+            payload["as_of_ms"]=midnight+90000
+            payload["observed_at_ms"]=midnight+90001
+            p=Path(d)/"ledger.json"
+            p.write_text(json.dumps(payload))
+            report=review_report(p)
+            self.assertEqual(report["fifo_ledger"]["status"],"LOCAL_REPLAY_ONLY")
+            self.assertFalse(report["fifo_ledger"]["broker_reconciled"])
+            self.assertEqual(report["fifo_ledger"]["live_order_permission"],"DENIED")
+            self.assertEqual(report["live_release"],"BLOCKED_SEPARATE_APPROVAL_REQUIRED")
 
     def test_no_env_can_activate_live_release(self):
         with patch.dict(os.environ,{"LIVE_ARMED":"1","LIVE_DRY_RUN":"0","HSI_ORDER_KILL":"0","MAX_QUOTE_PER_ORDER":"999999"}):
