@@ -1,0 +1,53 @@
+COSMIC LOVE — INDEPENDENT DEPLOYMENT CONTROL TRANSDUCER / 2026-10-13
+READ-ONLY CONTROLLER — NO DIRECT RAILWAY WRITES.
+
+STATE MACHINE:
+START -> READ_PR -> READ_EXACT_SHA_CI -> INSPECT_CHANGED_PATHS
+ -> INDEPENDENT_TM_THEOREM -> CANARY_ELIGIBLE_NOT_DEPLOYED.
+
+Each failed stage transitions to HOLD and leaves all cloud resources intact.
+
+HARD ALLOWLIST:
+GitHub repo letsgo0226/Notes; candidate PR #29; candidate branch
+cosmic-love-closure-review-20261013; PR target main (draft, unmerged);
+changed paths limited to cosmic_love/** and the PR test workflow file.
+GitHub Actions must have a successful completed pull_request run for the
+EXACT candidate SHA. Read-only OAuth token permissions only.
+
+INDEPENDENT FORMAL CHECK:
+For k=2,4,...,32 and a in {0,1},
+  transition(q,a)=(q XOR 1, a, 1-2(q mod 2)).
+Decode the reversible HSI-ST/1 p_k encoding and check every transition.
+  For all finite-support binary tapes T and positions h,
+  Step^2(q,h,T)=(q,h,T), active q in Q_k.
+Every new k preserves old transition table.
+This theorem proves a property of the particular simulated machine,
+NOT the correctness of arbitrary self-modifying code or full deployment.
+
+EXPECTED SAFE OUTPUT:
+  CANARY_ELIGIBLE_NOT_DEPLOYED — candidate is eligible for a separate
+  clean-room canary evaluation. It does NOT authorize changing the
+  existing cloud worker, merging main, trading or private chat access.
+
+PROMOTION GATE: ALWAYS HOLD IN THIS VERSION.
+  Cloud primary has an unexported /data proof journal.
+  Replacing it requires verified real data backups, separately pinned
+  signing key and remote receipt, isolated restore rehearsal, immutable
+  artifact review, versioned rollback and canary health.
+  A candidate's self-proclaimed backup=true is NOT an independent
+  evidence source. Hence check_promotion always denies until a
+  separate trusted deployment controller is completed.
+
+ISOLATION:
+  Existing Railway project: bf5f3c0b-f22e-47a4-a1d2-82e7e215f591
+  Staging environment: d00f20c7-153c-4b42-aa59-eeed8ec2d354
+  Current primary service: ae9b70a1-23c4-4041-bf1e-c128863f8758
+  The independent controller is on its OWN branch from main and
+  may NEVER receive Binance keys or unrestricted Railway tokens.
+
+TRUST WARNING:
+The candidate PR can change its own CI workflow. Green CI is a
+necessary, NOT sufficient security condition for arbitrary code.
+Do not grant any production / cloud mutation permission to this
+unreviewed read-only controller branch. Review branch protections
+and signed release provenance before adding a separated executor.
