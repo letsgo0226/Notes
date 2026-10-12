@@ -52,6 +52,12 @@ SHA-256 do not establish independent attestation. The best result such a file
 may earn is SELF_ASSERTED_COMPLETE_NEEDS_INDEPENDENT_REVIEW, never a trading
 permission. Any absent, failed or stale required gate is REVIEW_BLOCKED.
 
+The closure-check CLI intentionally returns **exit code 1 even if all 12
+self-declared items are PASS**, because this is only an independently
+reviewable candidate. Invalid or malformed input exits 2. There is no
+success-style zero exit code that downstream automation may misuse as
+permission to enable live trading.
+
 The profile is fixed: Binance Spot BTCUSDT, <=50 USDT per proposed order and a
 2 USDT UTC daily realized-loss stop threshold. That threshold cannot prevent
 the *triggering* market loss exceeding 2 USDT. Neither raising limits nor
