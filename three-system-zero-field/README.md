@@ -60,3 +60,11 @@ Source provenance: attached `COSMIC_LOVE_NONHALTING_SELF_CLOSURE_TURING_SPEC`, `
 - The dashboard provides an on-demand health check button, and startup logs include a nonblocking read-only probe summary. A health response is not proof of computational correctness, physical energy, strategy profitability, or production authorization.
 - Railway reports the new function source as deployed after the update, subject to checking the latest deployment status and HTTP availability separately.
 - UTM and Omega's live production source/config remain unchanged; Trader_42 pending staged changes were not committed.
+
+## Phase 3: editable field and combined research report
+
+- The dashboard supports 1–8 editable conjugate-zero pairs `(u,v)` and N in 8/16/32/64/128.
+- `POST /api/triad` accepts `{"field":{"sigma":0.5,"t":14,"roots":[[0.5,8],[0.5,14],[0.5,21]],"basis":"prime","n":32},"utm":{"steps":12},"omega":{"steps":20},"prices":[...22 to 512 positive finite observations...]}`. Missing prices produce a `NOT_EVALUATED_NO_PRICE_SERIES` indicator rather than invented results.
+- The combined report carries independent results and an explicit `exchangeOrders:0` / `existingServicesModified:false` boundary. It does not promote numerical root residuals or simulated market returns into production permissions.
+- On startup, the service performs **finite illustrative self-tests** for prescribed field zeros, Turing-machine two-step identity, Omega finite continuation, paper-only trading and combined report constraints; it logs pass/fail. These are not comprehensive domain tests or mathematical proofs of arbitrary programs.
+- Source and deployment remain isolated. No main-branch merge; no modifications to three original production services.
