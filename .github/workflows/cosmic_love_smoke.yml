@@ -86,3 +86,22 @@ jobs:
         run: |
           python3 -m unittest cosmic_love.test_recovery -v
           python3 -m py_compile cosmic_love/recovery.py
+      - name: Verify staging-only candidate update constraints
+        run: |
+          python3 -m unittest cosmic_love.test_staging_update -v
+          python3 -m py_compile cosmic_love/staging_update.py
+          echo '[]' > "$RUNNER_TEMP/cosmic-love-stage-chain.json"
+          python3 cosmic_love/staging_update.py --mode check \
+            --chain "$RUNNER_TEMP/cosmic-love-stage-chain.json"
+          python3 cosmic_love/staging_update.py --mode propose \
+            --chain "$RUNNER_TEMP/cosmic-love-stage-chain.json" \
+            --source-commit "$GITHUB_SHA" > "$RUNNER_TEMP/cosmic-love-proposal.json"
+          python3 - <<'PY'
+          import json,os
+          p=os.environ['RUNNER_TEMP']+'/cosmic-love-proposal.json'
+          receipt=json.load(open(p))
+          assert receipt['body']['status']=='CANDIDATE_REVIEW_ONLY'
+          assert receipt['body']['capabilities']['scope']=='ISOLATED_STAGING_ONLY'
+          assert receipt['body']['capabilities']['trading'] is False
+          assert receipt['body']['capabilities']['runtime_can_deploy_itself'] is False
+          PY
