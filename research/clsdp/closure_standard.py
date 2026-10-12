@@ -162,7 +162,9 @@ def main(argv=None):
     except (ClosureInputError, TypeError, OverflowError) as exc:
         parser.exit(2, "CLSDP_REJECTED: " + str(exc) + "\n")
     print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
-    return 0 if report["status"] == "SELF_ASSERTED_COMPLETE_NEEDS_INDEPENDENT_REVIEW" else 1
+    # Even 12 self-claimed PASS results are NOT a green deployment signal.
+    # Exit 1 means independent review required; malformed input is exit 2.
+    return 1
 
 
 if __name__ == "__main__":
