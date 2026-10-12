@@ -10,8 +10,8 @@
     },
     {
       "path": "hsi_binance_readonly_audit.py",
-      "bytes": 8531,
-      "sha256": "584d9a3b10f807ef657143d5b2bc278dd86d41ecd8ea7efd99da1b4372745e8b"
+      "bytes": 8588,
+      "sha256": "9a6b87925909d6bf026bf6b27ef466633b41b1fd7b4e9c09d2ab67aa62d2f063"
     },
     {
       "path": "hsi_bootstrap.py",
@@ -95,13 +95,23 @@
     },
     {
       "path": "hsi_spot_ledger.py",
-      "bytes": 8794,
-      "sha256": "fbeda844191168e08453a92ad80622bfd5ed55d994b87ca256e14c7d9579174a"
+      "bytes": 9539,
+      "sha256": "c595967d5ee3508f2306f65ee9de5adbcfd137bcb9cff7772506ab59511a2ab6"
+    },
+    {
+      "path": "hsi_spot_reconcile.py",
+      "bytes": 6131,
+      "sha256": "40fa2e3ff55fd18f1efc1ecd855d9659c6ef48aeb3fe8babd44a8a8b056c9f80"
     },
     {
       "path": "hsi_spot_risk.py",
       "bytes": 4510,
       "sha256": "3d7bf0501f0acc503d29dc16c61a59adbf4c420afb551f440397c8ce1bd0e137"
+    },
+    {
+      "path": "hsi_spot_trade_digest.py",
+      "bytes": 1180,
+      "sha256": "4e5c8bfb7b820272ad13abef4e91508ada171a904c87f05c1ab64e8ef6f7fd94"
     },
     {
       "path": "hsi_update.py",
