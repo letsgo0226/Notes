@@ -1,0 +1,364 @@
+name: HSI Continuous Self-Review
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '10 2 * * *'
+  pull_request:
+    paths:
+      - 'hsi_continuous/**'
+      - '.github/workflows/hsi-continuous-review.yml'
+permissions:
+  contents: read
+concurrency:
+  group: hsi-continuous-review
+  cancel-in-progress: false
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile bounded review
+        run: python -m py_compile hsi_continuous/review.py
+      - name: Inspect immutable source and six domains
+        run: python hsi_continuous/review.py --out hsi_continuous/out
+      - name: Run bounded HSI UTM spectral feedback
+        run: |
+          python hsi_continuous/riemann_feedback.py --program 2 --word 1 --steps 16 --terms 16 --rounds 8
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('hsi_continuous/out/feedback.json').read_text())
+          assert p['bounded'] and len(p['feedback'])==8
+          assert not p['claims']['ai_equivalent']
+          assert not p['claims']['real_world_deployment']
+          assert all(z['residual'] >= 0 for z in p['feedback'])
+          PY
+      - name: Translate audited HSI entrypoints into bounded one-line launchers
+        run: |
+          for entry in originalxy feedback review; do
+            python hsi_continuous/one_liner.py --entrypoint "$entry"
+          done
+          python - <<'PY'
+          from pathlib import Path
+          for p in Path('hsi_continuous/out').glob('*.oneline.sh'):
+              b=p.read_bytes()
+              assert len(b)<=2048 and b.count(b'\n')==1 and b.endswith(b'\n')
+          PY
+      - name: Generate and execute SHA-free standalone HSI feedback one-liner
+        run: |
+          python hsi_continuous/standalone_oneline.py
+          sh hsi_continuous/out/feedback_standalone.oneline.sh > /tmp/hsi-one-line-feedback.jsonl
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=Path('/tmp/hsi-one-line-feedback.jsonl').read_text().splitlines()
+          assert len(a)==8
+          assert all('residual' in json.loads(x) for x in a)
+          b=Path('hsi_continuous/out/feedback_standalone.oneline.sh').read_bytes()
+          assert len(b)<=2048 and b.count(b'\n')==1
+          PY
+      - name: Verify exact integer symbolic 2KB translator
+        run: |
+          test "$(wc -c < hsi_continuous/hsi_ox_eisi_2kb.sh)" -le 2048
+          test "$(wc -l < hsi_continuous/hsi_ox_eisi_2kb.sh)" -eq 1
+          sh hsi_continuous/hsi_ox_eisi_2kb.sh '["add",["mul",7,11],5]' > hsi_continuous/out/exact_integer.json
+          python - <<'PY'
+          import json
+          x=json.load(open('hsi_continuous/out/exact_integer.json'))
+          assert x['result']==82 and x['roundtrip'] and x['exact_integer']
+          PY
+      - name: Verify coupled OriginalXY and exact integer translator
+        run: |
+          python hsi_continuous/originalxy_exact_coupled.py --program 2 --word 1 --steps 16 > hsi_continuous/out/originalxy_exact_coupled.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('hsi_continuous/out/originalxy_exact_coupled.json').read_text())
+          s=a['utm']['state']
+          assert a['substituted_expression']==['add',s[1],['mul',s[0],2]]
+          assert a['translation']['result']==s[1]+s[0]*2
+          assert a['translation']['roundtrip'] and a['exact_integer']
+          assert not a['native_originalxy_compiler']
+          PY
+      - name: Verify native OriginalXY tiny compiler
+        run: |
+          python hsi_continuous/originalxy_native_tiny_compiler.py --op write1_right > hsi_continuous/out/native_tiny_compiler.json
+          python hsi_continuous/originalxy_native_tiny_compiler.py --op write0_left > /tmp/native_tiny_write0.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=json.loads(Path('hsi_continuous/out/native_tiny_compiler.json').read_text())
+          b=json.loads(Path('/tmp/native_tiny_write0.json').read_text())
+          assert a['program']==35 and a['output']['state']==[1,1,[0]]
+          assert b['program']==2 and b['output']['state']==[1,-1,[]]
+          assert a['native_originalxy_transition'] and not a['arbitrary_program_compiler']
+          PY
+      - name: Verify OriginalXY two-symbol native compilation
+        run: |
+          python hsi_continuous/originalxy_two_symbol_compiler.py > hsi_continuous/out/two_symbol.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/two_symbol.json').read_text())
+          assert d['program']==135
+          assert d['outcomes']['0']['state']==[1,1,[0]]
+          assert d['outcomes']['1']['state']==[1,-1,[]]
+          assert d['bounded_one_step'] and not d['general_arithmetic_compiler']
+          PY
+      - name: Verify multi-state OriginalXY two-step program
+        run: |
+          python hsi_continuous/originalxy_multistate_compiler.py > hsi_continuous/out/multistate.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/multistate.json').read_text())
+          t=d['output']['trace']
+          assert len(t)==2
+          assert t[0]['state']==[1,1,[0]]
+          assert t[1]['state']==[2,0,[0,1]]
+          assert d['output']['status']=='HALTED'
+          assert d['native_originalxy_transition'] and not d['general_arithmetic_compiler']
+          PY
+      - name: Verify OriginalXY native binary integer increment
+        run: |
+          python hsi_continuous/originalxy_binary_increment.py > hsi_continuous/out/binary_increment.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/binary_increment.json').read_text())
+          for r in d['results']:
+              n=int(r['input'])
+              assert int(r['output'])==n+1
+              assert r['halted'] and r['steps']>=1
+          assert d['native_tape_arithmetic'] and not d['general_integer_arithmetic']
+          PY
+      - name: Verify exact integer addition by OriginalXY tape transitions
+        run: |
+          python hsi_continuous/originalxy_exact_addition.py > hsi_continuous/out/exact_addition.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/exact_addition.json').read_text())
+          for r in d['results']:
+              assert int(r['sum'])==int(r['a'])+int(r['b'])
+              assert r['increment_calls']==int(r['b'])
+          assert d['exact_integer'] and not d['pure_originalxy_loop_control']
+          PY
+      - name: Verify bounded OriginalXY E257 integer encoding
+        run: |
+          python hsi_continuous/originalxy_e257_bounded.py --hex 00 > hsi_continuous/out/e257_bounded.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/e257_bounded.json').read_text())
+          assert d['encoded']=='258'
+          assert d['decoded_hex']=='00' and d['roundtrip']
+          assert d['integer_exact'] and d['python_loop_control']
+          assert d['originalxy_transitions']>0
+          PY
+      - name: Verify OriginalXY tape-level borrow and exact subtraction
+        run: |
+          python hsi_continuous/originalxy_exact_subtraction.py > hsi_continuous/out/exact_subtraction.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/exact_subtraction.json').read_text())
+          for r in d['results']:
+              assert int(r['difference'])==int(r['a'])-int(r['b'])
+              assert r['decrement_calls']==int(r['b'])
+          assert d['exact_integer'] and d['originalxy_tape_borrow']
+          assert d['python_loop_control']
+          PY
+      - name: Verify OriginalXY tape-controlled unary countdown
+        run: |
+          python hsi_continuous/originalxy_unary_counter.py > hsi_continuous/out/unary_counter.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/unary_counter.json').read_text())
+          for r in d['results']:
+              assert r['steps']==r['initial_count']+1
+              assert r['halted'] and r['final_state'][2]==[]
+          assert d['loop_condition']=='OriginalXY tape symbol'
+          assert d['halt_condition']=='OriginalXY state transition'
+          assert not d['binary_integer_counter']
+          PY
+      - name: Verify native OriginalXY binary borrow machine
+        run: |
+          python hsi_continuous/originalxy_binary_borrow_machine.py > hsi_continuous/out/binary_borrow_machine.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/binary_borrow_machine.json').read_text())
+          for r in d['results']:
+              assert int(r['output'])==int(r['input'])-1
+              assert r['halted'] and r['steps']>=1
+          assert d['branching']=='OriginalXY tape transition'
+          assert not d['zero_test_for_outer_loop']
+          PY
+      - name: Verify bounded OriginalXY binary zero scan
+        run: |
+          python hsi_continuous/originalxy_bounded_zero_scan.py > hsi_continuous/out/zero_scan.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/zero_scan.json').read_text())
+          for r in d['results']:
+              assert r['is_zero']==(int(r['input'])==0)
+              assert r['steps']==r['width']
+          assert d['bit_scan']=='OriginalXY transitions'
+          assert not d['fully_native_zero_decider']
+          PY
+      - name: Verify self-delimiting OriginalXY native tape scan
+        run: |
+          python hsi_continuous/originalxy_self_delimiting_tape.py > hsi_continuous/out/self_delimiting_tape.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/self_delimiting_tape.json').read_text())
+          for r in d['results']:
+              assert r['halted'] and r['native_boundary_detection']
+              assert r['steps']==r['expected_steps']
+              assert r['head']==r['steps']
+          assert d['native_delimiter_scan'] and not d['native_integer_zero_test']
+          PY
+      - name: Verify native delimiter-aware OriginalXY zero decision
+        run: |
+          python hsi_continuous/originalxy_native_zero_decider.py > hsi_continuous/out/native_zero_decider.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/native_zero_decider.json').read_text())
+          for r in d['results']:
+              assert r['is_zero']==('1' not in r['input_bits'])
+              assert r['result_mark_at_terminator']==int('1' in r['input_bits'])
+              assert r['halted'] and r['steps']==2*len(r['input_bits'])+1
+          assert d['native_end_detection'] and not d['python_zero_decision']
+          PY
+      - name: Verify integrated OriginalXY unary loop and terminal output
+        run: |
+          python hsi_continuous/originalxy_integrated_unary_loop.py > hsi_continuous/out/integrated_unary_loop.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/integrated_unary_loop.json').read_text())
+          for r in d['results']:
+              n=r['initial_count']
+              assert r['steps']==n+1
+              assert r['completion_marker_at']==n
+              assert r['final_marks']==[n]
+              assert r['halted']
+          assert not d['python_loop_control']
+          assert not d['binary_counter']
+          PY
+      - name: Cross-check bounded OriginalXY components
+        run: |
+          python hsi_continuous/originalxy_crosscheck.py > hsi_continuous/out/crosscheck.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('hsi_continuous/out/crosscheck.json').read_text())
+          assert d['all_passed'] and d['checks']==512
+          assert not d['general_correctness_proof']
+          PY
+      - name: Verify generic OriginalXY compiler against transition tables
+        run: |
+          python hsi_continuous/originalxy_generic_compiler.py > hsi_continuous/out/generic_compiler.json
+          python - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'hsi_continuous')
+          from originalxy_generic_compiler import compile_table,decode_program,run_table,run_program
+          for k in range(1,5):
+              base=[[q,d,w] for q in range(k+1) for d in (0,1) for w in (0,1)]
+              for seed in range(16):
+                  rules=[base[(seed+3*i)%len(base)] for i in range(2*k)]
+                  p=compile_table(k,rules)
+                  assert decode_program(p)==(k,rules)
+                  for word in ('','0','1','0011'):
+                      assert run_program(p,word,32)==run_table(k,rules,word,32)
+          p=compile_table(1,[[0,0,0],[0,0,0]])
+          assert decode_program(p)==(1,[[0,0,0],[0,0,0]])
+          d=json.loads(Path('hsi_continuous/out/generic_compiler.json').read_text())
+          assert d['exact_roundtrip'] and d['table_equivalence']
+          PY
+      - name: Verify single-program OriginalXY native binary countdown
+        run: |
+          python hsi_continuous/originalxy_native_binary_countdown.py > hsi_continuous/out/native_binary_countdown.json
+          python - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'hsi_continuous')
+          from originalxy_native_binary_countdown import execute
+          for width in range(1,7):
+              for n in range(1<<width):
+                  r=execute(n,width)
+                  assert r['halted'] and r['terminal_mark']==1
+                  assert r['final_bits']=='1'*width
+                  assert r['head']==2*width+2
+                  assert r['steps']>=2*width
+          d=json.loads(Path('hsi_continuous/out/native_binary_countdown.json').read_text())
+          assert d['native_loop_control'] and d['underflow_halt']
+          assert not d['unbounded_halting_proof']
+          PY
+      - name: Verify standalone 2KB OriginalXY binary one-liner
+        run: |
+          test "$(wc -c < hsi_continuous/hsi_ox_binary_2kb.sh)" -le 2048
+          test "$(wc -l < hsi_continuous/hsi_ox_binary_2kb.sh)" -eq 1
+          python - <<'PY'
+          import json,os,subprocess
+          for width in range(1,7):
+              for n in range(1<<width):
+                  env={**os.environ,'HSI_N':str(n),'HSI_WIDTH':str(width)}
+                  result=subprocess.check_output(['sh','hsi_continuous/hsi_ox_binary_2kb.sh'],env=env,text=True)
+                  d=json.loads(result)
+                  assert d['halted'] and d['terminal_mark']==1
+                  assert d['final_bits']=='1'*width
+                  assert d['input']==n and d['width']==width
+          PY
+      - name: Assert review-only safeguards
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('hsi_continuous/out/review.json').read_text())
+          assert r['mode']=='OFFLINE_REVIEW_ONLY'
+          assert len(r['notes_inventory'])==12
+          assert len(r['domains'])==6
+          g=r['guardrails']
+          assert not any(g[k] for k in ('source_mutation','automatic_git_push','automatic_pr_merge','arbitrary_program_execution','live_broker_orders','secrets_access','network_fetch'))
+          assert g['requires_human_review_for_deployment']
+          assert all(not x['auto_deploy'] for x in r['candidate_plan'])
+          PY
+      - name: Upload candidate diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: hsi-continuous-review-${{ github.run_id }}
+          path: |
+            hsi_continuous/out/review.json
+            hsi_continuous/out/feedback.json
+            hsi_continuous/out/exact_integer.json
+            hsi_continuous/out/originalxy_exact_coupled.json
+            hsi_continuous/out/native_tiny_compiler.json
+            hsi_continuous/out/two_symbol.json
+            hsi_continuous/out/multistate.json
+            hsi_continuous/out/binary_increment.json
+            hsi_continuous/out/exact_addition.json
+            hsi_continuous/out/e257_bounded.json
+            hsi_continuous/out/exact_subtraction.json
+            hsi_continuous/out/unary_counter.json
+            hsi_continuous/out/binary_borrow_machine.json
+            hsi_continuous/out/zero_scan.json
+            hsi_continuous/out/self_delimiting_tape.json
+            hsi_continuous/out/native_zero_decider.json
+            hsi_continuous/out/integrated_unary_loop.json
+            hsi_continuous/out/crosscheck.json
+            hsi_continuous/out/generic_compiler.json
+            hsi_continuous/out/native_binary_countdown.json
+            hsi_continuous/out/*.oneline.sh
+            hsi_continuous/out/*.oneline.json
+          retention-days: 90
