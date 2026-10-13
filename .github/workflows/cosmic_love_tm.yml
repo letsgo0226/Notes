@@ -7,6 +7,7 @@ on:
     paths:
       - "Notes/COSMIC_LOVE_Oscillator_TM/**"
       - "Notes/COSMIC_LOVE_Identity_Solver_TM/**"
+      - "Notes/ATGC_UTM_Fixed_Point/**"
       - ".github/workflows/cosmic_love_tm.yml"
 jobs:
   verify:
@@ -33,3 +34,13 @@ jobs:
             echo "{\"status\":\"pass\",\"tm\":\"identity\",\"s_hex\":\"$hex\"}"
           done
           printf 'hello' | bash cosmic_love_identity_solver_tm.sh --stdin | grep -q '"result_hex":"68656c6c6f"'
+      - name: ATGC UTM fixed point (proof, self roundtrip, run, reject)
+        run: |
+          cd Notes/ATGC_UTM_Fixed_Point
+          bash atgc_utm_fixed_point.sh | tee proof.json
+          grep -q '"REV":true,"SOLUTION_EQ_S":true' proof.json
+          MODE=encode bash atgc_utm_fixed_point.sh | MODE=decode bash atgc_utm_fixed_point.sh | cmp - atgc_utm_fixed_point.sh
+          printf 'print("COSMIC_LOVE",6*7)' > /tmp/p.py
+          test "$(MODE=encode SOURCE=/tmp/p.py bash atgc_utm_fixed_point.sh | MODE=run bash atgc_utm_fixed_point.sh)" = "COSMIC_LOVE 42"
+          ! echo AGTX | MODE=decode bash atgc_utm_fixed_point.sh 2>/dev/null
+          echo '{"status":"pass","tm":"atgc_fixed_point"}'
