@@ -1,0 +1,106 @@
+{
+  "protocol": "HSI-3SYS-VERIFICATION/1.0",
+  "date": "2026-10-13",
+  "environment": "isolated-research-only",
+  "project": "hsi-three-zero-field-20261013",
+  "service": "hsi-three-zero-field-gateway",
+  "railwayDeploymentId": "08a5883b-9374-4b77-ac0e-6e6645ebdcc0",
+  "railwayDeploymentStatus": "SUCCESS",
+  "productionUTMModified": false,
+  "productionOmegaModified": false,
+  "productionTrader42Modified": false,
+  "shellOneLiner": {
+    "bytes": 1093,
+    "localTestVectors": 20,
+    "maximumTestInputBytes": 2048,
+    "passed": true
+  },
+  "apiTransportSmoke": {
+    "status": "PASS",
+    "checks": [
+      {
+        "id": "health",
+        "passed": true,
+        "httpStatus": 200
+      },
+      {
+        "id": "manifest",
+        "passed": true,
+        "httpStatus": 200
+      },
+      {
+        "id": "field",
+        "passed": true,
+        "httpStatus": 200
+      },
+      {
+        "id": "utm",
+        "passed": true,
+        "httpStatus": 200
+      },
+      {
+        "id": "trader-paper",
+        "passed": true,
+        "httpStatus": 200
+      },
+      {
+        "id": "omega",
+        "passed": true,
+        "httpStatus": 200
+      },
+      {
+        "id": "identity-empty",
+        "passed": true,
+        "httpStatus": 200
+      },
+      {
+        "id": "identity-binary",
+        "passed": true,
+        "httpStatus": 200
+      },
+      {
+        "id": "identity-utf8",
+        "passed": true,
+        "httpStatus": 200
+      },
+      {
+        "id": "identity-2048",
+        "passed": true,
+        "httpStatus": 200
+      },
+      {
+        "id": "identity-invalid",
+        "passed": true,
+        "httpStatus": 422
+      },
+      {
+        "id": "triad",
+        "passed": true,
+        "httpStatus": 200
+      },
+      {
+        "id": "health-federation",
+        "passed": true,
+        "httpStatus": 200
+      }
+    ],
+    "passed": 13,
+    "total": 13,
+    "scope": "local-loopback-live-HTTP",
+    "publicProbe": "NOT_CHECKED",
+    "testedAt": "2026-10-13T00:40:15.712Z",
+    "browserQA": false
+  },
+  "publicDomainProbe": {
+    "status": "PASS_FROM_RAILWAY_RUNTIME",
+    "browserQA": false
+  },
+  "browserOrExternalDeviceVisualQA": "NOT_TESTED",
+  "securityBoundaries": {
+    "tradeExecutionEnabled": false,
+    "exchangeOrders": 0,
+    "remoteCodeExecution": false,
+    "prodDeployAuthorization": false
+  },
+  "interpretation": "Finite API/machine identity verification; not theorem proving, Riemann hypothesis, physical vacuum energy or profitability."
+}
