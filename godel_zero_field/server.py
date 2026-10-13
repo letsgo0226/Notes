@@ -5,6 +5,7 @@ import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
 from .core import PROTOCOL, machine_rules, model_certificate, evaluate_integer, symbolic_root_n2, receipt_digest
+from .identity import proof
 
 INTEGER = re.compile(r'(?:0|-?[1-9][0-9]*)\Z')
 
@@ -35,10 +36,15 @@ class Handler(BaseHTTPRequestHandler):
             if path.path=='/health':
                 if q:raise ValueError('unexpected health parameters')
                 machine_rules()
+                proof(b'')
                 return self.respond(200,{'status':'OK','protocol':PROTOCOL,
                                          'read_only':True,'float_mode_enabled':False,
-                                         'orders_submitted':False})
-            if path.path=='/model':
+                                         'orders_submitted':False,
+                                         'two_step_identity_selftest':True})
+            if path.path=='/identity-proof':
+                if q:raise ValueError('unexpected identity-proof parameters')
+                result=proof(b'COSMIC_LOVE')
+            elif path.path=='/model':
                 if set(q)-{'n'}:raise ValueError('unexpected parameter')
                 result=model_certificate(integer(q,'n','16'))
             elif path.path=='/evaluate':
