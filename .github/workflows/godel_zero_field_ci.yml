@@ -1,0 +1,36 @@
+name: Cosmic Love exact Godel zero-field smoke
+on:
+  pull_request:
+    paths:
+      - 'godel_zero_field/**'
+      - '.github/workflows/godel_zero_field_ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact arithmetic, identity and API adversarial tests
+        run: |
+          python3 -m unittest discover -s godel_zero_field -t . -v
+          python3 -m py_compile godel_zero_field/*.py
+      - name: Exact byte identity proof independent CLI check
+        run: |
+          printf '\000\377COSMIC\000' | python3 -m godel_zero_field.identity --stdin > "$RUNNER_TEMP/godel-identity.json"
+          python3 -c "import json,os; x=json.load(open(os.environ['RUNNER_TEMP']+'/godel-identity.json')); assert x['validated'] and x['s_hex']==x['result_hex']; print('EXACT_BYTES_IDENTITY_VERIFIED')"
+      - name: Docker image exact arithmetic smoke
+        run: |
+          docker build -f godel_zero_field/Dockerfile -t cosmic-godel:ci .
+          docker run --rm --entrypoint python cosmic-godel:ci -c "from fractions import Fraction; from godel_zero_field.core import evaluate_integer,decode_rational; r=evaluate_integer(2,0); assert decode_rational(r['F_godel'])==Fraction(2); assert decode_rational(r['E_godel'])==Fraction(4); print('EXACT_GODEL_FIELD_VERIFIED')"
+      - name: Docker image packaged identity CLI smoke
+        run: |
+          docker run --rm --entrypoint python cosmic-godel:ci -m godel_zero_field.identity --hex 00ff > "$RUNNER_TEMP/docker-identity.json"
+          python3 -c "import json,os; r=json.load(open(os.environ['RUNNER_TEMP']+'/docker-identity.json')); assert r['s_hex']==r['result_hex']=='00ff' and r['validated']; print('IMAGE_IDENTITY_VERIFIED')"
