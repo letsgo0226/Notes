@@ -20,8 +20,13 @@
     },
     {
       "path": "hsi_corpus_clxy_gate.py",
-      "bytes": 11529,
-      "sha256": "14e60a928b9cd8cbeed3231f10d244b141d71e425ead0d0f34ff4b5aa505da16"
+      "bytes": 12514,
+      "sha256": "8906588265d0b672630a3092c6478db143f9687591831a938a06228deb1cb5f5"
+    },
+    {
+      "path": "hsi_cosmic_solution_identity.py",
+      "bytes": 4623,
+      "sha256": "657e13e57bb27f6dce482f188abf354c164d2e07a055c581d7c62b007bbc8235"
     },
     {
       "path": "hsi_cosmic_zero_field.py",
@@ -80,8 +85,8 @@
     },
     {
       "path": "hsi_open_corpus.py",
-      "bytes": 34716,
-      "sha256": "9e1bbba41f5f1fe373d33c5266f6d0a017e40ba895e83233a207bf913b7d0f77"
+      "bytes": 35165,
+      "sha256": "4b2e9745be52695514688f58491176d73dfd2c85986b5fb13ace64e05796461d"
     },
     {
       "path": "hsi_render_policy.json",
