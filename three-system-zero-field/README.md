@@ -120,3 +120,11 @@ or physical zero-point energy.
 
 Even when a string encodes an unsolved conjecture, successful recovery only
 proves that the *string* was preserved, not that the conjecture is proved.
+
+## Phase 5: deployment and HTTP transport smoke evidence (2026-10-13)
+
+- The deployed research Function now runs a **13-case real HTTP transport smoke suite** through `http://127.0.0.1:$PORT` at startup, including GET health, GET manifest, finite field, UTM, Trader_42 paper, Omega, empty/binary/UTF-8/2048-byte identity, malformed hex rejection (HTTP 422), combined triad report and read-only federation probe. Railway logged `HSI-3SYS-HTTP-SMOKE {"status":"PASS","passed":13,"total":13,...}` for deployment `08a5883b-9374-4b77-ac0e-6e6645ebdcc0`.
+- The Railway runtime separately fetched `https://hsi-three-zero-field-gateway-production.up.railway.app/health` and logged `HSI-3SYS-PUBLIC-PROBE {"status":"PASS_FROM_RAILWAY_RUNTIME","browserQA":false}`.
+- Detailed machine-readable evidence: `verification_20261013.json`. The locally supplied 1,093-byte shell was independently invoked via `sh --stdin` with 20 empty/binary/Unicode/random vectors through 2,048 bytes; all returned the identical bytes and reversible E257 integer.
+- This establishes **live container HTTP behavior plus a public-domain loopback from Railway**, not independent device/browser accessibility or full browser interaction coverage. The caller's runtime could not resolve the public Railway hostname, so client-side smoke from this environment remains unverified.
+- This is strictly a review-only evidence update. All existing UTM, Omega and Trader_42 production services and trading permissions remain untouched.
