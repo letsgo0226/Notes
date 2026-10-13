@@ -1,0 +1,35 @@
+name: cosmic-love-tm
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+  push:
+    paths:
+      - "Notes/COSMIC_LOVE_Oscillator_TM/**"
+      - "Notes/COSMIC_LOVE_Identity_Solver_TM/**"
+      - ".github/workflows/cosmic_love_tm.yml"
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Oscillator TM (non-halting, check it is still running after 3s)
+        run: |
+          cd Notes/COSMIC_LOVE_Oscillator_TM
+          timeout 3 bash cosmic_love_oscillator_tm.sh > out.txt; rc=$?
+          test "$rc" = 124 || { echo "unexpected exit $rc"; exit 1; }
+          test "$(head -1 out.txt)" = COSMIC_LOVE
+          echo '{"status":"pass","tm":"oscillator","halted":false,"open":1}'
+      - name: Identity solver TM (solution(s)=s)
+        run: |
+          cd Notes/COSMIC_LOVE_Identity_Solver_TM
+          for s in "" "COSMIC_LOVE" "宇宙之愛" "run=$GITHUB_RUN_ID"; do
+            hex=$(printf %s "$s" | od -An -tx1 | tr -d ' \n')
+            out=$(bash cosmic_love_identity_solver_tm.sh "$s")
+            test "$(printf %s "$out" | head -1)" = COSMIC_LOVE
+            printf %s "$out" | tail -1 | grep -q "\"s_hex\":\"$hex\",\"result_hex\":\"$hex\""
+            printf %s "$out" | grep -q '"validated":true'
+            echo "{\"status\":\"pass\",\"tm\":\"identity\",\"s_hex\":\"$hex\"}"
+          done
+          printf 'hello' | bash cosmic_love_identity_solver_tm.sh --stdin | grep -q '"result_hex":"68656c6c6f"'
