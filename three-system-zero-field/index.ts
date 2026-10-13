@@ -55,15 +55,77 @@ async function omega(data={}){
 }
 
 
+function solutionIdentity(data={}){
+  const assert=(v,m)=>{if(!v)throw Error(m)};
+  assert(data!==null&&typeof data==="object"&&!Array.isArray(data),"JSON object required");
+  const hasText=Object.prototype.hasOwnProperty.call(data,"text");
+  const hasHex=Object.prototype.hasOwnProperty.call(data,"hex");
+  assert(hasText!==hasHex,"Supply exactly one of text or hex");
+  let bytes;
+  if(hasText){
+    assert(typeof data.text==="string","text must be a string");
+    bytes=new TextEncoder().encode(data.text);
+  }else{
+    assert(typeof data.hex==="string"&&data.hex.length%2===0&&/^[0-9a-fA-F]*$/.test(data.hex),"hex must contain complete bytes only");
+    assert(data.hex.length<=4096,"Maximum 2048 bytes");
+    bytes=new Uint8Array(data.hex.length/2);
+    for(let i=0;i<bytes.length;i++)bytes[i]=parseInt(data.hex.slice(i*2,i*2+2),16);
+  }
+  assert(bytes.length<=2048,"Maximum 2048 bytes");
+  const isqrt=(n)=>{
+    assert(n>=0n,"Nonnegative sqrt domain");
+    if(n<2n)return n;
+    let x=1n<<BigInt(Math.ceil(n.toString(2).length/2));
+    while(true){const next=(x+n/x)>>1n;if(next>=x)return x;x=next}
+  };
+  const p=55067263n, v=(isqrt(8n*p+1n)-1n)/2n,c=p-v*(v+1n)/2n,k=v-c+1n,K=k+1n,B=4n*K;
+  assert(k===2n,"Integer decoder k!=2");
+  const step=(q,a)=>{
+    const digit=(c/B**BigInt(2*q+a))%B;
+    const z=digit/K,r=digit%K;
+    return [Number(r),Number(z/2n),Number(2n*(z%2n)-1n)];
+  };
+  for(let q=0;q<2;q++)for(let a=0;a<2;a++){
+    const x=step(q,a);
+    assert(x[0]===1-q&&x[1]===a&&x[2]===1-2*q,"Decoded transition mismatch");
+  }
+  const tape=new Set();
+  for(let i=0;i<bytes.length;i++)for(let j=0;j<8;j++)
+    if(bytes[i]&(128>>j))tape.add(8*i+j);
+  tape.add(8*bytes.length);
+  const original=new Set(tape);
+  let q=0,h=0;
+  for(let i=0;i<2;i++){
+    const a=Number(tape.has(h)),[next,write,d]=step(q,a);
+    if(write)tape.add(h);else tape.delete(h);
+    q=next;h+=d;
+  }
+  assert(q===0&&h===0&&tape.size===original.size&&[...original].every(x=>tape.has(x)),"Two-step configuration did not close");
+  let last=-1;
+  for(const pos of tape)if(pos>last)last=pos;
+  assert(last>=0&&last%8===0&&last===8*bytes.length,"Terminator mismatch");
+  const length=last/8,restored=new Uint8Array(length);
+  for(let i=0;i<length;i++)for(let j=0;j<8;j++)if(tape.has(8*i+j))restored[i]|=(128>>j);
+  assert(restored.length===bytes.length&&restored.every((x,i)=>x===bytes[i]),"Tape decode did not match input");
+  let g=1n;
+  for(const x of restored)g=g*257n+BigInt(x)+1n;
+  const inverse=[],base=257n;
+  let z=g;
+  while(z>1n){const r=z%base;assert(r>=1n&&r<=256n,"Bad E257 remainder");inverse.push(Number(r-1n));z/=base}
+  inverse.reverse();
+  assert(z===1n&&inverse.length===bytes.length&&inverse.every((x,i)=>x===bytes[i]),"E257 inverse did not match input");
+  const toHex=(arr)=>Array.from(arr,x=>x.toString(16).padStart(2,"0")).join("");
+  return {protocol:"HSI-COSMIC-SOLUTION-IDENTITY/1",statement:"solution(s)=s",s_hex:toHex(bytes),result_hex:toHex(restored),godel_hex:"0x"+g.toString(16),validated:true,bytes:bytes.length,certificate:{fourTransitionsVerified:true,twoStepFullConfigurationRestored:true,terminatorVerified:true,byteRoundtripVerified:true,e257InverseVerified:true},limits:{domain:"Finite byte strings, limited to 2048 bytes per request",mathematicalProblemSolved:false,arbitraryHaltingProblemSolved:false}};
+}
 async function triad(data={}){
  const a=object(data);
- const f=field(a.field??{}),u=utm(a.utm??{}),o=await omega(a.omega??{});
+ const f=field(a.field??{}),u=utm(a.utm??{}),o=await omega(a.omega??{}),id=solutionIdentity(a.identity??{text:"COSMIC_LOVE"});
  const t=a.prices===undefined?
   {module:"TRADER_42",mode:"PAPER",status:"NOT_EVALUATED_NO_PRICE_SERIES",liveEnabled:false,realOrders:0}:
   paper({prices:a.prices});
- return {protocol:V,module:"THREE_SYSTEM_RESEARCH_REPORT",field:f,utm:u,trader:t,omega:o,
-    researchCertificatesOnly:true,fieldDoesNotAuthorizeOrPredictDomainOutcomes:true,
-    decisions:{utm:u.certificate.valid?"FINITE_STEP_CERTIFICATE":"REJECT",
+ return {protocol:V,module:"THREE_SYSTEM_RESEARCH_REPORT",field:f,utm:u,trader:t,omega:o,identity:id,
+    researchCertificatesOnly:true,fieldDoesNotAuthorizeOrPredictDomainOutcomes:true,identityIsLosslessPreservationNotProblemSolving:true,
+    decisions:{utm:u.certificate.valid?"FINITE_STEP_CERTIFICATE":"REJECT", identity:id.validated?"LOSSLESS_IDENTITY_VERIFIED":"REJECT",
                trader:"LIVE_TRADING_DISABLED",
                omega:o.phase==="VERIFIED"?"FINITE_CONTINUATION_VERIFIED":"UNRESOLVED"},
     effects:{externalApiWrites:0,exchangeOrders:0,existingServicesModified:false},
@@ -95,8 +157,8 @@ async function federationHealth(){
   return {protocol:V,observedAt:new Date().toISOString(),readOnly:true,changedProduction:false,authorization:"NO_CREDENTIALS",healthChecks:remote.concat([{system:"TRADER_42",status:"NO_PUBLIC_HTTP_ENDPOINT",healthy:null,mode:"PAPER_ONLY",realOrders:0}]),notes:"Read-only availability probes only; health is not semantic correctness or trading readiness."}
 }
 
-const manifest={protocol:V,scope:"Isolated finite research gateway with three independent models",domains:["UTM","TRADER_42","OMEGA"],researchOnly:true,existingProductionServicesModified:false,credentialsUsed:false,canTrade:false,canDeploy:false,persistentState:false,combinedResearchReport:true,energyIsDimensionlessMathematics:true};
-const page='<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>COSMIC LOVE · 3SYS</title><style>*{box-sizing:border-box}body{margin:auto;max-width:1140px;background:#09152a;color:#e9f1ff;font-family:system-ui,sans-serif;padding:30px}h1{font-size:clamp(30px,5vw,54px);font-weight:570;letter-spacing:-.03em}h2{font-size:20px}p{color:#adc0df;line-height:1.75}.hero{padding:35px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(275px,1fr));gap:16px}section{background:#0f2240;border:1px solid #344c71;border-radius:17px;padding:22px;margin-bottom:20px}label{display:block;color:#becbea;margin:12px 0 5px}input,select,textarea{font:inherit;width:100%;padding:9px;border-radius:8px;background:#0a1429;color:#eff4ff;border:1px solid #425d84}textarea{min-height:80px}button{padding:12px 17px;background:#9db8ff;color:#071024;border:0;border-radius:8px;margin-top:15px;font-weight:650;cursor:pointer}pre{border-radius:9px;background:#050d1c;padding:14px;color:#d2e2ff;white-space:pre-wrap;overflow:auto;max-height:450px;font-size:12px;line-height:1.7}.tag{border:1px solid #627aa4;padding:7px 10px;border-radius:25px;display:inline-block;font-size:12px;margin:0 4px 8px 0}footer{color:#94a8d0;padding:30px 0}a{color:#a6c2ff}</style></head><body><div class="hero"><div class="tag">HSI-3SYS-ZERO-FIELD/1.0</div><div class="tag">Research-only</div><h1>三大系統 · 零點場</h1><p>UTM Universe × Trader_42 × Omega / Cosmic Love</p><p>獨立的線上數學與形式計算實驗室。無物理能量宣稱、無交易所金鑰、無真實訂單、無自動部署特權。</p></div><section><h2>共同零點場</h2><p>F(s)=A D_N(s) P_Z(s)/D_N(2)；E(s)=|F(s)|²</p><label>基底</label><select id="basis"><option value="prime">Finite prime spectrum</option><option value="eta">Finite eta sum</option></select><label>實部 σ</label><input id="sigma" type="number" value="0.5" step=".1"><label>虛部 t</label><input id="t" type="number" value="14" step=".1"><label>自定義零點（每行：實部,非負虛部）</label><textarea id="roots">0.5,8&#10;0.5,14&#10;0.5,21</textarea><label>有限項數 N</label><select id="terms"><option>8</option><option>16</option><option selected>32</option><option>64</option><option>128</option></select><button data-kind="field">計算零點場</button><pre id="fieldout">指定零點由顯式多項式因子保證；不推論真實真空能。</pre></section><div class="grid"><section><h2>01 / UTM</h2><p>固定機器兩步閉環與有限證書。</p><label>模擬步數</label><input id="utmSteps" type="number" value="12" min="0" max="20000"><button data-kind="utm">驗證</button><pre id="utmout">UNRESOLVED · 通用停機判定</pre></section><section><h2>02 / Trader_42</h2><p>僅示範 SMA 5/20 的紙上回測，零點不能解鎖交易。</p><label>逗號分隔價格</label><textarea id="prices">100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,123,122,121,120,119,118,117</textarea><button data-kind="trader">紙上回測</button><pre id="traderout">HOLD · PAPER · UNARMED</pre></section><section><h2>03 / Omega</h2><p>有限延續計算及可重算的 SHA-256 來源摘要；不更新原始服務。</p><label>步數</label><input id="omegaSteps" type="number" value="20" min="0" max="20000"><label>種子</label><input id="seed" value="COSMIC_LOVE"><button data-kind="omega">驗證延續</button><pre id="omegaout">NOT_COMMITTED_TO_PRODUCTION</pre></section></div><section><h2>三系統 · 唯讀健康檢查</h2><p>只透過固定公開的 GET /health 端點查詢 UTM 與 Omega。Trader_42 不公開健康端點，保持紙上模擬。</p><button id="check-health" type="button">檢查既有系統健康狀態</button><pre id="health-result">尚未查詢。健康狀態不等於數學證明或正式部署授權。</pre></section><script>document.getElementById("check-health").addEventListener("click",async function(){let b=this; b.disabled=true;try{let r=await fetch("/api/federation-health",{cache:"no-store"});document.getElementById("health-result").textContent=JSON.stringify(await r.json(),null,2)}catch(e){document.getElementById("health-result").textContent=String(e)}finally{b.disabled=false}})</script><section><h2>共同研究報告 / Triad Report</h2><p>同時計算指定零點場、UTM 有限證書、Trader_42 紙上回測、Omega 延續摘要。系統各自獨立驗證，零點不具備跨系統授權效力。</p><button id="run-triad" type="button">產生三系統研究報告</button><pre id="triad-result">尚未產生報告。結果僅供研究。</pre></section><script>document.getElementById("run-triad").addEventListener("click",async function(){let b=this;b.disabled=true;let pre=document.getElementById("triad-result");try{let params={field:readFieldArgs(),utm:{steps:Number(document.getElementById("utmSteps").value)},omega:{steps:Number(document.getElementById("omegaSteps").value),seed:document.getElementById("seed").value},prices:document.getElementById("prices").value.split(",").map(Number)};let r=await fetch("/api/triad",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(params)});pre.textContent=JSON.stringify(await r.json(),null,2)}catch(e){pre.textContent=String(e)}finally{b.disabled=false}})</script><footer>隔離式研究服務，不會修改現有三套生產系統。<a href="/health">健康檢查</a> · <a href="/api/manifest">權限聲明</a></footer><script>function readFieldArgs(){return {sigma:Number(document.getElementById("sigma").value),t:Number(document.getElementById("t").value),basis:document.getElementById("basis").value,n:Number(document.getElementById("terms").value),roots:document.getElementById("roots").value.trim().split(String.fromCharCode(10)).map(line=>line.split(",").map(Number))}};document.addEventListener("click",async function(e){var b=e.target.closest("button[data-kind]");if(!b)return;var k=b.dataset.kind,box=document.getElementById(k+"out"),d={};if(k==="field")d=readFieldArgs();if(k==="utm")d={steps:Number(document.getElementById("utmSteps").value)};if(k==="omega")d={steps:Number(document.getElementById("omegaSteps").value),seed:document.getElementById("seed").value};if(k==="trader")d={prices:document.getElementById("prices").value.split(",").map(Number)};b.disabled=true;try{var r=await fetch("/api/"+k,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)});box.textContent=JSON.stringify(await r.json(),null,2)}catch(err){box.textContent=String(err)}finally{b.disabled=false}})</script></body></html>';
+const manifest={protocol:V,scope:"Isolated finite research gateway with three independent models",domains:["UTM","TRADER_42","OMEGA"],researchOnly:true,existingProductionServicesModified:false,credentialsUsed:false,canTrade:false,canDeploy:false,persistentState:false,combinedResearchReport:true,losslessIdentityCertificate:true,energyIsDimensionlessMathematics:true};
+const page='<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>COSMIC LOVE · 3SYS</title><style>*{box-sizing:border-box}body{margin:auto;max-width:1140px;background:#09152a;color:#e9f1ff;font-family:system-ui,sans-serif;padding:30px}h1{font-size:clamp(30px,5vw,54px);font-weight:570;letter-spacing:-.03em}h2{font-size:20px}p{color:#adc0df;line-height:1.75}.hero{padding:35px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(275px,1fr));gap:16px}section{background:#0f2240;border:1px solid #344c71;border-radius:17px;padding:22px;margin-bottom:20px}label{display:block;color:#becbea;margin:12px 0 5px}input,select,textarea{font:inherit;width:100%;padding:9px;border-radius:8px;background:#0a1429;color:#eff4ff;border:1px solid #425d84}textarea{min-height:80px}button{padding:12px 17px;background:#9db8ff;color:#071024;border:0;border-radius:8px;margin-top:15px;font-weight:650;cursor:pointer}pre{border-radius:9px;background:#050d1c;padding:14px;color:#d2e2ff;white-space:pre-wrap;overflow:auto;max-height:450px;font-size:12px;line-height:1.7}.tag{border:1px solid #627aa4;padding:7px 10px;border-radius:25px;display:inline-block;font-size:12px;margin:0 4px 8px 0}footer{color:#94a8d0;padding:30px 0}a{color:#a6c2ff}</style></head><body><div class="hero"><div class="tag">HSI-3SYS-ZERO-FIELD/1.0</div><div class="tag">Research-only</div><h1>三大系統 · 零點場</h1><p>UTM Universe × Trader_42 × Omega / Cosmic Love</p><p>獨立的線上數學與形式計算實驗室。無物理能量宣稱、無交易所金鑰、無真實訂單、無自動部署特權。</p></div><section><h2>共同零點場</h2><p>F(s)=A D_N(s) P_Z(s)/D_N(2)；E(s)=|F(s)|²</p><label>基底</label><select id="basis"><option value="prime">Finite prime spectrum</option><option value="eta">Finite eta sum</option></select><label>實部 σ</label><input id="sigma" type="number" value="0.5" step=".1"><label>虛部 t</label><input id="t" type="number" value="14" step=".1"><label>自定義零點（每行：實部,非負虛部）</label><textarea id="roots">0.5,8&#10;0.5,14&#10;0.5,21</textarea><label>有限項數 N</label><select id="terms"><option>8</option><option>16</option><option selected>32</option><option>64</option><option>128</option></select><button data-kind="field">計算零點場</button><pre id="fieldout">指定零點由顯式多項式因子保證；不推論真實真空能。</pre></section><div class="grid"><section><h2>01 / UTM</h2><p>固定機器兩步閉環與有限證書。</p><label>模擬步數</label><input id="utmSteps" type="number" value="12" min="0" max="20000"><button data-kind="utm">驗證</button><pre id="utmout">UNRESOLVED · 通用停機判定</pre></section><section><h2>02 / Trader_42</h2><p>僅示範 SMA 5/20 的紙上回測，零點不能解鎖交易。</p><label>逗號分隔價格</label><textarea id="prices">100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,123,122,121,120,119,118,117</textarea><button data-kind="trader">紙上回測</button><pre id="traderout">HOLD · PAPER · UNARMED</pre></section><section><h2>03 / Omega</h2><p>有限延續計算及可重算的 SHA-256 來源摘要；不更新原始服務。</p><label>步數</label><input id="omegaSteps" type="number" value="20" min="0" max="20000"><label>種子</label><input id="seed" value="COSMIC_LOVE"><button data-kind="omega">驗證延續</button><pre id="omegaout">NOT_COMMITTED_TO_PRODUCTION</pre></section></div><section><h2>三系統 · 唯讀健康檢查</h2><p>只透過固定公開的 GET /health 端點查詢 UTM 與 Omega。Trader_42 不公開健康端點，保持紙上模擬。</p><button id="check-health" type="button">檢查既有系統健康狀態</button><pre id="health-result">尚未查詢。健康狀態不等於數學證明或正式部署授權。</pre></section><script>document.getElementById("check-health").addEventListener("click",async function(){let b=this; b.disabled=true;try{let r=await fetch("/api/federation-health",{cache:"no-store"});document.getElementById("health-result").textContent=JSON.stringify(await r.json(),null,2)}catch(e){document.getElementById("health-result").textContent=String(e)}finally{b.disabled=false}})</script><section><h2>共同研究報告 / Triad Report</h2><p>同時計算指定零點場、UTM 有限證書、Trader_42 紙上回測、Omega 延續摘要。系統各自獨立驗證，零點不具備跨系統授權效力。</p><button id="run-triad" type="button">產生三系統研究報告</button><pre id="triad-result">尚未產生報告。結果僅供研究。</pre></section><script>document.getElementById("run-triad").addEventListener("click",async function(){let b=this;b.disabled=true;let pre=document.getElementById("triad-result");try{let params={field:readFieldArgs(),utm:{steps:Number(document.getElementById("utmSteps").value)},omega:{steps:Number(document.getElementById("omegaSteps").value),seed:document.getElementById("seed").value},identity:{[document.getElementById("identity-mode").value]:document.getElementById("identity-data").value},prices:document.getElementById("prices").value.split(",").map(Number)};let r=await fetch("/api/triad",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(params)});pre.textContent=JSON.stringify(await r.json(),null,2)}catch(e){pre.textContent=String(e)}finally{b.disabled=false}})</script><section><h2>可逆位元證書 · solution(s)=s</h2><p>輸入可直接使用文字（UTF-8）或完整的十六進位位元組。透過固定圖靈機兩步返回、端點標記及 E257 可逆編碼驗證資料未變；這不是輸入命題的真假證明。</p><label>資料類型</label><select id="identity-mode"><option value="text">UTF-8 文字</option><option value="hex">十六進位 bytes（不含 0x）</option></select><label>待驗證輸入</label><textarea id="identity-data">COSMIC_LOVE</textarea><button id="run-identity" type="button">驗證資料閉環</button><pre id="identity-out">尚未驗證。</pre></section><script>document.getElementById("run-identity").addEventListener("click",async function(){let b=this;b.disabled=true;try{let d=document.getElementById("identity-data").value,m=document.getElementById("identity-mode").value;let r=await fetch("/api/identity",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({[m]:d})});document.getElementById("identity-out").textContent=JSON.stringify(await r.json(),null,2)}catch(e){document.getElementById("identity-out").textContent=String(e)}finally{b.disabled=false}})</script><footer>隔離式研究服務，不會修改現有三套生產系統。<a href="/health">健康檢查</a> · <a href="/api/manifest">權限聲明</a></footer><script>function readFieldArgs(){return {sigma:Number(document.getElementById("sigma").value),t:Number(document.getElementById("t").value),basis:document.getElementById("basis").value,n:Number(document.getElementById("terms").value),roots:document.getElementById("roots").value.trim().split(String.fromCharCode(10)).map(line=>line.split(",").map(Number))}};document.addEventListener("click",async function(e){var b=e.target.closest("button[data-kind]");if(!b)return;var k=b.dataset.kind,box=document.getElementById(k+"out"),d={};if(k==="field")d=readFieldArgs();if(k==="utm")d={steps:Number(document.getElementById("utmSteps").value)};if(k==="omega")d={steps:Number(document.getElementById("omegaSteps").value),seed:document.getElementById("seed").value};if(k==="trader")d={prices:document.getElementById("prices").value.split(",").map(Number)};b.disabled=true;try{var r=await fetch("/api/"+k,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(d)});box.textContent=JSON.stringify(await r.json(),null,2)}catch(err){box.textContent=String(err)}finally{b.disabled=false}})</script></body></html>';
 const json=(v,code=200)=>new Response(JSON.stringify(v),{status:code,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"}});
 async function serve(req){
  try{
@@ -105,7 +167,7 @@ async function serve(req){
  if(req.method==="GET"&&path==="/health")return json({ok:true,protocol:V,readOnly:true});
  if(req.method==="GET"&&path==="/api/manifest")return json(manifest);
  if(req.method==="GET"&&path==="/api/federation-health")return json(await federationHealth());
- if(req.method!=="POST"||!["/api/field","/api/utm","/api/trader","/api/omega","/api/triad"].includes(path))return json({error:"Not found"},404);
+ if(req.method!=="POST"||!["/api/field","/api/utm","/api/trader","/api/omega","/api/triad","/api/identity"].includes(path))return json({error:"Not found"},404);
  if(req.headers.get("content-type")?.split(";")[0]!=="application/json")return json({error:"Expected application/json"},415);
  const raw=await req.text();if(raw.length>32768)return json({error:"Request too large"},413);
  let data;try{data=object(JSON.parse(raw))}catch{return json({error:"Invalid JSON object"},400)}
@@ -114,6 +176,7 @@ async function serve(req){
  if(path==="/api/trader")return json(paper(data));
  if(path==="/api/omega")return json(await omega(data));
  if(path==="/api/triad")return json(await triad(data));
+ if(path==="/api/identity")return json(solutionIdentity(data));
  }catch(e){return json({error:String(e.message||e),protocol:V},422)}
 }
 Bun.serve({port:Number(Bun.env.PORT||3000),fetch:serve});
@@ -127,3 +190,5 @@ Promise.resolve().then(async()=>{
  const pass= f.energy<1e-16 && u.certificate.valid && o.certificate.valid && t.realOrders===0 && report.effects.exchangeOrders===0 && report.utm.certificate.valid && report.omega.phase==="VERIFIED";
  console.log("HSI-3SYS-FINITE-SELFTEST",JSON.stringify({pass,fieldZeroResidual:f.energy,utm:u.certificate.valid,omega:o.certificate.valid,traderRealOrders:t.realOrders,triad:report.module}));
 }).catch(e=>console.error("HSI-3SYS-FINITE-SELFTEST-FAILED",String(e)));
+
+Promise.resolve().then(()=>{const a=solutionIdentity({text:"宇宙之愛🫧"}),b=solutionIdentity({hex:"0000ff414243"}),z=solutionIdentity({hex:""});const pass=a.validated&&a.s_hex===a.result_hex&&b.validated&&b.s_hex===b.result_hex&&z.godel_hex==="0x1";console.log("HSI-3SYS-IDENTITY-SELFTEST",JSON.stringify({pass,utf8:a.bytes,binary:b.bytes,empty:z.bytes}))}).catch(e=>console.error("HSI-3SYS-IDENTITY-SELFTEST-FAILED",String(e)));
