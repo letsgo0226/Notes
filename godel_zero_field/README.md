@@ -40,3 +40,34 @@ All protocols are mathematical and do not generate physical vacuum energy.
 The service does not modify existing Cosmic Love workers, Corpus or Trader_42.
 No live trading, no public domain, no shared volume or independent backup claim.
 The branch and PR are for review. Deployments can incur hosting charges.
+
+## Bounded `solution(s)=s` microkernel
+
+The original one-liner with `p=55067263` now has a non-floating,
+reversible byte-identity module `godel_zero_field.identity`.
+The proof domain is **all finite byte strings**; the running implementation
+has a **2048-byte budget** per request to avoid unbounded allocations.
+
+```sh
+python3 -m godel_zero_field.identity --text '星光與愛'
+python3 -m godel_zero_field.identity --hex 00ff41424300
+printf '\\000\\377Hi' | python3 -m godel_zero_field.identity --stdin
+```
+
+It executes exactly two decoded transitions on a finite binary tape,
+checks the entire original state `(q,h,tape)`, recovers the bytes using
+the one-bit length terminator, and independently checks E257 inversion.
+Failures raise exceptions regardless of Python `-O` optimization.
+The receipt carries `s_hex`, `result_hex`, `godel_hex` and a SHA256
+digest, without floating point.
+
+The remote `GET /identity-proof` endpoint only demonstrates an
+**internally defined public fixture** `COSMIC_LOVE`; arbitrary user bytes
+are **not accepted via HTTP**, reducing accidental disclosure of data
+through URLs, reverse proxies or logs. `GET /health` additionally checks
+the empty-byte identity. Only the local CLI accepts arbitrary bounded bytes.
+
+This exact reversible identity does **not** solve a mathematical statement
+encoded in those bytes or produce Dirichlet roots on its own. It is
+a verification/serialization boundary used alongside the existing exact
+finite Dirichlet and symbolic N=2 root research.
