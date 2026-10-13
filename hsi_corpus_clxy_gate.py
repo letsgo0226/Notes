@@ -15,6 +15,7 @@ import tempfile
 import wave
 from array import array
 from pathlib import Path
+from hsi_cosmic_solution_identity import certificate as identity_certificate
 
 PROTOCOL = "HSI-CORPUS-DEPLOY-CLXY/1.0"
 ROOT = Path(__file__).resolve().parent
@@ -159,11 +160,24 @@ def artifact_witness(out,expected_policy=None):
     cert = load(out/"song.hsicert")
     rc = load(out/"correspondence.hsicert")
     manifest = load(out/"manifest.json")
-    require(cert["version"] in {"1.9.0", "1.9.1", "1.9.2", "1.9.3"}, "unexpected Open-Corpus version")
+    require(cert["version"] in {"1.9.0", "1.9.1", "1.9.2", "1.9.3", "1.9.4"}, "unexpected Open-Corpus version")
     require(cert["closed"] == 1 and cert["technical_closed"] == 1
             and cert["correspondence_closed"] == 1 and manifest["closed"] == 1,
             "audio not technically and correspondentially closed")
     require(cert["correspondence"] == rc, "song and correspondence certificates disagree")
+    if cert["version"] == "1.9.4":
+        corpus = load(out/"corpus.lock.json")
+        identity = identity_certificate(cert["generation_seed_text"].encode("utf-8"))
+        require(cert.get("cosmic_solution_identity") == identity
+                and rc.get("cosmic_solution_identity") == identity
+                and corpus.get("cosmic_solution_identity") == identity,
+                "COSMIC_LOVE solution identity witness does not match generation input")
+        require(corpus.get("generation_seed_text") == cert["generation_seed_text"],
+                "Corpus generation seed mismatch")
+        require(manifest.get("cosmic_solution_identity_uid") == identity["certificate_uid"],
+                "manifest identity certificate UID mismatch")
+        require(cert.get("checks", {}).get("cosmic_solution_identity_verified") is True,
+                "identity was not verified at render time")
     policy=cert["render_policy"]
     require(set(policy)=={"event_boost","fade_ms","gain_scale"},"unexpected policy field")
     require(type(policy["event_boost"]) is int and 0<=policy["event_boost"]<=4,
