@@ -18,13 +18,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: 30 adversarial exact math and API tests
+      - name: Exact arithmetic, identity and API adversarial tests
         run: |
           python3 -m unittest discover -s godel_zero_field -t . -v
           python3 -m py_compile godel_zero_field/*.py
       - name: Exact byte identity proof independent CLI check
         run: |
-          printf '\\000\\377COSMIC\\000' | python3 -m godel_zero_field.identity --stdin > "$RUNNER_TEMP/godel-identity.json"
+          printf '\000\377COSMIC\000' | python3 -m godel_zero_field.identity --stdin > "$RUNNER_TEMP/godel-identity.json"
           python3 -c "import json,os; x=json.load(open(os.environ['RUNNER_TEMP']+'/godel-identity.json')); assert x['validated'] and x['s_hex']==x['result_hex']; print('EXACT_BYTES_IDENTITY_VERIFIED')"
       - name: Docker image exact arithmetic smoke
         run: |
