@@ -68,3 +68,55 @@ Source provenance: attached `COSMIC_LOVE_NONHALTING_SELF_CLOSURE_TURING_SPEC`, `
 - The combined report carries independent results and an explicit `exchangeOrders:0` / `existingServicesModified:false` boundary. It does not promote numerical root residuals or simulated market returns into production permissions.
 - On startup, the service performs **finite illustrative self-tests** for prescribed field zeros, Turing-machine two-step identity, Omega finite continuation, paper-only trading and combined report constraints; it logs pass/fail. These are not comprehensive domain tests or mathematical proofs of arbitrary programs.
 - Source and deployment remain isolated. No main-branch merge; no modifications to three original production services.
+
+## Phase 4: HSI-COSMIC-SOLUTION-IDENTITY/1 (2026-10-13)
+
+This stage derives from the user's exact byte-roundtrip script and the attached
+`COSMIC_LOVE_solution_identity_20261013(3).txt` specification.
+
+**Mathematical certificate**
+
+```text
+delta(q,a) = (1-q,a,1-2q)
+T²(q,h,tape)=(q,h,tape)
+Enc(s) = (0,0, [MSB-first bits of s] + marked terminator at 8*len(s))
+Dec(Enc(s)) = s
+solution(s) := Dec(T²(Enc(s))) = s
+E257([])=1
+E257(s+b) = 257*E257(s)+(b+1), 0<=b<=255
+```
+
+The inverse E257 operation uses base-257 division, checking each remainder in
+1..256; the resulting bytes must match the original. `validated:true` means
+four transition rules, the two-step configuration, byte decoding and E257
+recovery were checked. This is lossless identity, **not** theorem proving,
+general program synthesis, the halting problem, real-world semantic validation
+or physical zero-point energy.
+
+**Deploy/API**
+
+- `POST /api/identity` with exactly one of `{"text":"宇宙之愛🫧"}` (UTF-8)
+  or `{"hex":"00ff414243"}` (arbitrary bytes).
+- Input is capped at **2048 bytes per request** in this web gateway for
+  bounded processing; the mathematical theorem concerns all finite strings.
+- Output contains exact `s_hex`, `result_hex`, `godel_hex`,
+  `validated` and explicitly scoped sub-certificates.
+- `POST /api/triad` now accepts optional `"identity":{"text":"..."}`
+  or `"identity":{"hex":"..."}`. This is an independent certificate,
+  not a condition that unlocks Trader_42, UTM, or Omega privileges.
+- The interface supports UTF-8/hex input and exposes the certificate.
+- Source is retained at `three-system-zero-field/index.ts`.
+- The original, executable, **1,093-byte shell command** is preserved as
+  `three-system-zero-field/cosmic_love_solution_identity_2KB.sh`. It uses only
+  standard Python 3; `--stdin` supports arbitrary byte strings without
+  shell argument encoding limitations.
+- Local tests covered 15 original-Python vectors (binary, empty, UTF-8,
+  randomized lengths), plus 2 KB shell smoke tests. Independent JavaScript
+  hex-mode vectors and invalid inputs were also exercised.
+- Latest Railway launch log recorded
+  `HSI-3SYS-IDENTITY-SELFTEST {"pass":true,"utf8":16,"binary":6,"empty":0}`.
+- Production UTM, Omega and Trader_42 projects are **not** mutated.
+  Trader_42 remains paper-only and the existing GitHub PR remains Draft.
+
+Even when a string encodes an unsolved conjecture, successful recovery only
+proves that the *string* was preserved, not that the conjecture is proved.
