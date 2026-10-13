@@ -8,6 +8,8 @@ on:
       - "hsi-corpus.ps1"
       - "hsi_open_corpus.py"
       - "hsi_cosmic_zero_field.py"
+      - "hsi_cosmic_solution_identity.py"
+      - "tests/test_hsi_cosmic_solution_identity.py"
       - "tests/test_hsi_cosmic_zero_field.py"
       - "hsi_corpus_clxy_gate.py"
       - "hsi_corpus_autoevolve.py"
@@ -23,6 +25,8 @@ on:
       - "hsi-corpus.ps1"
       - "hsi_open_corpus.py"
       - "hsi_cosmic_zero_field.py"
+      - "hsi_cosmic_solution_identity.py"
+      - "tests/test_hsi_cosmic_solution_identity.py"
       - "tests/test_hsi_cosmic_zero_field.py"
       - "hsi_corpus_clxy_gate.py"
       - "hsi_corpus_autoevolve.py"
@@ -44,8 +48,9 @@ jobs:
         run: |
           set -eu
           sh -n hsi-corpus.sh
-          python3 -m py_compile hsi_net.py hsi_search.py hsi_open_corpus.py hsi_corpus_clxy_gate.py hsi_corpus_autoevolve.py hsi_cosmic_zero_field.py
+          python3 -m py_compile hsi_net.py hsi_search.py hsi_open_corpus.py hsi_corpus_clxy_gate.py hsi_corpus_autoevolve.py hsi_cosmic_zero_field.py hsi_cosmic_solution_identity.py
           python3 -m unittest discover -s tests -p "test_hsi_cosmic_zero_field.py" -q
+          python3 -m unittest discover -s tests -p "test_hsi_cosmic_solution_identity.py" -q
           grep -q 'ai_model":False' hsi_open_corpus.py
           grep -q 'neural_renderer":False' hsi_open_corpus.py
           grep -q 'machine_learning":False' hsi_open_corpus.py
@@ -191,7 +196,7 @@ jobs:
           l=json.loads((p/"corpus.lock.json").read_text())
           sh=json.loads((p/"search.hsicert").read_text())
           assert c["protocol"]=="HSI-OPEN-CORPUS/1.0"
-          assert c["version"]=="1.9.3"
+          assert c["version"]=="1.9.4"
           assert c["hsi_search_version"]=="1.4.0"
           assert c["minimum_hsi_search_version"]=="1.4.0"
           assert c["closed"]==1 and c["technical_closed"]==1
@@ -203,6 +208,11 @@ jobs:
           assert c["correspondence"]["residual"]==0
           assert (p/"correspondence.hsicert").exists()
           assert c["rights_closed"]==0
+          assert c["cosmic_solution_identity"]["validated"] is True
+          assert c["cosmic_solution_identity"]["statement"]=="solution(s)=s"
+          assert c["cosmic_solution_identity"]["input_sha256"]==c["cosmic_solution_identity"]["result_sha256"]
+          assert c["cosmic_solution_identity"]==l["cosmic_solution_identity"]
+          assert c["cosmic_solution_identity"]==c["correspondence"]["cosmic_solution_identity"]
           assert c["ai_model"] is False and c["neural_renderer"] is False and c["machine_learning"] is False
           assert c["search_status"]=="FOUND"
           assert sh["source"]=="network_audio"
@@ -257,11 +267,19 @@ jobs:
           assert proof["clxy"]["bad_evolve_rejected"] is True
           with tempfile.TemporaryDirectory() as td:
               tampered=Path(td)
-              for name in ("song.wav","song.hsicert","correspondence.hsicert","manifest.json"):
+              for name in ("song.wav","song.hsicert","correspondence.hsicert","manifest.json","corpus.lock.json"):
                   shutil.copy2(out/name,tampered/name)
               wav=tampered/"song.wav"
               with wav.open("r+b") as f:
                   f.seek(-4,2); b=f.read(1); f.seek(-1,1); f.write(bytes([b[0]^1]))
+              fail=subprocess.run([sys.executable,"hsi_corpus_clxy_gate.py","--artifact",str(tampered)],
+                                  capture_output=True,text=True)
+              assert fail.returncode==3, fail.stdout+fail.stderr
+              cert_path=tampered/"song.hsicert"
+              shutil.copy2(out/"song.wav",wav)
+              original=json.loads(cert_path.read_text())
+              original["cosmic_solution_identity"]["input_bytes"]+=1
+              cert_path.write_text(json.dumps(original))
               fail=subprocess.run([sys.executable,"hsi_corpus_clxy_gate.py","--artifact",str(tampered)],
                                   capture_output=True,text=True)
               assert fail.returncode==3, fail.stdout+fail.stderr
