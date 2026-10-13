@@ -1,0 +1,45 @@
+name: HSI Account UTM — read-only self-verification
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 2 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'hsi_account_utm/**'
+      - '.github/workflows/hsi_account_utm_review.yml'
+  pull_request:
+    paths:
+      - 'hsi_account_utm/**'
+      - '.github/workflows/hsi_account_utm_review.yml'
+permissions:
+  contents: read
+concurrency:
+  group: hsi-account-utm-review-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  finite-proof-and-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate self-coded 2KB interpreter and non-halting bounded observation
+        run: python3 -m unittest discover -s hsi_account_utm -p 'test_*.py' -v
+      - name: Inventory public repositories owned by account (no writes)
+        env:
+          ACCOUNT_OWNER: ${{ github.repository_owner }}
+        run: |
+          python3 hsi_account_utm/account_inventory.py \
+            --owner "$ACCOUNT_OWNER" \
+            --out "$RUNNER_TEMP/hsi-account-public-inventory.json"
+      - name: Publish read-only evidence artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hsi-account-utm-public-inventory
+          path: ${{ runner.temp }}/hsi-account-public-inventory.json
+          retention-days: 7
