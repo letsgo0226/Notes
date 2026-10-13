@@ -17,7 +17,7 @@ jobs:
       - name: Oscillator TM (non-halting, check it is still running after 3s)
         run: |
           cd Notes/COSMIC_LOVE_Oscillator_TM
-          timeout 3 bash cosmic_love_oscillator_tm.sh > out.txt; rc=$?
+          rc=0; timeout 3 bash cosmic_love_oscillator_tm.sh > out.txt || rc=$?
           test "$rc" = 124 || { echo "unexpected exit $rc"; exit 1; }
           test "$(head -1 out.txt)" = COSMIC_LOVE
           echo '{"status":"pass","tm":"oscillator","halted":false,"open":1}'
