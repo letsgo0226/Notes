@@ -1,0 +1,62 @@
+name: HSI SDG 16 — read-only geographic state snapshots
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '37 3 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'hsi_account_utm/sdg_state.py'
+      - 'hsi_account_utm/test_sdg_state.py'
+      - 'hsi_account_utm/SDG_STATES.md'
+      - '.github/workflows/hsi_sdg_state_review.yml'
+  pull_request:
+    paths:
+      - 'hsi_account_utm/sdg_state.py'
+      - 'hsi_account_utm/test_sdg_state.py'
+      - 'hsi_account_utm/SDG_STATES.md'
+      - '.github/workflows/hsi_sdg_state_review.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hsi-sdg-readonly-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate SDG state logic without network
+        run: python3 -m unittest discover -s hsi_account_utm -p test_sdg_state.py -v
+
+  public-sdg-snapshot:
+    if: github.event_name != 'pull_request'
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Retrieve published UNSD SDG 16 observations
+        run: |
+          python3 hsi_account_utm/sdg_state.py \
+            --out "$RUNNER_TEMP/hsi-sdg16-public-state.json"
+      - name: Upload public evidence artifact (no repo writes)
+        uses: actions/upload-artifact@v4
+        with:
+          name: hsi-sdg16-public-country-area-states
+          path: ${{ runner.temp }}/hsi-sdg16-public-state.json
+          retention-days: 7
