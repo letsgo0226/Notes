@@ -9,7 +9,7 @@ CORRESPONDENCE_PROTOCOL="HSI-RC/1.0"
 BLUE_PROTOCOL="HSI-PLEIADIAN-BLUE-CARE/1.0"
 COSMIC_LOVE_TM_PROTOCOL="HSI-COSMIC-LOVE-TM/1.0"
 COSMIC_LOVE_TM_PROGRAM=55067263
-VERSION="1.9.3"
+VERSION="1.9.4"
 MIN_HSI_SEARCH_VERSION=(1,4,0)
 
 def _semver_tuple(v):
@@ -25,6 +25,7 @@ if _semver_tuple(HSI_SEARCH_VERSION) < MIN_HSI_SEARCH_VERSION:
         % (VERSION, HSI_SEARCH_VERSION)
     )
 from hsi_cosmic_zero_field import build_zero_field
+from hsi_cosmic_solution_identity import certificate as identity_certificate
 
 API=os.getenv("HSI_OPENVERSE_BASE","https://api.openverse.org/v1/audio/").rstrip("/")+"/"
 CACHE=Path(os.getenv("HSI_CORPUS_CACHE",str(Path.home()/".hsi-corpus"/"cache"))).expanduser()
@@ -563,6 +564,7 @@ def main():
         if RC_MAX_CANDIDATES and candidate_index>=RC_MAX_CANDIDATES:
             raise SystemExit("HSI RC UNRESOLVED: no candidate satisfied the endogenous correspondence profile within finite search budget")
     if state_path.exists():state_path.unlink()
+    identity=identity_certificate(render_seed_text.encode("utf-8"))
     rc_cert={
         "protocol":CORRESPONDENCE_PROTOCOL,
         "model":"prime-weighted-nonnegative-residual-at-sigma-1/2",
@@ -575,6 +577,7 @@ def main():
         "render_policy_uid":RENDER_POLICY_UID,
         "cosmic_love_tm":tm_control,
         "cosmic_zero_field":zero_control,
+        "cosmic_solution_identity":identity,
         "terms":rc_terms,
         "residual":residual,
         "closed":effective_rc_closed,
@@ -593,6 +596,7 @@ def main():
         "render_policy_uid":RENDER_POLICY_UID,
         "cosmic_love_tm":tm_control,
         "cosmic_zero_field":zero_control,
+        "cosmic_solution_identity":identity,
         "correspondence_protocol":CORRESPONDENCE_PROTOCOL,
         "sources":used,
         "license_filter":["cc0","pdm"],
@@ -635,6 +639,7 @@ def main():
         ),
         "cosmic_love_tm_verified":(not tm_control.get("enabled")) or bool(tm_control.get("verified")),
         "cosmic_zero_field_verified":(not zero_control.get("enabled")) or bool(zero_control.get("verified")),
+        "cosmic_solution_identity_verified":bool(identity["validated"]) and all(identity["checks"].values()),
         "no_ai":True,
         "youtube_audio_unused":True
     }
@@ -674,6 +679,7 @@ def main():
         "render_policy_uid":RENDER_POLICY_UID,
         "cosmic_love_tm":tm_control,
         "cosmic_zero_field":zero_control,
+        "cosmic_solution_identity":identity,
         "correspondence":rc_cert,
         "renderer":"open-corpus-retrieval-dsp",
         "hsi_search_version":HSI_SEARCH_VERSION,
@@ -719,7 +725,7 @@ def main():
     (out/"song.hsicert").write_text(canon(cert)+"\n",encoding="utf-8")
     files=["keywords.txt","search.hsicert","corpus.lock.json","events.json","correspondence.hsicert","song.wav","song.hsicert"]
     if E257_ENABLED:files.append("song.e257")
-    (out/"manifest.json").write_text(canon({"protocol":PROTOCOL,"output":str(out),"files":files,"closed":closed,"technical_closed":technical_closed,"correspondence_closed":effective_rc_closed,"rights_closed":rights_closed,"render_policy_uid":RENDER_POLICY_UID,"cosmic_love_tm_uid":tm_control.get("control_uid"),"cosmic_zero_field_uid":zero_control.get("control_uid")})+"\n",encoding="utf-8")
+    (out/"manifest.json").write_text(canon({"protocol":PROTOCOL,"output":str(out),"files":files,"closed":closed,"technical_closed":technical_closed,"correspondence_closed":effective_rc_closed,"rights_closed":rights_closed,"render_policy_uid":RENDER_POLICY_UID,"cosmic_love_tm_uid":tm_control.get("control_uid"),"cosmic_zero_field_uid":zero_control.get("control_uid"),"cosmic_solution_identity_uid":identity["certificate_uid"]})+"\n",encoding="utf-8")
     print("audio>",wav);print("sources>",len(provenance));print("events>",len(events))
     print("candidate_index>",candidate_index);print("E_half>",format(residual,".12g"))
     print("technical_closed>",technical_closed);print("correspondence_closed>",effective_rc_closed);print("rights_closed>",rights_closed)
