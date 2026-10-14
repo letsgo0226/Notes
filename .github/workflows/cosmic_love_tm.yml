@@ -9,6 +9,7 @@ on:
       - "Notes/COSMIC_LOVE_Identity_Solver_TM/**"
       - "Notes/ATGC_UTM_Fixed_Point/**"
       - "Notes/LFP_ATGC_TM/**"
+      - "Notes/Diagonal_TM_Enumerator/**"
       - ".github/workflows/cosmic_love_tm.yml"
 jobs:
   verify:
@@ -52,3 +53,10 @@ jobs:
           cmp out.json expected.json
           grep -q '"FIX":true' out.json && grep -q '"REV":true' out.json
           echo '{"status":"pass","tm":"lfp_atgc","fix":"1111"}'
+      - name: Diagonal TM enumerator (14 rounds exact, 60 rounds clean)
+        run: |
+          cd Notes/Diagonal_TM_Enumerator
+          bash diagonal_tm_enumerator.sh 14 > out.txt
+          cmp out.txt expected_14.txt
+          bash diagonal_tm_enumerator.sh 60 | tail -1 | grep -q '^ROUND 60 '
+          echo '{"status":"pass","tm":"diagonal_enumerator"}'
