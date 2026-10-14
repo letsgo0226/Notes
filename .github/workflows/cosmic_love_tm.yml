@@ -8,6 +8,7 @@ on:
       - "Notes/COSMIC_LOVE_Oscillator_TM/**"
       - "Notes/COSMIC_LOVE_Identity_Solver_TM/**"
       - "Notes/ATGC_UTM_Fixed_Point/**"
+      - "Notes/LFP_ATGC_TM/**"
       - ".github/workflows/cosmic_love_tm.yml"
 jobs:
   verify:
@@ -44,3 +45,10 @@ jobs:
           test "$(MODE=encode SOURCE=/tmp/p.py bash atgc_utm_fixed_point.sh | MODE=run bash atgc_utm_fixed_point.sh)" = "COSMIC_LOVE 42"
           ! echo AGTX | MODE=decode bash atgc_utm_fixed_point.sh 2>/dev/null
           echo '{"status":"pass","tm":"atgc_fixed_point"}'
+      - name: LFP ATGC TM (least fixed point, exact output)
+        run: |
+          cd Notes/LFP_ATGC_TM
+          bash lfp_atgc_tm.sh > out.json
+          cmp out.json expected.json
+          grep -q '"FIX":true' out.json && grep -q '"REV":true' out.json
+          echo '{"status":"pass","tm":"lfp_atgc","fix":"1111"}'
