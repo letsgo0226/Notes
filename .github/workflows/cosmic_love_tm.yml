@@ -10,6 +10,7 @@ on:
       - "Notes/ATGC_UTM_Fixed_Point/**"
       - "Notes/LFP_ATGC_TM/**"
       - "Notes/Diagonal_TM_Enumerator/**"
+      - "Notes/HSI_Cosmic_Self_Closure_TM/**"
       - ".github/workflows/cosmic_love_tm.yml"
 jobs:
   verify:
@@ -60,3 +61,12 @@ jobs:
           cmp out.txt expected_14.txt
           bash diagonal_tm_enumerator.sh 60 | tail -1 | grep -q '^ROUND 60 '
           echo '{"status":"pass","tm":"diagonal_enumerator"}'
+      - name: HSI cosmic self-closure TM (proof exact, --run non-halting)
+        run: |
+          cd Notes/HSI_Cosmic_Self_Closure_TM
+          bash hsi_cosmic_self_closure_tm.sh > out.json
+          cmp out.json expected.json
+          rc=0; timeout 3 bash hsi_cosmic_self_closure_tm.sh --run > run.json || rc=$?
+          test "$rc" = 124
+          cmp run.json expected.json
+          echo '{"status":"pass","tm":"self_closure","halted":false}'

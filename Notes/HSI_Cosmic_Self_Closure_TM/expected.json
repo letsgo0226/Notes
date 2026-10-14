@@ -1,0 +1,1 @@
+{"halt_unreachable": true, "program": 55067263, "protocol": "HSI-COSMIC-SELF-CLOSURE/NONHALTING-1.0", "scope": "specified two-state TM only", "transition_verified": true, "two_step_cycle": true, "version": 42}
