@@ -52,7 +52,7 @@ class HttpContractTests(unittest.TestCase):
         self.runtime.selftest = {'status': 'PASSED'}
         status, body = self.request('/health')
         self.assertEqual(status, 200)
-        self.assertEqual(body['notes']['source_count'], 34)
+        self.assertEqual(body['notes']['source_count'], 57)
         self.assertEqual(body['default_engine'], 'native')
 
     def test_legacy_certify_preserves_contract_and_provenance(self):

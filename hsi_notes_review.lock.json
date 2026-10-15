@@ -2,8 +2,8 @@
   "protocol": "HSI-NOTES-FOUR-SYSTEM-REVIEW/0.1",
   "source_repo": "letsgo0226/Notes",
   "source_ref": "main",
-  "source_commit": "1555333581b12dd7beb46eaa97d30a1c930ee913",
-  "snapshot_date": "2026-10-13",
+  "source_commit": "cfb4b172f58c3e8b400862f816a8706f5fb6eb42",
+  "snapshot_date": "2026-10-15",
   "entries": [
     {
       "path": "Notes/1",
@@ -31,9 +31,54 @@
       "git_blob_sha1": "a096d82f67a341385dd83cb35c34acc9153bb7b6"
     },
     {
+      "path": "Notes/ATGC_UTM_Fixed_Point/.gitignore",
+      "bytes": 21,
+      "git_blob_sha1": "e9589aad40df2e3118fe1918eca7c0fd560b808b"
+    },
+    {
+      "path": "Notes/ATGC_UTM_Fixed_Point/README.md",
+      "bytes": 1639,
+      "git_blob_sha1": "db407db51cdb40ac6ec1c171cdf0d157a035f992"
+    },
+    {
+      "path": "Notes/ATGC_UTM_Fixed_Point/atgc_utm_fixed_point.sh",
+      "bytes": 1000,
+      "git_blob_sha1": "01f415a443ef4f0844570d76c1c885cc25c858dc"
+    },
+    {
+      "path": "Notes/ATGC_UTM_Fixed_Point/atgc_utm_fixed_point_daemon.sh",
+      "bytes": 1500,
+      "git_blob_sha1": "8c8ab1244616dfedf80fd031f9cbf81e5a663ebd"
+    },
+    {
+      "path": "Notes/COSMIC_LOVE_Identity_Solver_TM/.gitignore",
+      "bytes": 37,
+      "git_blob_sha1": "e9ff7615a21aecc5e84974a8cf8ea7b7de36170a"
+    },
+    {
+      "path": "Notes/COSMIC_LOVE_Identity_Solver_TM/README.md",
+      "bytes": 1215,
+      "git_blob_sha1": "f0456b08114757645feb36ba680d6b952038cff3"
+    },
+    {
+      "path": "Notes/COSMIC_LOVE_Identity_Solver_TM/cosmic_love_identity_solver_daemon.sh",
+      "bytes": 1240,
+      "git_blob_sha1": "7a1bce1fb6af3f81addbeb3ff13fb6598d30024c"
+    },
+    {
+      "path": "Notes/COSMIC_LOVE_Identity_Solver_TM/cosmic_love_identity_solver_tm.sh",
+      "bytes": 1083,
+      "git_blob_sha1": "8c7f5ecff77bb40ff2ac2527506208039a251897"
+    },
+    {
       "path": "Notes/COSMIC_LOVE_Oscillator_TM/.gitignore",
       "bytes": 28,
       "git_blob_sha1": "96ee521af7e57cd95c51d3fb9fd3813309125e0e"
+    },
+    {
+      "path": "Notes/COSMIC_LOVE_Oscillator_TM/README.md",
+      "bytes": 1158,
+      "git_blob_sha1": "8d0a949ec7baae60b023582cbee69d38402b3f63"
     },
     {
       "path": "Notes/COSMIC_LOVE_Oscillator_TM/cosmic_love_oscillator_daemon.sh",
@@ -46,24 +91,44 @@
       "git_blob_sha1": "982231f6ec3330c2f3672c565eda6a5e7b7e5396"
     },
     {
-      "path": "Notes/COSMIC_LOVE_Oscillator_TM/README.md",
-      "bytes": 1158,
-      "git_blob_sha1": "8d0a949ec7baae60b023582cbee69d38402b3f63"
-    },
-    {
       "path": "Notes/COSMIC_LOVE_ZERO_POINT_FIELD_EXPLANATION_20261013.md",
       "bytes": 12462,
       "git_blob_sha1": "3369e168939fd2a9bde08e26badc3216eef03e31"
     },
     {
-      "path": "Notes/Dolphin_Logos_Riemann_Feedback/dolphin_logos.py",
-      "bytes": 24230,
-      "git_blob_sha1": "2c668b250582a969950b975aad8490e26c629f23"
+      "path": "Notes/Diagonal_TM_Enumerator/.gitignore",
+      "bytes": 25,
+      "git_blob_sha1": "23c64ab6cc1a4ca73686e97ad75298f7e19e4a03"
+    },
+    {
+      "path": "Notes/Diagonal_TM_Enumerator/README.md",
+      "bytes": 1355,
+      "git_blob_sha1": "80b3ffb7f17f1313f548ca1420ccad4e3933b58d"
+    },
+    {
+      "path": "Notes/Diagonal_TM_Enumerator/diagonal_tm_enumerator.sh",
+      "bytes": 1795,
+      "git_blob_sha1": "9c7b4360b5db435f4b2187e71d147f4facd4cb39"
+    },
+    {
+      "path": "Notes/Diagonal_TM_Enumerator/diagonal_tm_enumerator_daemon.sh",
+      "bytes": 1124,
+      "git_blob_sha1": "a943d45e35849c16b03b1fd65fa256e00ef47bc6"
+    },
+    {
+      "path": "Notes/Diagonal_TM_Enumerator/expected_14.txt",
+      "bytes": 714,
+      "git_blob_sha1": "572fce45cbb63283dc06294a899b440f06478910"
     },
     {
       "path": "Notes/Dolphin_Logos_Riemann_Feedback/README.md",
       "bytes": 5483,
       "git_blob_sha1": "9958e665e38e4075ad60410292f10c6de0d9cdb1"
+    },
+    {
+      "path": "Notes/Dolphin_Logos_Riemann_Feedback/dolphin_logos.py",
+      "bytes": 24230,
+      "git_blob_sha1": "2c668b250582a969950b975aad8490e26c629f23"
     },
     {
       "path": "Notes/Dolphin_Logos_Riemann_Feedback/source_config.json",
@@ -86,6 +151,36 @@
       "git_blob_sha1": "59e8abd14e2663f2d962bde2a0f6823fc0e390e2"
     },
     {
+      "path": "Notes/HSI_Cosmic_Self_Closure_TM/.gitignore",
+      "bytes": 29,
+      "git_blob_sha1": "6853e5f53c5125d4ad7d0b06940937b71c5147f8"
+    },
+    {
+      "path": "Notes/HSI_Cosmic_Self_Closure_TM/README.md",
+      "bytes": 1202,
+      "git_blob_sha1": "d505483614392ddf4a82168f5894c6d29fe95593"
+    },
+    {
+      "path": "Notes/HSI_Cosmic_Self_Closure_TM/expected.json",
+      "bytes": 210,
+      "git_blob_sha1": "07e31f56a0f74cb344c35c5c7330863adb0fc4c3"
+    },
+    {
+      "path": "Notes/HSI_Cosmic_Self_Closure_TM/hsi_cosmic_self_closure_daemon.sh",
+      "bytes": 1269,
+      "git_blob_sha1": "6baccff3dfb98f440a6f24a1bf362d4e9245f770"
+    },
+    {
+      "path": "Notes/HSI_Cosmic_Self_Closure_TM/hsi_cosmic_self_closure_tm.sh",
+      "bytes": 793,
+      "git_blob_sha1": "3efdaffaf89e7a79fdc9b5a6d49b701a5eb9e861"
+    },
+    {
+      "path": "Notes/HSI_LogicTape_2KB_Release/README.md",
+      "bytes": 9711,
+      "git_blob_sha1": "0dcba584ebbed7128b672f8e4b06089c4f89a621"
+    },
+    {
       "path": "Notes/HSI_LogicTape_2KB_Release/core.py",
       "bytes": 1823,
       "git_blob_sha1": "ca6324bc406603c543ef2f394553b0e44e2e17fa"
@@ -94,11 +189,6 @@
       "path": "Notes/HSI_LogicTape_2KB_Release/hsi_logic_tape_2kb.sh",
       "bytes": 1929,
       "git_blob_sha1": "0f26ea12cb9d5875bc8a62c45a171cb36ab692f5"
-    },
-    {
-      "path": "Notes/HSI_LogicTape_2KB_Release/README.md",
-      "bytes": 9711,
-      "git_blob_sha1": "0dcba584ebbed7128b672f8e4b06089c4f89a621"
     },
     {
       "path": "Notes/HSI_LogicTape_2KB_Release/simulation_certificate.json",
@@ -116,6 +206,11 @@
       "git_blob_sha1": "343ad42aec098e7dede72fe9f4be0ae03bd4c422"
     },
     {
+      "path": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_POSIX_2KB_OneLiner.sh",
+      "bytes": 2043,
+      "git_blob_sha1": "0201324b31756ea3c800f29cc5f368a406892fb6"
+    },
+    {
       "path": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_2KB_OneLiner.sh",
       "bytes": 2027,
       "git_blob_sha1": "eac7a28f9d138d2c44a7550cb67130176ab7fbe9"
@@ -124,11 +219,6 @@
       "path": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_Core.py",
       "bytes": 1983,
       "git_blob_sha1": "ccce79783ab2bffe10292d7e6926fec48878badd"
-    },
-    {
-      "path": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_POSIX_2KB_OneLiner.sh",
-      "bytes": 2043,
-      "git_blob_sha1": "0201324b31756ea3c800f29cc5f368a406892fb6"
     },
     {
       "path": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_PRIME_ANALYTIC_PLAINTEXT_2KB_BILINGUAL_SPEC.txt",
@@ -156,14 +246,14 @@
       "git_blob_sha1": "ec3528c55c8a5c5dc0075eade392e0ada165105e"
     },
     {
-      "path": "Notes/HSI_Sub2K_Program_Synthesizer/hsi_sub2k_synth.py",
-      "bytes": 14114,
-      "git_blob_sha1": "964c7e05daeecfa4d4fc7de53800afd7072a8621"
-    },
-    {
       "path": "Notes/HSI_Sub2K_Program_Synthesizer/README.md",
       "bytes": 2507,
       "git_blob_sha1": "5ffeb6a18ce0fb23d8bc88f538c67d102ef898ad"
+    },
+    {
+      "path": "Notes/HSI_Sub2K_Program_Synthesizer/hsi_sub2k_synth.py",
+      "bytes": 14114,
+      "git_blob_sha1": "964c7e05daeecfa4d4fc7de53800afd7072a8621"
     },
     {
       "path": "Notes/HSI_Sub2K_Program_Synthesizer/verification_certificate.json",
@@ -174,6 +264,31 @@
       "path": "Notes/HSI_Sub2K_Program_Synthesizer/verify_sub2k_synth.py",
       "bytes": 4104,
       "git_blob_sha1": "0baa96225c0ef62545a99dfabb41abeb2b71cd75"
+    },
+    {
+      "path": "Notes/LFP_ATGC_TM/.gitignore",
+      "bytes": 20,
+      "git_blob_sha1": "45d33dd8894d284a31b180074efc9aedf86482bb"
+    },
+    {
+      "path": "Notes/LFP_ATGC_TM/README.md",
+      "bytes": 1199,
+      "git_blob_sha1": "a88403592dff32b0500e33a7c86ea790e8d0df54"
+    },
+    {
+      "path": "Notes/LFP_ATGC_TM/expected.json",
+      "bytes": 482,
+      "git_blob_sha1": "26a42c8adc3e8951c5c8ee04f06a63a0b3bd525e"
+    },
+    {
+      "path": "Notes/LFP_ATGC_TM/lfp_atgc_tm.sh",
+      "bytes": 1073,
+      "git_blob_sha1": "61b4ae8c33615d539aea3b5dda8a3d2991b58c0a"
+    },
+    {
+      "path": "Notes/LFP_ATGC_TM/lfp_atgc_tm_daemon.sh",
+      "bytes": 1092,
+      "git_blob_sha1": "a3b0e1afb9bf6b35dba84920eacc66c49d0c3bd5"
     }
   ]
 }

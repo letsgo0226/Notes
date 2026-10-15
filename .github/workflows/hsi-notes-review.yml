@@ -1,5 +1,15 @@
 name: HSI Notes local validation
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'Notes/**'
+      - 'hsi_notes*'
+      - 'hsi_bundle.lock.json'
+      - 'hsi_bootstrap.py'
+      - 'tests/**'
+      - 'Dockerfile.notes'
+      - '.github/workflows/hsi-notes-review.yml'
   pull_request:
     paths:
       - 'Notes/**'
@@ -37,6 +47,9 @@ on:
 
 permissions:
   contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
 
 jobs:
   notes-inventory:

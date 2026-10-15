@@ -140,3 +140,10 @@ Do not accept unrelated staged environment changes as part of this rollout.
 Rollback by reconnecting the previous source commit and restoring recorded
 start/build/root settings. Keep the order journal volume and disable live flags
 during rollback. Do not delete persistent order records.
+# Source inventory refresh — 2026-10-15
+
+The reviewed inventory now includes all 57 tracked files under `Notes/` at
+source commit `cfb4b172f58c3e8b400862f816a8706f5fb6eb42`, including the five
+recent TM directories. Existing source bytes are unchanged. The runtime bundle
+includes the same complete inventory; missing, changed, or additional sources
+continue to fail verification. The bootstrap has a bounded 128-file budget.
