@@ -16,6 +16,7 @@ import urllib.request
 
 REPO = 'letsgo0226/Notes'
 MAX_BYTES = 4 * 1024 * 1024
+MAX_FILES = 128
 
 
 def fetch(url):
@@ -39,7 +40,7 @@ def install(root, ref):
     base = 'https://raw.githubusercontent.com/' + REPO + '/' + commit + '/'
     lock_raw = fetch(base + 'hsi_bundle.lock.json')
     lock = json.loads(lock_raw)
-    if lock.get('protocol') != 'HSI-NOTES-BUNDLE/1.0' or not 12 <= len(lock.get('files', [])) <= 64:
+    if lock.get('protocol') != 'HSI-NOTES-BUNDLE/1.0' or not 12 <= len(lock.get('files', [])) <= MAX_FILES:
         raise ValueError('invalid bundle lock')
     seen = set()
     for row in lock['files']:
