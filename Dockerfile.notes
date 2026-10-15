@@ -4,4 +4,4 @@ COPY . /app
 ENV PYTHONDONTWRITEBYTECODE=1
 RUN python3 -m unittest discover -s tests -q && python3 hsi_notes_review.py > /dev/null
 ENV PYTHONUNBUFFERED=1
-CMD ["python3", "hsi_notes_service.py"]
+CMD ["python3", "-u", "hsi_runtime_guard.py", "--kind", "notes", "--", "python3", "-u", "hsi_notes_service.py"]
