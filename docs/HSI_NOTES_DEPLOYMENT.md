@@ -147,3 +147,27 @@ source commit `cfb4b172f58c3e8b400862f816a8706f5fb6eb42`, including the five
 recent TM directories. Existing source bytes are unchanged. The runtime bundle
 includes the same complete inventory; missing, changed, or additional sources
 continue to fail verification. The bootstrap has a bounded 128-file budget.
+# Railway runtime guard
+
+For the Music service, use this Railway start command:
+
+```sh
+python3 -u hsi_runtime_guard.py --kind notes -- python3 -u hsi_notes_service.py
+```
+
+Enable **Wait for CI** on the connected `main` branch, keep `/health` as the
+deployment healthcheck, and use `ON_FAILURE` with at most three container
+retries. The image still runs the complete regression suite before release.
+
+The guard probes the local HTTP service every 60 seconds. It requires a passed
+self-test, Music identity, matching `RAILWAY_GIT_COMMIT_SHA`, and a real WAV
+preview matching the native validation's SHA-256. It never submits paid AI jobs
+or rendering requests. The original Notes source/runtime locks remain intact.
+
+After a 180-second startup allowance, three consecutive failed probes restart
+the child process group. A crashed child is repaired as well. Repairs are
+limited to three per rolling hour per guard process, with a ten-second backoff;
+exhaustion exits nonzero. SIGTERM cleans up the child. Healthy probes never
+restart or redeploy the service. Railway's HTTP readiness check and these
+ongoing probes serve different purposes.
+
