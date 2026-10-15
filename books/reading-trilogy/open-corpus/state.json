@@ -25,6 +25,11 @@
       "book": "03_Love_如何閱讀生命",
       "chapter": 9,
       "folder": "03_Love_如何閱讀生命/09_總結"
+    },
+    {
+      "book": "02_Hu_Mantra_如何閱讀自己",
+      "chapter": 8,
+      "folder": "02_Hu_Mantra_如何閱讀自己/08_結論"
     }
   ],
   "source_epochs": [
@@ -52,14 +57,26 @@
       "completed_count": 4,
       "source_commit": null,
       "new_source_commit": "277709f3d0521331e8416ed5fb72e096390465d5"
+    },
+    {
+      "tm_word": "1011101111111001",
+      "tm_checkpoint": {
+        "n": 16,
+        "t": 0,
+        "w": "1011101111111001",
+        "v": 2
+      },
+      "completed_count": 5,
+      "source_commit": "277709f3d0521331e8416ed5fb72e096390465d5",
+      "new_source_commit": "cfb4b172f58c3e8b400862f816a8706f5fb6eb42"
     }
   ],
-  "tm_word": "1011101111111001",
+  "tm_word": "1101000011010100",
   "tm_checkpoint": {
     "n": 16,
     "t": 0,
-    "w": "1011101111111001",
+    "w": "1101000011010100",
     "v": 2
   },
-  "source_commit": "277709f3d0521331e8416ed5fb72e096390465d5"
+  "source_commit": "cfb4b172f58c3e8b400862f816a8706f5fb6eb42"
 }
