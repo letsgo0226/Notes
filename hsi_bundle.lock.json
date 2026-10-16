@@ -309,6 +309,11 @@
       "sha256": "8906588265d0b672630a3092c6478db143f9687591831a938a06228deb1cb5f5"
     },
     {
+      "path": "hsi_cosmic_quantum.py",
+      "bytes": 2182,
+      "sha256": "5bb030518ae30c80bf6808748518305667cf049013529addfc728034f9bbb69e"
+    },
+    {
       "path": "hsi_cosmic_solution_identity.py",
       "bytes": 4623,
       "sha256": "657e13e57bb27f6dce482f188abf354c164d2e07a055c581d7c62b007bbc8235"
@@ -360,8 +365,8 @@
     },
     {
       "path": "hsi_notes_service.py",
-      "bytes": 23741,
-      "sha256": "199e050e8b21af5a35dffdc7bec2815986850a24ece0b00849c35137b41872b6"
+      "bytes": 23910,
+      "sha256": "9360b5ed38e31435cfe0e28cb80074444aa692faf39420ca2c5c63e8058adfcf"
     },
     {
       "path": "hsi_notes_validate.py",
@@ -370,13 +375,23 @@
     },
     {
       "path": "hsi_open_corpus.py",
-      "bytes": 35165,
-      "sha256": "4b2e9745be52695514688f58491176d73dfd2c85986b5fb13ace64e05796461d"
+      "bytes": 35309,
+      "sha256": "815a480fc655f7e899b0694857d3077086c9b1e43e09bb87faf7eb99b72a6714"
+    },
+    {
+      "path": "hsi_qtm_2kb.sh",
+      "bytes": 1293,
+      "sha256": "c63997a8ff30faa8553862dd4ba30e7865b8617519973c2ae6fd6084f3d37c3d"
     },
     {
       "path": "hsi_render_policy.json",
       "bytes": 106,
       "sha256": "ac8d7a790da6cfc359198591ace286bdd69fbfce1d048c9ccb3bd4c079ec96d5"
+    },
+    {
+      "path": "hsi_runtime_guard.py",
+      "bytes": 9198,
+      "sha256": "27416102b271dcf84ae50d84f37dcb749c3bb9ea63ffd5adf0f2f7ae23a6982f"
     },
     {
       "path": "hsi_search.py",

@@ -101,6 +101,8 @@ class Runtime:
 
     def initialize(self):
         try:
+            from hsi_cosmic_quantum import certificate as quantum_certificate
+            quantum = quantum_certificate()
             if self.role == 'MUSIC':
                 output = self.directory / 'validated-preview'
                 evidence = run_validation(self.root, output)
@@ -120,6 +122,7 @@ class Runtime:
                 self.selftest = {'status': 'PASSED', 'positive_accepted': True, 'forbidden_claim_rejected': True}
                 if self.role == 'UTM':
                     self.selftest['bounded_utm'] = replay_utm(self.root, self.directory, self.plan)
+            self.selftest['quantum'] = quantum
             print(json.dumps({'event': 'NOTES_SELFTEST', 'provenance': self.provenance(), 'result': self.selftest}), flush=True)
         except Exception as exc:
             self.selftest = {'status': 'FAILED', 'error': type(exc).__name__, 'message': str(exc)[:500]}

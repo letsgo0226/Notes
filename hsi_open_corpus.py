@@ -26,6 +26,7 @@ if _semver_tuple(HSI_SEARCH_VERSION) < MIN_HSI_SEARCH_VERSION:
     )
 from hsi_cosmic_zero_field import build_zero_field
 from hsi_cosmic_solution_identity import certificate as identity_certificate
+from hsi_cosmic_quantum import certificate as quantum_certificate
 
 API=os.getenv("HSI_OPENVERSE_BASE","https://api.openverse.org/v1/audio/").rstrip("/")+"/"
 CACHE=Path(os.getenv("HSI_CORPUS_CACHE",str(Path.home()/".hsi-corpus"/"cache"))).expanduser()
@@ -116,6 +117,7 @@ def cosmic_love_transition_table(p=COSMIC_LOVE_TM_PROGRAM):
 def cosmic_love_tm_control(seed_text,candidate_index):
     if not COSMIC_LOVE_TM_ENABLED:
         return {"protocol":COSMIC_LOVE_TM_PROTOCOL,"enabled":False}
+    quantum=quantum_certificate()
     table=cosmic_love_transition_table()
     step_basis=e257(("COSMIC_LOVE_TM|"+seed_text+"|candidate="+str(candidate_index)).encode("utf-8"))
     steps=2+(step_basis%(COSMIC_LOVE_TM_MAX_STEPS-1))
@@ -135,7 +137,8 @@ def cosmic_love_tm_control(seed_text,candidate_index):
         "protocol":COSMIC_LOVE_TM_PROTOCOL,
         "enabled":True,
         "banner":"COSMIC_LOVE",
-        "source_program":"python3 -c exec-loop finite projection",
+        "source_program":"QTM phase-permutation; classical audio-clock projection",
+        "quantum":quantum,
         "program":COSMIC_LOVE_TM_PROGRAM,
         "decoded":{"v":table["v"],"c":table["c"],"k":table["k"],"K":table["K"],"B":table["B"]},
         "transition_rule":"delta(q,a)=(1-q,a,1-2*q)",

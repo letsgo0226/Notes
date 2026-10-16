@@ -17,6 +17,7 @@ import time
 import urllib.request
 import uuid
 import wave
+from hsi_cosmic_quantum import certificate as quantum_certificate
 
 
 def require(condition, reason):
@@ -30,6 +31,10 @@ def check_notes(health, evidence, audio, expected_revision):
     revision = health.get('notes', {}).get('release_commit')
     require(not expected_revision or revision == expected_revision, 'release_mismatch')
     require(evidence.get('notes', {}).get('release_commit') == revision, 'evidence_release_mismatch')
+    core = evidence.get('result', {}).get('quantum', {})
+    require(core.get('protocol') == 'HSI-COSMIC-QUANTUM-SELF-CLOSURE/QTM-1.0' and
+            all(core.get(k) is True for k in ('transition_verified', 'norm_preserved', 'U2_identity')),
+            'quantum_selftest_missing')
     native = evidence.get('result', {}).get('native', {})
     require(native.get('status') == 'LOCAL_AUDIO_VERIFIED', 'native_validation_missing')
     require(hashlib.sha256(audio).hexdigest() == native.get('audio_sha256'), 'preview_hash_mismatch')
@@ -37,7 +42,9 @@ def check_notes(health, evidence, audio, expected_revision):
         require(wav.getnframes() > 0 and wav.getsampwidth() == 2, 'invalid_preview_audio')
         require(len(wav.readframes(wav.getnframes())) > 0, 'empty_preview_audio')
     require(native.get('metrics', {}).get('rms', 0) > 0, 'silent_preview')
-    return {'healthy': True, 'release_commit': revision, 'audio_verified': True}
+    quantum = quantum_certificate()
+    return {'healthy': True, 'release_commit': revision, 'audio_verified': True,
+            'quantum_verified': True, 'core_protocol': quantum['protocol']}
 
 
 def check_daemon(state, expected_revision, generation, now, max_age):

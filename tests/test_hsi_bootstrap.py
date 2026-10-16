@@ -22,6 +22,8 @@ class BootstrapTests(unittest.TestCase):
             installed = hsi_bootstrap.install(tmp, 'fixture')
             self.assertTrue((installed / 'Notes/4').is_file())
             self.assertTrue((installed / 'hsi_render_policy.json').is_file())
+            self.assertTrue((installed / 'hsi_cosmic_quantum.py').is_file())
+            self.assertTrue((installed / 'hsi_runtime_guard.py').is_file())
             self.assertTrue((installed / 'hsi_bundle.lock.json').is_file())
             self.assertEqual(hsi_bootstrap.install(tmp, 'fixture'), installed)
             (installed / 'Notes/1').write_bytes(b'corrupted')
