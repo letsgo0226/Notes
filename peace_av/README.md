@@ -27,3 +27,13 @@ python3 peace_av/render.py --output dist/peace_speech
 ## 參考背景
 
 見 `speech.json` 中 `sources`。所列聯合國資料僅用來核實背景，並不表示聯合國認可本影片。
+
+## 十分鐘英文影片的語音復原
+
+`peace-speech-continuous.yml` 使用 `edge-tts==7.3.1` 及 `render_long.py --engine auto`。
+先以 Edge 合成全部旁白；每段最多三次嘗試，每次最長 60 秒。若失敗，
+刪除該批部分音軌，改以離線 eSpeak 重建全片旁白，避免混用兩種聲線。
+`correspondence.json` 的 `narration` 記錄請求／實際引擎與備援原因類型；
+備援是較機械的 eSpeak 英語聲音，不會標為 Edge 自然語音。
+若 eSpeak 也失敗、輸出無法解碼，或影片未達 600 秒，流程仍會失敗。
+可用 `--engine edge` 保留嚴格線上模式，或 `--engine espeak` 明確指定離線模式。

@@ -36,7 +36,9 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg espeak fonts-dejavu-core python3-pil python3-venv
           python3 -m venv --system-site-packages .venv
-          .venv/bin/python -m pip install --disable-pip-version-check 'edge-tts>=7,<8'
+          .venv/bin/python -m pip install --disable-pip-version-check 'edge-tts==7.3.1'
+      - name: Test narration recovery
+        run: .venv/bin/python -m unittest discover -s tests -p test_peace_narration.py -v
       - name: Render over 10-minute English film, score, and correspondence evidence
         env:
           HSI_RUN_ID: ${{ github.run_id }}
@@ -44,7 +46,7 @@ jobs:
           mkdir -p "影音/runs/${HSI_RUN_ID}"
           .venv/bin/python peace_av/render_long.py \
             --script peace_av/long_speech.en.json \
-            --engine edge \
+            --engine auto \
             --voice en-US-AndrewNeural \
             --rate=-13% \
             --min-seconds 600 \
