@@ -54,10 +54,14 @@ class RuntimeGuardTests(unittest.TestCase):
             wav.writeframes(b'\x01\x01' * 80)
         audio = output.getvalue()
         health = dict(ok=True, selftest='PASSED', role='MUSIC', notes={'release_commit': 'abc'})
-        evidence = dict(notes={'release_commit': 'abc'}, result={'native': {
+        evidence = dict(notes={'release_commit': 'abc'}, result={'quantum': m.quantum_certificate(), 'native': {
             'status': 'LOCAL_AUDIO_VERIFIED', 'audio_sha256': hashlib.sha256(audio).hexdigest(),
             'metrics': {'rms': .01}}})
         self.assertTrue(m.check_notes(health, evidence, audio, 'abc')['audio_verified'])
+        with patch.object(m, 'quantum_certificate', side_effect=ValueError('QTM failed')), self.assertRaises(ValueError):
+            m.check_notes(health, evidence, audio, 'abc')
+        with self.assertRaises(ValueError):
+            m.check_notes(health, {**evidence, 'result': {**evidence['result'], 'quantum': {}}}, audio, 'abc')
         with self.assertRaises(ValueError):
             m.check_notes(health, evidence, audio + b'corrupt', 'abc')
         with self.assertRaises(ValueError):
