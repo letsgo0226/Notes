@@ -30,6 +30,11 @@
       "book": "02_Hu_Mantra_如何閱讀自己",
       "chapter": 8,
       "folder": "02_Hu_Mantra_如何閱讀自己/08_結論"
+    },
+    {
+      "book": "03_Love_如何閱讀生命",
+      "chapter": 2,
+      "folder": "03_Love_如何閱讀生命/02_精神能量的定義"
     }
   ],
   "source_epochs": [
@@ -73,7 +78,7 @@
   ],
   "tm_word": "1101000011010100",
   "tm_checkpoint": {
-    "n": 16,
+    "n": 32,
     "t": 0,
     "w": "1101000011010100",
     "v": 2
