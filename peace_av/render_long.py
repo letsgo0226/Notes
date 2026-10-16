@@ -19,8 +19,6 @@ import sys
 import time
 import wave
 
-from PIL import Image, ImageDraw, ImageFont
-
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent
 FPS = 12
@@ -103,6 +101,7 @@ def lines(draw, text, font, width):
 
 
 def visual(scene, seq, count, mood, portrait, path):
+    from PIL import Image, ImageDraw, ImageFont
     canvas = Image.new("RGB", (W, H))
     draw = ImageDraw.Draw(canvas)
     for y in range(H):
@@ -150,7 +149,9 @@ def visual(scene, seq, count, mood, portrait, path):
 
 async def edge_speech(text, path, voice, rate):
     import edge_tts
-    await edge_tts.Communicate(text, voice=voice, rate=rate).save(str(path))
+    await asyncio.wait_for(
+        edge_tts.Communicate(text, voice=voice, rate=rate).save(str(path)), timeout=60
+    )
 
 
 def speech(text, output, engine, voice, rate):
@@ -167,6 +168,33 @@ def speech(text, output, engine, voice, rate):
                 time.sleep(2**retry)
     else:
         call("espeak", "-v", "en-us", "-s", "121", "-w", output, text)
+
+
+def prepare_narration(entries, folder, engine, voice, rate):
+    """Use one engine for the whole film; a fallback never mixes voice tracks."""
+    engines = ("edge", "espeak") if engine == "auto" else (engine,)
+    fallback = None
+    for selected in engines:
+        extension = "mp3" if selected == "edge" else "wav"
+        paths = [folder / f"speech_{i:02}.{extension}" for i in range(len(entries))]
+        try:
+            for entry, path in zip(entries, paths):
+                speech(entry["english"], path, selected, voice, rate)
+                if not path.is_file() or path.stat().st_size < 1000 or duration(path) <= 0:
+                    raise ValueError("Synthesized audio was empty or invalid")
+        except Exception as exc:
+            for path in paths:
+                path.unlink(missing_ok=True)
+            if engine != "auto" or selected != "edge":
+                raise
+            # URLs and provider response bodies can contain client tokens.
+            fallback = {"from": "edge", "to": "espeak", "error_type": type(exc).__name__}
+            print(json.dumps({"event": "NARRATION_FALLBACK", **fallback}), flush=True)
+            continue
+        return paths, {"requested_engine": engine, "engine": selected,
+                       "voice": voice if selected == "edge" else "espeak en-us",
+                       "fallback": fallback}
+    raise RuntimeError("No narration engine succeeded")
 
 
 def music_file(out, seconds, scene_index, tone, mood):
@@ -229,7 +257,7 @@ def make(args):
     for executable in ("ffmpeg", "ffprobe", "fc-match"):
         if not shutil.which(executable):
             raise RuntimeError(f"Missing {executable}")
-    if args.engine == "espeak" and not shutil.which("espeak"):
+    if args.engine in ("auto", "espeak") and not shutil.which("espeak"):
         raise RuntimeError("Missing espeak")
     data_path = Path(args.script).resolve()
     data = json.loads(data_path.read_text(encoding="utf-8"))
@@ -249,15 +277,16 @@ def make(args):
         raise FileNotFoundError(still)
     all_segments, scenes, captions, music_records, transcript = [], [], [], [], []
     audio_segments = []
+    narration_paths, narration = prepare_narration(entries, temp, args.engine, args.voice, args.rate)
+    print(json.dumps({"event": "NARRATION_SELECTED", **narration}), flush=True)
     t = 0.0
     for i, entry in enumerate(entries):
         goal, policy, mood, tone = POLICY[i]
         framepath = temp/f"frame_{i:02}.png"
-        audiopath = temp/f"speech_{i:02}.{'mp3' if args.engine=='edge' else 'wav'}"
+        audiopath = narration_paths[i]
         scorepath = temp/f"music_{i:02}.wav"
         segmentpath = temp/f"scene_{i:02}.mp4"
         visual(entry, i+1, len(entries), mood, still, framepath)
-        speech(entry["english"], audiopath, args.engine, args.voice, args.rate)
         sec = duration(audiopath)+0.65
         music = music_file(scorepath, sec, i, tone, mood)
         call("ffmpeg", "-hide_banner", "-loglevel", "error", "-nostdin", "-y",
@@ -336,7 +365,7 @@ def make(args):
         "not_official_footage":True,
         "not_a_real_political_event":True,
         "language":"English",
-        "narration":{"engine":args.engine,"voice":args.voice if args.engine=="edge" else "espeak en-us"},
+        "narration":narration,
         "picture":{"type":"ORIGINAL_STATIC_ILLUSTRATED_SCENES_WITH_OPTIONAL_STILL_SPEAKER",
                    "speaker_still":bool(still),"natural_lip_sync":False},
         "music":{"type":"RULE_BASED_DSP", "semantic_correspondence":"DECLARED_EDITORIAL_RULES_NOT_CAUSAL_PROOF"},
@@ -361,7 +390,8 @@ def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--script",default=str(HERE/"long_speech.en.json"))
     ap.add_argument("--output",default="影音/latest")
-    ap.add_argument("--engine",choices=["edge","espeak"],default="edge")
+    ap.add_argument("--engine",choices=["auto","edge","espeak"],default="edge",
+                    help="auto prefers Edge, then regenerates the full narration offline if it fails")
     ap.add_argument("--voice",default="en-US-AndrewNeural")
     ap.add_argument("--rate",default="-13%")
     ap.add_argument("--speaker-image",default="")
