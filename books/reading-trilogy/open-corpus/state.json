@@ -45,6 +45,11 @@
       "book": "03_Love_如何閱讀生命",
       "chapter": 7,
       "folder": "03_Love_如何閱讀生命/07_反對意見"
+    },
+    {
+      "book": "01_Caduceus_如何閱讀一本書",
+      "chapter": 5,
+      "folder": "01_Caduceus_如何閱讀一本書/05_文本與理解"
     }
   ],
   "source_epochs": [
@@ -88,7 +93,7 @@
   ],
   "tm_word": "1101000011010100",
   "tm_checkpoint": {
-    "n": 64,
+    "n": 80,
     "t": 0,
     "w": "1101000011010100",
     "v": 2
