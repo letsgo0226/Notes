@@ -1,0 +1,770 @@
+{
+  "protocol": "HSI-PEACE-AV-CORRESPONDENCE/1.0",
+  "production": "ORIGINAL_SYNTHETIC_SPEECH",
+  "not_official_footage": true,
+  "not_a_real_political_event": true,
+  "language": "English",
+  "narration": {
+    "requested_engine": "auto",
+    "engine": "edge",
+    "voice": "en-US-AndrewNeural",
+    "fallback": null
+  },
+  "picture": {
+    "type": "ORIGINAL_STATIC_ILLUSTRATED_SCENES_WITH_OPTIONAL_STILL_SPEAKER",
+    "speaker_still": false,
+    "natural_lip_sync": false
+  },
+  "music": {
+    "type": "RULE_BASED_DSP",
+    "semantic_correspondence": "DECLARED_EDITORIAL_RULES_NOT_CAUSAL_PROOF"
+  },
+  "peace_goal_validation": "NOT_EVIDENCE_OF_REAL_WORLD_PEACE",
+  "note": "Scene-to-goal association is normative/editorial; numerical matching cannot prove peace or persuasion.",
+  "video_duration_seconds": 953.701,
+  "video_frames_estimated": 11444,
+  "target_seconds": 600,
+  "original_script_sha256": "f42ec80ee614e291e089a6f428cf3319047e96a670c3dbc39c232d88542b1cb4",
+  "notes_source_inventory": [
+    {
+      "source": "Notes/1",
+      "sha256": "67cca4014a2dda6a1328eee68679bef8111bff1442bc94de3ffcd452eb94d03a"
+    },
+    {
+      "source": "Notes/2",
+      "sha256": "eb8a25bf4203756fe287506a652bd0e1f2dc87c0b0a7f6878e35f68cb26c18e0"
+    },
+    {
+      "source": "Notes/3",
+      "sha256": "6b2a92addfecad366e77c869aa498c44f25f0e531393c3978c06cac11c8e4ee2"
+    },
+    {
+      "source": "Notes/4",
+      "sha256": "84f761ab888ff24e422f1a82a472d76525a32d93fce85aecac5fd700f081a1f5"
+    },
+    {
+      "source": "Notes/5",
+      "sha256": "1c2fef4211fb1a9e629b9730450a947624a716267d248dc2a902c81aa77ef68e"
+    },
+    {
+      "source": "Notes/ATGC_UTM_Fixed_Point/.gitignore",
+      "sha256": "7b1c2cecd920a2266586dc8cf4c49cf7bd794528b5f6c641d2e45e15458d49dd"
+    },
+    {
+      "source": "Notes/ATGC_UTM_Fixed_Point/README.md",
+      "sha256": "fd00155e826ce868f1e2175fa128ef4e49dbe731b31204b5e10c4b063b2d74a8"
+    },
+    {
+      "source": "Notes/ATGC_UTM_Fixed_Point/atgc_utm_fixed_point.sh",
+      "sha256": "9f7dffbef1d0cf6ad5e307f2eb8f3bf1443410ddc98fb4428658a4dc80809056"
+    },
+    {
+      "source": "Notes/ATGC_UTM_Fixed_Point/atgc_utm_fixed_point_daemon.sh",
+      "sha256": "1be976983b44d181dd1d87d1aef7e0691e1cdaaf2f2af55a9cb4fb9f1343f046"
+    },
+    {
+      "source": "Notes/COSMIC_LOVE_Identity_Solver_TM/.gitignore",
+      "sha256": "7c6d807d15832072557bde4322d4d54ef5109fc72b285b0072d011b2e0372a67"
+    },
+    {
+      "source": "Notes/COSMIC_LOVE_Identity_Solver_TM/README.md",
+      "sha256": "ccb06b18650449d32683ffaa81c973c42fc1758e469ef238d551c19fb645946f"
+    },
+    {
+      "source": "Notes/COSMIC_LOVE_Identity_Solver_TM/cosmic_love_identity_solver_daemon.sh",
+      "sha256": "c8b6583c78d8d5521f1b608dc0de9eadbbe33f73aa840f305d86cf6a313fdad9"
+    },
+    {
+      "source": "Notes/COSMIC_LOVE_Identity_Solver_TM/cosmic_love_identity_solver_tm.sh",
+      "sha256": "ecd80e2e8afc6d1daa1b1e3bc404f4f0784c44ee6e2e84089f4815b00502634c"
+    },
+    {
+      "source": "Notes/COSMIC_LOVE_Oscillator_TM/.gitignore",
+      "sha256": "3e28e99263845fc0acbe0c82eb0e85f91d10c64143cc82f7ad20a8f0a374a6c6"
+    },
+    {
+      "source": "Notes/COSMIC_LOVE_Oscillator_TM/README.md",
+      "sha256": "86fe0e116f2b934af5a323cb59cc07eb92dbc4c20d7650c166383a18dfa1672e"
+    },
+    {
+      "source": "Notes/COSMIC_LOVE_Oscillator_TM/cosmic_love_oscillator_daemon.sh",
+      "sha256": "925c2d1806a8191afa46b7483739a00d3ba554b60914af9a330160b887d7b23e"
+    },
+    {
+      "source": "Notes/COSMIC_LOVE_Oscillator_TM/cosmic_love_oscillator_tm.sh",
+      "sha256": "dc9ad4d87275cfd1362f7ff0519824164f7df9af64535846438c3e8f041fc7a9"
+    },
+    {
+      "source": "Notes/COSMIC_LOVE_ZERO_POINT_FIELD_EXPLANATION_20261013.md",
+      "sha256": "bd24a85e782d5b370f12674fbcb65b96811d378da65be37f91cf48432a6d7495"
+    },
+    {
+      "source": "Notes/Diagonal_TM_Enumerator/.gitignore",
+      "sha256": "9b8be220705f7cb16d551c0564f2de93ee419e5ade448c58da880ed01e706c8e"
+    },
+    {
+      "source": "Notes/Diagonal_TM_Enumerator/README.md",
+      "sha256": "165b6857f75634a2e169909adbe1428f664efa0c1312b9dac9ec696c354fb4be"
+    },
+    {
+      "source": "Notes/Diagonal_TM_Enumerator/diagonal_tm_enumerator.sh",
+      "sha256": "c07a32dabdc34f74d77a129c0b56cea7275a06e3ba32a8f8fd68190c7c4ddbbb"
+    },
+    {
+      "source": "Notes/Diagonal_TM_Enumerator/diagonal_tm_enumerator_daemon.sh",
+      "sha256": "61be45f004b4e0d0dab50dbc0a3638dc87e4dcebcfae7b597d590661575ffbf8"
+    },
+    {
+      "source": "Notes/Diagonal_TM_Enumerator/expected_14.txt",
+      "sha256": "a541535a4d215840973ea12ab6d078a7094cb71c157677ca0eced38d2269a96a"
+    },
+    {
+      "source": "Notes/Dolphin_Logos_Riemann_Feedback/README.md",
+      "sha256": "efc6a6937b82162fc0c225a4313f8807793ec320994cbb9fed25df660197370d"
+    },
+    {
+      "source": "Notes/Dolphin_Logos_Riemann_Feedback/dolphin_logos.py",
+      "sha256": "920913f0c393fe6e9ca4d360b6cd61b6683ba8cf0666ba6810de4cad0fa859de"
+    },
+    {
+      "source": "Notes/Dolphin_Logos_Riemann_Feedback/source_config.json",
+      "sha256": "9c48f6bcc5d8220eb694d850ee7ac8b098cb9214f0d0e898b7f37cea596b917d"
+    },
+    {
+      "source": "Notes/Dolphin_Logos_Riemann_Feedback/sources.py",
+      "sha256": "c2fdc5e5037994ff02b65c493b69e8e7a91337763722d9c36502eee4fa944ebd"
+    },
+    {
+      "source": "Notes/Dolphin_Logos_Riemann_Feedback/verification_certificate.json",
+      "sha256": "d5d8602ea4bd046496ba43392ff123e5122d58b64e08b54e1e42a0832bea592b"
+    },
+    {
+      "source": "Notes/Dolphin_Logos_Riemann_Feedback/verify_feedback.py",
+      "sha256": "0de78c40061828f72b80e1102c465698b83ebc2141a01b394c4b24a32ce09813"
+    },
+    {
+      "source": "Notes/HSI_Cosmic_Self_Closure_TM/.gitignore",
+      "sha256": "5e6a9d54617671cc76e063132c74ae7cba351c049b16e7a6d942ccf746f6972f"
+    },
+    {
+      "source": "Notes/HSI_Cosmic_Self_Closure_TM/README.md",
+      "sha256": "de04de6741ffc18e57956c93fcdfb8a1dcf94d973b13cbcac7bba3d6ec6e3365"
+    },
+    {
+      "source": "Notes/HSI_Cosmic_Self_Closure_TM/expected.json",
+      "sha256": "d4342c69625687fb501fbf93cb0935026bef4aae405edfb764723dd4514bac46"
+    },
+    {
+      "source": "Notes/HSI_Cosmic_Self_Closure_TM/hsi_cosmic_self_closure_daemon.sh",
+      "sha256": "cb7051d0a919c3506af6f6ddcb3485a6cd7963ce15a428fdd2683ed1b856af5c"
+    },
+    {
+      "source": "Notes/HSI_Cosmic_Self_Closure_TM/hsi_cosmic_self_closure_tm.sh",
+      "sha256": "5001803eeaa3003892903959db8584449da6df6311a9ad6efdcb355f754ffbec"
+    },
+    {
+      "source": "Notes/HSI_LogicTape_2KB_Release/README.md",
+      "sha256": "b188a9db025fbc009002bb5af02cb70f7ec3b52d6ae7ad4a5452237e4b71e49f"
+    },
+    {
+      "source": "Notes/HSI_LogicTape_2KB_Release/core.py",
+      "sha256": "e20b0e67358af7cc2b3c82308b1a540c2554ac0ff6d7c9e8159334540e084e9f"
+    },
+    {
+      "source": "Notes/HSI_LogicTape_2KB_Release/hsi_logic_tape_2kb.sh",
+      "sha256": "8de38d15dbac873b5a1eeaccdd9828696a90f52197c74183191ead9a34d20b71"
+    },
+    {
+      "source": "Notes/HSI_LogicTape_2KB_Release/simulation_certificate.json",
+      "sha256": "003f3148ea3e86f4defed416fb4faa73744e94952f8704d9414a2bdd67493d0c"
+    },
+    {
+      "source": "Notes/HSI_LogicTape_2KB_Release/test_simulator.py",
+      "sha256": "43899c58dae1420ecfbfebe63d40eb2568a8f84a8acad29406975285e74cba5a"
+    },
+    {
+      "source": "Notes/HSI_LogicTape_2KB_Release/verify_single_tape.py",
+      "sha256": "a48790dee161209a6740af9329a5895bc090d34bd3fd5b5a0c3987eb1374188f"
+    },
+    {
+      "source": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_POSIX_2KB_OneLiner.sh",
+      "sha256": "679f8118985635ea7eeb963ac92839acd4c97a4d3ada5607339aa2766c189e7d"
+    },
+    {
+      "source": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_2KB_OneLiner.sh",
+      "sha256": "2b032922bc09019bd55e454d9143e0755c1c7b51d6d4f12f8e315c687c363c31"
+    },
+    {
+      "source": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_Core.py",
+      "sha256": "b89d0709b161c291c0fb1d9371058b107c735bbfd28212a1a66353ee6523ba7b"
+    },
+    {
+      "source": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_PRIME_ANALYTIC_PLAINTEXT_2KB_BILINGUAL_SPEC.txt",
+      "sha256": "641c0a9fcdff92c068aedfdbabaaa7d92a73c5410e42952ca4eef6b30ce2fc8b"
+    },
+    {
+      "source": "Notes/HSI_Prime_Analytic_2KB_Release/OriginalXY_reference.py",
+      "sha256": "62bb72a9cdcbbcf1d4f529aaa74fc371b02a91f7a2245f38c93a6a8a62174b7c"
+    },
+    {
+      "source": "Notes/HSI_Prime_Analytic_2KB_Release/README.md",
+      "sha256": "a098e36848e66bf9f7a8a00d2131016791a05d847bd70c22b097ab4041bc2317"
+    },
+    {
+      "source": "Notes/HSI_Prime_Analytic_2KB_Release/verification_certificate.json",
+      "sha256": "2753d7ff2247bfb7b90ca5a6042b7cf5e2285fd2eabe8fcf1b52d5544653cdc1"
+    },
+    {
+      "source": "Notes/HSI_Prime_Analytic_2KB_Release/verify_prime_analytic.py",
+      "sha256": "58fda9f5a404c3a58c7f3a4aefdc49396e4c5212c6c2d0e9d7e5af80a7a99f68"
+    },
+    {
+      "source": "Notes/HSI_Sub2K_Program_Synthesizer/README.md",
+      "sha256": "4a8a37160818834197a277de713a05e083515342e933178ad1751d475c36b944"
+    },
+    {
+      "source": "Notes/HSI_Sub2K_Program_Synthesizer/hsi_sub2k_synth.py",
+      "sha256": "f2a9d10a476a3e21842ff213711fe9b27c67c149d3b9677dbf1730f80e720594"
+    },
+    {
+      "source": "Notes/HSI_Sub2K_Program_Synthesizer/verification_certificate.json",
+      "sha256": "f99630efefd85f718eb198d8b1ce898a586fa12916ee92860b1235e792735e41"
+    },
+    {
+      "source": "Notes/HSI_Sub2K_Program_Synthesizer/verify_sub2k_synth.py",
+      "sha256": "1fed23725b6e87c5a72997c9532bd69730a73b8aad9d1350377bbac87d7d3849"
+    },
+    {
+      "source": "Notes/LFP_ATGC_TM/.gitignore",
+      "sha256": "f2d75ecb572bff01b2f598e45ca4f2ff22b3d7e4c4c416fd0478482d4751eb01"
+    },
+    {
+      "source": "Notes/LFP_ATGC_TM/README.md",
+      "sha256": "00d04138dadf35f0f367266fd1181922a1bdafcc59629d6ccd1b4f43bd22d970"
+    },
+    {
+      "source": "Notes/LFP_ATGC_TM/expected.json",
+      "sha256": "d1a102131b4d0abd270b19266123573aa9351434e9c169cfafe724e3dd6a78e1"
+    },
+    {
+      "source": "Notes/LFP_ATGC_TM/lfp_atgc_tm.sh",
+      "sha256": "4b40f48cbf3537ac5f19a55cd3f6d51383fc8a4a5468a23152e18ee642034eea"
+    },
+    {
+      "source": "Notes/LFP_ATGC_TM/lfp_atgc_tm_daemon.sh",
+      "sha256": "0ebbbf1acba8e96f33bb4074b9728cdd4bb1dfe9fe224c0477e59c00675c4ef2"
+    }
+  ],
+  "scenes": [
+    {
+      "scene": 1,
+      "input_sha256": "628ac929229db99ac0d71eaef46a90d631a5c26ba0dc3371678aead505295e3c",
+      "start_seconds": 0.0,
+      "duration_seconds": 46.01,
+      "policy_goal_id": "transparent_argument",
+      "policy_proposal": "open civic reasoning",
+      "music": {
+        "mode": "minor",
+        "mood": "measured",
+        "midi": [
+          45,
+          48,
+          52,
+          57
+        ],
+        "gain_nominal": 0.06,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "dea5a4ca374d645ee662acd60feacaee58e7077374d574283c2b165c709352c3",
+      "audio_sha256": "5671ad45759c1b45fc85e394d4a8fe3f54295761323687786965e83abc66242b",
+      "music_sha256": "afa03dd91906851437023bc1c47f059f9ec2ded506cb13460f91ff6982b722e8",
+      "render_sha256": "6f0a28e9670e6bac2513d9946518b906b1c097f9821773c683f3d174c7912cf0",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    },
+    {
+      "scene": 2,
+      "input_sha256": "294c72e81827f3fdbddc903cef32541db987637ad67978bca23ca0bfc91c2061",
+      "start_seconds": 46.01,
+      "duration_seconds": 50.978,
+      "policy_goal_id": "sovereignty",
+      "policy_proposal": "territorial integrity and international law",
+      "music": {
+        "mode": "minor",
+        "mood": "solemn",
+        "midi": [
+          50,
+          53,
+          57,
+          62
+        ],
+        "gain_nominal": 0.07,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "02650af2ec1597562412c0ff1702e56730854e02e86d08acfabfd940cbb5c396",
+      "audio_sha256": "966f2d1dc5c2659f853216a5b67fcff8a84d1f019495d1abe942d49d5d4666e9",
+      "music_sha256": "47a04fdf7b97e0ea5cadb84215defb819a995aaa005f3933c0f5e168f558d78d",
+      "render_sha256": "f89fad6c3f204329281a8d248b6332457a938a92238fa5e7ff5f7701ee6b7230",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    },
+    {
+      "scene": 3,
+      "input_sha256": "483b68681a3551d42efe3d8d04df3c0e128e51561f39ab3823adeba2c27451d7",
+      "start_seconds": 96.988,
+      "duration_seconds": 50.546,
+      "policy_goal_id": "reliable_ceasefire",
+      "policy_proposal": "security beyond temporary silence",
+      "music": {
+        "mode": "minor",
+        "mood": "solemn",
+        "midi": [
+          46,
+          49,
+          53,
+          58
+        ],
+        "gain_nominal": 0.07,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "ec155ff29acbf82bbbe2453abb0cb5e967a29794dab3e67ac9e0d8db93b3b8c5",
+      "audio_sha256": "60f78accf00f5f3c0203bd3af0fb35fbbac9a85ad57bd694c345db3f62926278",
+      "music_sha256": "789c273cb8f72cc71d43e02517cc8c0a6103770907ba1f85562a3111588c2f44",
+      "render_sha256": "3e207c06969985981fb16c97b07dfa5f494743b76e41a1c7e464091a9b2ed75b",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    },
+    {
+      "scene": 4,
+      "input_sha256": "171b34fdda159e521eced88d95ee721f4930f26019ab25937d68637e2224ff14",
+      "start_seconds": 147.534,
+      "duration_seconds": 53.882,
+      "policy_goal_id": "human_dignity",
+      "policy_proposal": "equal protection of human life",
+      "music": {
+        "mode": "major",
+        "mood": "warm",
+        "midi": [
+          51,
+          55,
+          58,
+          63
+        ],
+        "gain_nominal": 0.09,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "f5618d9bfcaba5b5cf2fe5724f87159f582a87d1dc19387db1bd27e0244d47b8",
+      "audio_sha256": "f51e8215a556bd0e274dbb08c026ba7e14710bd63ed2e3a3ee405b64aa1786ce",
+      "music_sha256": "3a38f0648a43a0bcea340cb7a8ecf47612f64ade15fc87494dcf271b93a503ea",
+      "render_sha256": "abf10ac30ce6e1bc2b9e87638008dfee17d6d25f62d922e71d61c36fd1163fb4",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    },
+    {
+      "scene": 5,
+      "input_sha256": "2fb234b332cb55afa24073d43899101f44f0cba8bdb020bed798801f14436fb6",
+      "start_seconds": 201.416,
+      "duration_seconds": 53.33,
+      "policy_goal_id": "accountability",
+      "policy_proposal": "justice and durable security",
+      "music": {
+        "mode": "minor",
+        "mood": "steady",
+        "midi": [
+          47,
+          50,
+          54,
+          59
+        ],
+        "gain_nominal": 0.08,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "90e7b59091a4672d6269b331d26419b2aac5a8ba8cdea9e104a5ff5f12a08949",
+      "audio_sha256": "a751fcca466372af59eb419af2e93bc364b90b6b3028da7d9141637925133be9",
+      "music_sha256": "d317d36ed467281a3fed25a7b370e0c6629d64ce92bc086100458f84c7fc511e",
+      "render_sha256": "290b3f813fc66fd0d2493fccf792109ec1e1840efdd5c593cbb8e6119b0d0c52",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    },
+    {
+      "scene": 6,
+      "input_sha256": "9d4c40075aaf0e4f18ec3743d456a5f276138189c4e742fab272b6a1a41e4bf2",
+      "start_seconds": 254.746,
+      "duration_seconds": 54.266,
+      "policy_goal_id": "ceasefire_verification",
+      "policy_proposal": "independent monitoring",
+      "music": {
+        "mode": "minor",
+        "mood": "focused",
+        "midi": [
+          52,
+          55,
+          59,
+          64
+        ],
+        "gain_nominal": 0.06,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "6959645556ebd20671a662bc2a3b44f80f9ee51575458c51c181c3de1a2f19cb",
+      "audio_sha256": "76fde93a57531f28333ece05f6a75ce5f36ead457428273f99258415b52b0666",
+      "music_sha256": "2a66209d7b8ca7d46f92cba9d53b20ba5af54e37a8cb8d8bdc07222419531f9a",
+      "render_sha256": "f9d04e8f57d5b868e83b2e0da03e0fcb7a4f28003360886a7edfde544df3d2a6",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    },
+    {
+      "scene": 7,
+      "input_sha256": "71206836ac6f3af73620b56b6909edefef065e580f4a81c6b03954745619d202",
+      "start_seconds": 309.012,
+      "duration_seconds": 56.81,
+      "policy_goal_id": "humanitarian_protection",
+      "policy_proposal": "civilian protection and safe access",
+      "music": {
+        "mode": "minor",
+        "mood": "warm",
+        "midi": [
+          48,
+          51,
+          55,
+          60
+        ],
+        "gain_nominal": 0.09,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "36246792ac89a5eb12c2b24e6591fbc7fee7977d4997a4b289a2231a20ef77e2",
+      "audio_sha256": "135a28b35cde185eb69b084ee796297ff039f8d6f042d918a30f91c64086674a",
+      "music_sha256": "b61759e395a509927de391d356c2647aa2ac506848a5648d8ff0944f5e33e156",
+      "render_sha256": "6b05dcebc346d913e80b3f7234d26491112fedad89da82b76d4e606fe1f69355",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    },
+    {
+      "scene": 8,
+      "input_sha256": "48e607398d645b15d610049852dd9cdc88b280368030efaeb1153882855d5a60",
+      "start_seconds": 365.822,
+      "duration_seconds": 56.882,
+      "policy_goal_id": "reconstruction",
+      "policy_proposal": "transparent reconstruction",
+      "music": {
+        "mode": "major",
+        "mood": "resolved",
+        "midi": [
+          53,
+          57,
+          60,
+          65
+        ],
+        "gain_nominal": 0.105,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "5355d01286e7684bccdf4583760ac9b3cd15dfadb79eb0c511d7610926f5a274",
+      "audio_sha256": "9bb41c950b51d8591a3c4f3d24746a66383eb1d7b1995dd725ef7ab75fc75d0e",
+      "music_sha256": "e50be4eb9f6fa84564028def7bfa400387a92bb4b5560ba9f26e0e3c5b2283bc",
+      "render_sha256": "8a6d4a89ab69f7f4d1f71179575a8ed6ff74b00035555144773003eceb6adfca",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    },
+    {
+      "scene": 9,
+      "input_sha256": "d9fbf04cc709e4b451b84f4654ef2713f96c6acc9e07ccf4c5fce226b7017943",
+      "start_seconds": 422.704,
+      "duration_seconds": 54.674,
+      "policy_goal_id": "security_guarantees",
+      "policy_proposal": "testable post-agreement guarantees",
+      "music": {
+        "mode": "minor",
+        "mood": "steady",
+        "midi": [
+          49,
+          52,
+          56,
+          61
+        ],
+        "gain_nominal": 0.08,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "477e55a92d95d61671b29f3c1419bd09510d599cb12f3a6caffdc8b87b61898e",
+      "audio_sha256": "861a243a9165ea400abce268736869e0cd70ba2d3ba4e9013845ba9ca6020e8a",
+      "music_sha256": "f657a2014f72044d65abe61598fad52e8d1ab092c3d33f3245b809af1c7519bb",
+      "render_sha256": "ba8bf13754788213712efdf7549313dbabdf13492258533cb06b29321955da9f",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    },
+    {
+      "scene": 10,
+      "input_sha256": "885c09890cab38b96c29e44346afbe9859f37028da4f3a5a3811453dca0f444b",
+      "start_seconds": 477.378,
+      "duration_seconds": 57.506,
+      "policy_goal_id": "civic_participation",
+      "policy_proposal": "protected dissent and participation",
+      "music": {
+        "mode": "major",
+        "mood": "warm",
+        "midi": [
+          45,
+          49,
+          52,
+          57
+        ],
+        "gain_nominal": 0.09,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "3ac3148fc51f74a91b1114c6f023690913f21811fb2c07e477205364ce26dfcd",
+      "audio_sha256": "e45f9e13b429a631e403f2f784b5d45415dfbe33d00cde43d79d37f70bebb3e4",
+      "music_sha256": "685d235b73770772709c347abb0639ce8180672ba455e1816f1f819215dcbbf5",
+      "render_sha256": "d85bf87d892990adad637c380477a40a86270ed47ad110ed35f07863919f7129",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    },
+    {
+      "scene": 11,
+      "input_sha256": "9021f117df367083d824e012f804b99f5141461e3bd9175f83a1cd0ae5a55956",
+      "start_seconds": 534.884,
+      "duration_seconds": 55.634,
+      "policy_goal_id": "evidence_integrity",
+      "policy_proposal": "verifiable claims and evidence",
+      "music": {
+        "mode": "minor",
+        "mood": "focused",
+        "midi": [
+          50,
+          53,
+          57,
+          62
+        ],
+        "gain_nominal": 0.06,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "c8bbfb3286f2eb7178a8ab7de4dfcd0c1fb40e0038b016e445c8c46fdd9bc933",
+      "audio_sha256": "711d6bc411072aaba71b4657a5114ce8f6ad2cfecae85cbf32b4519c5606dcf5",
+      "music_sha256": "e54ef89fdc2efae76e03ee569d7167ad54bd3502ed7eac5b45818961ca4c2fe1",
+      "render_sha256": "039b85e17f33e3bce518c8f6410438e16f792a4cb4dd8f20b11fae17eea52881",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    },
+    {
+      "scene": 12,
+      "input_sha256": "d7b30710a7b0d016a685c3c3b7c1534390f615cf3a36b68590cc4ba52973eefa",
+      "start_seconds": 590.518,
+      "duration_seconds": 51.242,
+      "policy_goal_id": "care_and_reason",
+      "policy_proposal": "compassion with accountable institutions",
+      "music": {
+        "mode": "major",
+        "mood": "warm",
+        "midi": [
+          46,
+          50,
+          53,
+          58
+        ],
+        "gain_nominal": 0.09,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "37d607f514701de61bcea6e50e7c07c9cccfc380a3d73ae64bd6f73389473805",
+      "audio_sha256": "dea3a09f69cb6791b33a3bf3e04f522d639f83b3c34ec9caecc55499c9fa75eb",
+      "music_sha256": "a435672a0001b652bd1e1b2200f1c90e5ee25e7de382d0f121ca0fcb77d631fd",
+      "render_sha256": "968ee9e22a27337c44317fe267b8549a7caa3303ce6b27814dc62b05ff3ddcfb",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    },
+    {
+      "scene": 13,
+      "input_sha256": "5e2f9519319a5d2fea26605dc7475b3ebea63b4484481b5ab8e2f5d05f67ff29",
+      "start_seconds": 641.76,
+      "duration_seconds": 53.546,
+      "policy_goal_id": "accountable_dialogue",
+      "policy_proposal": "dialogue respecting sovereignty",
+      "music": {
+        "mode": "minor",
+        "mood": "steady",
+        "midi": [
+          51,
+          54,
+          58,
+          63
+        ],
+        "gain_nominal": 0.08,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "a7a1a23c33e19590e9a0f54aa5164c18abea89045a9b2f79ada4bb4fb0f0b213",
+      "audio_sha256": "771d4840692f6d38326537850fd57c8e3286c7447d74f8fcf2fd82cf64c713c4",
+      "music_sha256": "9472e0c5574cf37fc228dfe1a2eee8ca10df048377f48493df71f4fe8f59ef66",
+      "render_sha256": "e098de1bbcf2ed33c029f184f964175df3fc375b7c052e9b8ad6fe3a699cfe4f",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    },
+    {
+      "scene": 14,
+      "input_sha256": "8ac9dc2436e48c41e0836fe5817ef5645ee8afda28cb78754ea3d8656da2da71",
+      "start_seconds": 695.306,
+      "duration_seconds": 54.434,
+      "policy_goal_id": "citizen_action",
+      "policy_proposal": "nonviolent civic responsibility",
+      "music": {
+        "mode": "major",
+        "mood": "resolved",
+        "midi": [
+          47,
+          51,
+          54,
+          59
+        ],
+        "gain_nominal": 0.105,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "36c6c4a328b6b4567bfc4631888f52fbe3ada02035da22be05d30f76c329a0a7",
+      "audio_sha256": "89e354f53b4bb66cd9dbf465f05592dc1ea2aebaf8e631011da1d7fa0a4d8d7e",
+      "music_sha256": "5bd5c10d3f21798401e5098f53453b6fe23396f273ea53cac1bfbd6ff242ebd3",
+      "render_sha256": "4b945089807d9ab37c082f8e237efd66ec9d0a65c65c7d20af6025bf3f6476ed",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    },
+    {
+      "scene": 15,
+      "input_sha256": "fa6285d98448521af6dce03a1ecb75562b5f559f583b07dea1b8b7ed6605d550",
+      "start_seconds": 749.74,
+      "duration_seconds": 55.466,
+      "policy_goal_id": "measurable_outcomes",
+      "policy_proposal": "transparent indicators and feedback",
+      "music": {
+        "mode": "minor",
+        "mood": "focused",
+        "midi": [
+          52,
+          55,
+          59,
+          64
+        ],
+        "gain_nominal": 0.06,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "eb82ec0c1c399d6539e8b8c03127188656950c299039fbe9973d38f26b84ddff",
+      "audio_sha256": "ecec822ab7bd59689f8d5825d02932e418c197dc00a08be69b0f3a83d163aad2",
+      "music_sha256": "7fbc20e1c7f59b8d15fc78aefdb29b866b945e21bba01d231b90bb2d29992437",
+      "render_sha256": "b0f299edfa97cb5f92de608dec63c77e82e5f58e9ab6de66da1ac5028cbe0eef",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    },
+    {
+      "scene": 16,
+      "input_sha256": "e8ac22be7a0c3245989df875765c0cd8328144e19c88d4a1c1a8b2df18b47356",
+      "start_seconds": 805.206,
+      "duration_seconds": 50.162,
+      "policy_goal_id": "responsible_hope",
+      "policy_proposal": "hope open to criticism",
+      "music": {
+        "mode": "major",
+        "mood": "warm",
+        "midi": [
+          48,
+          52,
+          55,
+          60
+        ],
+        "gain_nominal": 0.09,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "5b77a85ec6c04ae1ecd181ce347c61d6b64573834d0a26bce9f5ead0d6e858d9",
+      "audio_sha256": "eb450f513ced50803e3c698437613724c7b0d24cc4194339cb65c4f7b8bead1d",
+      "music_sha256": "3779aec22c683ea90868ae523ccb584948c8bdc7ec3e9bacb82000891d314b86",
+      "render_sha256": "462c3639b7a7efc213e0abdf44541e1423921db4752ae1d9fbfba5048f31aaea",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    },
+    {
+      "scene": 17,
+      "input_sha256": "a6ff5d7f9eb568bbef827b62eed8491285a9e22b2e7a3de77ce987a53e9a2fb9",
+      "start_seconds": 855.368,
+      "duration_seconds": 49.538,
+      "policy_goal_id": "public_revision",
+      "policy_proposal": "reasoned disagreement and revision",
+      "music": {
+        "mode": "major",
+        "mood": "warm",
+        "midi": [
+          53,
+          57,
+          60,
+          65
+        ],
+        "gain_nominal": 0.09,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "0449a517e6a114b21b5f2ddcfcd7cb9793bf343e5df8ebf7206ea78b8ea0c1b4",
+      "audio_sha256": "e136977836475b176bc38578e9b98d0a2a90efd5c3c60fb47726372cff4a4f03",
+      "music_sha256": "2e07afed70f5b68a82d63de0a7c301d77696ef2a44b5e4def8e76585a097028f",
+      "render_sha256": "9054b73729624465a923201f05586d6cb43faf28f6f744778c5eba4708020bc8",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    },
+    {
+      "scene": 18,
+      "input_sha256": "c18057167a3d39d11ac2bf48d31a92369099e747a0ac162863e7577fd62115ba",
+      "start_seconds": 904.906,
+      "duration_seconds": 48.482,
+      "policy_goal_id": "peace_as_responsibility",
+      "policy_proposal": "lawful cooperation and continued scrutiny",
+      "music": {
+        "mode": "major",
+        "mood": "resolved",
+        "midi": [
+          49,
+          53,
+          56,
+          61
+        ],
+        "gain_nominal": 0.105,
+        "synthesis": "original deterministic DSP"
+      },
+      "image_sha256": "89d396bdf96a35f634d8c86f33fef785a421fb342733a1c179e43575cb1155ed",
+      "audio_sha256": "71d4a39aa8a53439e54a59f9cb25187b0afc798b2dd072c9cc34214086775072",
+      "music_sha256": "4dfe383acddb90e3bbea109286d6cc7d79d7c8cbc6057d64bba3c1c1ee02e1dd",
+      "render_sha256": "9c3d75175cc01c7e059afd6ce1a6178829286eae6ba8fe15e1b0a74b4616c10a",
+      "lip_sync": {
+        "status": "NOT_GENERATED",
+        "reason": "requires a separately validated performance/lip-sync renderer"
+      }
+    }
+  ],
+  "sources": [
+    "https://www.un.org/en/about-us/un-charter/full-text",
+    "https://www.icrc.org/en/law-and-policy",
+    "https://ukraine.un.org/en",
+    "https://www.ohchr.org/en/countries/ukraine"
+  ]
+}
