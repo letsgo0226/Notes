@@ -50,6 +50,11 @@
       "book": "01_Caduceus_如何閱讀一本書",
       "chapter": 5,
       "folder": "01_Caduceus_如何閱讀一本書/05_文本與理解"
+    },
+    {
+      "book": "01_Caduceus_如何閱讀一本書",
+      "chapter": 8,
+      "folder": "01_Caduceus_如何閱讀一本書/08_結論"
     }
   ],
   "source_epochs": [
@@ -93,7 +98,7 @@
   ],
   "tm_word": "1101000011010100",
   "tm_checkpoint": {
-    "n": 80,
+    "n": 96,
     "t": 0,
     "w": "1101000011010100",
     "v": 2
