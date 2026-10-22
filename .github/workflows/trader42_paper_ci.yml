@@ -1,0 +1,41 @@
+name: Trader_42 paper-only risk gate
+on:
+  pull_request:
+    paths:
+      - 'trader42_paper/**'
+      - '.github/workflows/trader42_paper_ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  paper-simulation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: No-broker paper-only safety tests
+        run: |
+          python3 -m unittest trader42_paper.test_engine -v
+          python3 -m unittest trader42_paper.test_replay -v
+          python3 -m py_compile trader42_paper/engine.py trader42_paper/replay.py
+      - name: Static deny of external broker calls
+        run: |
+          python3 - <<'PY'
+          import ast,pathlib
+          forbidden={'requests','httpx','urllib','socket','ccxt','subprocess','os','websockets'}
+          for rel in ['trader42_paper/engine.py','trader42_paper/replay.py']:
+              tree=ast.parse(pathlib.Path(rel).read_text())
+              imports=set()
+              for n in ast.walk(tree):
+                  if isinstance(n,ast.Import):
+                      imports.update(x.name.split('.')[0] for x in n.names)
+                  elif isinstance(n,ast.ImportFrom) and n.module:
+                      imports.add(n.module.split('.')[0])
+              assert not imports.intersection(forbidden),(rel,imports.intersection(forbidden))
+          print('NO_BROKER_OR_NETWORK_IMPORTS')
+          PY
