@@ -1,0 +1,42 @@
+name: ATGC Master Controller — bounded automatic review
+on:
+  pull_request:
+    paths:
+      - 'atgc_auto/**'
+      - '.github/workflows/atgc-master-review.yml'
+  workflow_dispatch:
+  schedule:
+    # 18:25 Asia/Taipei; only active after reviewed merge to default branch.
+    - cron: '25 10 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: atgc-master-review-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Shell syntax and original self-encoding check
+        run: |
+          sh -n atgc_auto/atgc_self.sh
+          sh atgc_auto/atgc_self.sh
+      - name: Offline controller tests
+        run: python3 -m unittest discover -s atgc_auto/tests -p 'test_*.py' -v
+      - name: Generate cross-domain review certificate
+        run: python3 atgc_auto/orchestrator.py --root . --out "$RUNNER_TEMP/atgc-master.json"
+      - name: Upload evidence (including HOLD decisions)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: atgc-master-review
+          path: ${{ runner.temp }}/atgc-master.json
+          if-no-files-found: warn
+          retention-days: 14
