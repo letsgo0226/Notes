@@ -70,6 +70,11 @@
       "book": "01_Caduceus_如何閱讀一本書",
       "chapter": 7,
       "folder": "01_Caduceus_如何閱讀一本書/07_閱讀的方法"
+    },
+    {
+      "book": "02_Hu_Mantra_如何閱讀自己",
+      "chapter": 1,
+      "folder": "02_Hu_Mantra_如何閱讀自己/01_自我與時間"
     }
   ],
   "source_epochs": [
@@ -113,7 +118,7 @@
   ],
   "tm_word": "1101000011010100",
   "tm_checkpoint": {
-    "n": 144,
+    "n": 160,
     "t": 0,
     "w": "1101000011010100",
     "v": 2
