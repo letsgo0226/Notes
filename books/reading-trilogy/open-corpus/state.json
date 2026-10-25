@@ -75,6 +75,11 @@
       "book": "02_Hu_Mantra_如何閱讀自己",
       "chapter": 1,
       "folder": "02_Hu_Mantra_如何閱讀自己/01_自我與時間"
+    },
+    {
+      "book": "02_Hu_Mantra_如何閱讀自己",
+      "chapter": 2,
+      "folder": "02_Hu_Mantra_如何閱讀自己/02_Hu_Mantra_的象徵"
     }
   ],
   "source_epochs": [
@@ -118,7 +123,7 @@
   ],
   "tm_word": "1101000011010100",
   "tm_checkpoint": {
-    "n": 160,
+    "n": 176,
     "t": 0,
     "w": "1101000011010100",
     "v": 2
