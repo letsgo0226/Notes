@@ -80,6 +80,11 @@
       "book": "02_Hu_Mantra_如何閱讀自己",
       "chapter": 2,
       "folder": "02_Hu_Mantra_如何閱讀自己/02_Hu_Mantra_的象徵"
+    },
+    {
+      "book": "01_Caduceus_如何閱讀一本書",
+      "chapter": 4,
+      "folder": "01_Caduceus_如何閱讀一本書/04_Caduceus_與理性"
     }
   ],
   "source_epochs": [
@@ -123,7 +128,7 @@
   ],
   "tm_word": "1101000011010100",
   "tm_checkpoint": {
-    "n": 176,
+    "n": 192,
     "t": 0,
     "w": "1101000011010100",
     "v": 2
