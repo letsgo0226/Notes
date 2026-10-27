@@ -85,6 +85,11 @@
       "book": "01_Caduceus_如何閱讀一本書",
       "chapter": 4,
       "folder": "01_Caduceus_如何閱讀一本書/04_Caduceus_與理性"
+    },
+    {
+      "book": "03_Love_如何閱讀生命",
+      "chapter": 1,
+      "folder": "03_Love_如何閱讀生命/01_閱讀生命"
     }
   ],
   "source_epochs": [
@@ -128,7 +133,7 @@
   ],
   "tm_word": "1101000011010100",
   "tm_checkpoint": {
-    "n": 192,
+    "n": 208,
     "t": 0,
     "w": "1101000011010100",
     "v": 2
