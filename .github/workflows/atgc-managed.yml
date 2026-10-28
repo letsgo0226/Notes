@@ -1,4 +1,4 @@
-name: ATGC Managed QTM Recurrence
+name: ATGC Managed G257 Entropy Selector
 
 on:
   repository_dispatch:
@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v5
-      - name: Verify 2 KB QTM recurrence
+      - name: Verify 2 KB finite entropy selector
         shell: bash
         run: |
           set -euo pipefail
@@ -29,8 +29,11 @@ jobs:
           python3 - <<'PY'
           import json
           x=json.load(open("atgc-certificate.json"))
-          assert x["protocol"]=="HSI-COSMIC-QUANTUM-SELF-CLOSURE/QTM-1.0"
-          assert all(x[k] is True for k in ("transition_verified","norm_preserved","U2_identity","two_step_quantum_recurrence"))
-          assert x["measurement"]=="none"
-          print("QTM_RECURRENCE_VERIFIED=1; scope=specified two-state TM only")
+          assert x["encoding"]=="base257 digits=byte+1"
+          assert x["N"]==100000 and x["candidates"]==387
+          assert x["prototype"]=={"code":341,"program_hex":"53","SELF":341}
+          assert x["unique"] is True and x["fixed_point"] is True
+          assert x["limit_H_bits"]==0 and 0<=x["H_N_bits"]<=1e-12
+          assert "finite-stage computable approximation" in x["scope"]
+          print("G257_FINITE_SELECTOR_VERIFIED=1; no halting oracle, executable SELF rule, or QTM recurrence claim")
           PY
