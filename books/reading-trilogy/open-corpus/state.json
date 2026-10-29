@@ -95,6 +95,11 @@
       "book": "03_Love_如何閱讀生命",
       "chapter": 4,
       "folder": "03_Love_如何閱讀生命/04_Higher_Self"
+    },
+    {
+      "book": "03_Love_如何閱讀生命",
+      "chapter": 6,
+      "folder": "03_Love_如何閱讀生命/06_目的論論證"
     }
   ],
   "source_epochs": [
@@ -138,7 +143,7 @@
   ],
   "tm_word": "1101000011010100",
   "tm_checkpoint": {
-    "n": 224,
+    "n": 240,
     "t": 0,
     "w": "1101000011010100",
     "v": 2
