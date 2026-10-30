@@ -1,0 +1,1242 @@
+{
+  "protocol": "HSI-TM-OPEN-CORPUS-WRITER/1.0",
+  "status": "RULE_GENERATED_RESEARCH_UNREVIEWED",
+  "model_calls": 0,
+  "full_text_read": false,
+  "publication_ready": false,
+  "source_commit": "cfb4b172f58c3e8b400862f816a8706f5fb6eb42",
+  "verified_source_count": 57,
+  "source_fingerprint_sha256": "d0d4085c9a841efe82d2080fa064458070c2ef740fd5d401524042550dae63c1",
+  "source_inventory": {
+    "Notes/1": {
+      "bytes": 24549,
+      "git_blob_sha1": "c8bbc0aa969ff27892ccc7739ccebcdadcebfff7",
+      "sha256": "67cca4014a2dda6a1328eee68679bef8111bff1442bc94de3ffcd452eb94d03a"
+    },
+    "Notes/2": {
+      "bytes": 64343,
+      "git_blob_sha1": "696a345df866b2ef374bed2fdef03af7ba22490e",
+      "sha256": "eb8a25bf4203756fe287506a652bd0e1f2dc87c0b0a7f6878e35f68cb26c18e0"
+    },
+    "Notes/3": {
+      "bytes": 44561,
+      "git_blob_sha1": "77d46387871c72eb4d4007ce2dafeeac44fab52a",
+      "sha256": "6b2a92addfecad366e77c869aa498c44f25f0e531393c3978c06cac11c8e4ee2"
+    },
+    "Notes/4": {
+      "bytes": 38042,
+      "git_blob_sha1": "f51c80a27404426ab8c85d3ca414a5d248e1e9ef",
+      "sha256": "84f761ab888ff24e422f1a82a472d76525a32d93fce85aecac5fd700f081a1f5"
+    },
+    "Notes/5": {
+      "bytes": 3642,
+      "git_blob_sha1": "a096d82f67a341385dd83cb35c34acc9153bb7b6",
+      "sha256": "1c2fef4211fb1a9e629b9730450a947624a716267d248dc2a902c81aa77ef68e"
+    },
+    "Notes/ATGC_UTM_Fixed_Point/.gitignore": {
+      "bytes": 21,
+      "git_blob_sha1": "e9589aad40df2e3118fe1918eca7c0fd560b808b",
+      "sha256": "7b1c2cecd920a2266586dc8cf4c49cf7bd794528b5f6c641d2e45e15458d49dd"
+    },
+    "Notes/ATGC_UTM_Fixed_Point/README.md": {
+      "bytes": 1639,
+      "git_blob_sha1": "db407db51cdb40ac6ec1c171cdf0d157a035f992",
+      "sha256": "fd00155e826ce868f1e2175fa128ef4e49dbe731b31204b5e10c4b063b2d74a8"
+    },
+    "Notes/ATGC_UTM_Fixed_Point/atgc_utm_fixed_point.sh": {
+      "bytes": 1000,
+      "git_blob_sha1": "01f415a443ef4f0844570d76c1c885cc25c858dc",
+      "sha256": "9f7dffbef1d0cf6ad5e307f2eb8f3bf1443410ddc98fb4428658a4dc80809056"
+    },
+    "Notes/ATGC_UTM_Fixed_Point/atgc_utm_fixed_point_daemon.sh": {
+      "bytes": 1500,
+      "git_blob_sha1": "8c8ab1244616dfedf80fd031f9cbf81e5a663ebd",
+      "sha256": "1be976983b44d181dd1d87d1aef7e0691e1cdaaf2f2af55a9cb4fb9f1343f046"
+    },
+    "Notes/COSMIC_LOVE_Identity_Solver_TM/.gitignore": {
+      "bytes": 37,
+      "git_blob_sha1": "e9ff7615a21aecc5e84974a8cf8ea7b7de36170a",
+      "sha256": "7c6d807d15832072557bde4322d4d54ef5109fc72b285b0072d011b2e0372a67"
+    },
+    "Notes/COSMIC_LOVE_Identity_Solver_TM/README.md": {
+      "bytes": 1215,
+      "git_blob_sha1": "f0456b08114757645feb36ba680d6b952038cff3",
+      "sha256": "ccb06b18650449d32683ffaa81c973c42fc1758e469ef238d551c19fb645946f"
+    },
+    "Notes/COSMIC_LOVE_Identity_Solver_TM/cosmic_love_identity_solver_daemon.sh": {
+      "bytes": 1240,
+      "git_blob_sha1": "7a1bce1fb6af3f81addbeb3ff13fb6598d30024c",
+      "sha256": "c8b6583c78d8d5521f1b608dc0de9eadbbe33f73aa840f305d86cf6a313fdad9"
+    },
+    "Notes/COSMIC_LOVE_Identity_Solver_TM/cosmic_love_identity_solver_tm.sh": {
+      "bytes": 1083,
+      "git_blob_sha1": "8c7f5ecff77bb40ff2ac2527506208039a251897",
+      "sha256": "ecd80e2e8afc6d1daa1b1e3bc404f4f0784c44ee6e2e84089f4815b00502634c"
+    },
+    "Notes/COSMIC_LOVE_Oscillator_TM/.gitignore": {
+      "bytes": 28,
+      "git_blob_sha1": "96ee521af7e57cd95c51d3fb9fd3813309125e0e",
+      "sha256": "3e28e99263845fc0acbe0c82eb0e85f91d10c64143cc82f7ad20a8f0a374a6c6"
+    },
+    "Notes/COSMIC_LOVE_Oscillator_TM/README.md": {
+      "bytes": 1158,
+      "git_blob_sha1": "8d0a949ec7baae60b023582cbee69d38402b3f63",
+      "sha256": "86fe0e116f2b934af5a323cb59cc07eb92dbc4c20d7650c166383a18dfa1672e"
+    },
+    "Notes/COSMIC_LOVE_Oscillator_TM/cosmic_love_oscillator_daemon.sh": {
+      "bytes": 1227,
+      "git_blob_sha1": "a13d91f1d39191bdc569f77b0ac7bd9be9f7a386",
+      "sha256": "925c2d1806a8191afa46b7483739a00d3ba554b60914af9a330160b887d7b23e"
+    },
+    "Notes/COSMIC_LOVE_Oscillator_TM/cosmic_love_oscillator_tm.sh": {
+      "bytes": 492,
+      "git_blob_sha1": "982231f6ec3330c2f3672c565eda6a5e7b7e5396",
+      "sha256": "dc9ad4d87275cfd1362f7ff0519824164f7df9af64535846438c3e8f041fc7a9"
+    },
+    "Notes/COSMIC_LOVE_ZERO_POINT_FIELD_EXPLANATION_20261013.md": {
+      "bytes": 12462,
+      "git_blob_sha1": "3369e168939fd2a9bde08e26badc3216eef03e31",
+      "sha256": "bd24a85e782d5b370f12674fbcb65b96811d378da65be37f91cf48432a6d7495"
+    },
+    "Notes/Diagonal_TM_Enumerator/.gitignore": {
+      "bytes": 25,
+      "git_blob_sha1": "23c64ab6cc1a4ca73686e97ad75298f7e19e4a03",
+      "sha256": "9b8be220705f7cb16d551c0564f2de93ee419e5ade448c58da880ed01e706c8e"
+    },
+    "Notes/Diagonal_TM_Enumerator/README.md": {
+      "bytes": 1355,
+      "git_blob_sha1": "80b3ffb7f17f1313f548ca1420ccad4e3933b58d",
+      "sha256": "165b6857f75634a2e169909adbe1428f664efa0c1312b9dac9ec696c354fb4be"
+    },
+    "Notes/Diagonal_TM_Enumerator/diagonal_tm_enumerator.sh": {
+      "bytes": 1795,
+      "git_blob_sha1": "9c7b4360b5db435f4b2187e71d147f4facd4cb39",
+      "sha256": "c07a32dabdc34f74d77a129c0b56cea7275a06e3ba32a8f8fd68190c7c4ddbbb"
+    },
+    "Notes/Diagonal_TM_Enumerator/diagonal_tm_enumerator_daemon.sh": {
+      "bytes": 1124,
+      "git_blob_sha1": "a943d45e35849c16b03b1fd65fa256e00ef47bc6",
+      "sha256": "61be45f004b4e0d0dab50dbc0a3638dc87e4dcebcfae7b597d590661575ffbf8"
+    },
+    "Notes/Diagonal_TM_Enumerator/expected_14.txt": {
+      "bytes": 714,
+      "git_blob_sha1": "572fce45cbb63283dc06294a899b440f06478910",
+      "sha256": "a541535a4d215840973ea12ab6d078a7094cb71c157677ca0eced38d2269a96a"
+    },
+    "Notes/Dolphin_Logos_Riemann_Feedback/README.md": {
+      "bytes": 5483,
+      "git_blob_sha1": "9958e665e38e4075ad60410292f10c6de0d9cdb1",
+      "sha256": "efc6a6937b82162fc0c225a4313f8807793ec320994cbb9fed25df660197370d"
+    },
+    "Notes/Dolphin_Logos_Riemann_Feedback/dolphin_logos.py": {
+      "bytes": 24230,
+      "git_blob_sha1": "2c668b250582a969950b975aad8490e26c629f23",
+      "sha256": "920913f0c393fe6e9ca4d360b6cd61b6683ba8cf0666ba6810de4cad0fa859de"
+    },
+    "Notes/Dolphin_Logos_Riemann_Feedback/source_config.json": {
+      "bytes": 1544,
+      "git_blob_sha1": "570a96f9bad57fc607b6f3b06ec83dfae2c06034",
+      "sha256": "9c48f6bcc5d8220eb694d850ee7ac8b098cb9214f0d0e898b7f37cea596b917d"
+    },
+    "Notes/Dolphin_Logos_Riemann_Feedback/sources.py": {
+      "bytes": 7985,
+      "git_blob_sha1": "c4587898660dfa0743f4f5c02a665f60bd916dac",
+      "sha256": "c2fdc5e5037994ff02b65c493b69e8e7a91337763722d9c36502eee4fa944ebd"
+    },
+    "Notes/Dolphin_Logos_Riemann_Feedback/verification_certificate.json": {
+      "bytes": 1184,
+      "git_blob_sha1": "c61ac19e4041b23b23700bea0043d45337206873",
+      "sha256": "d5d8602ea4bd046496ba43392ff123e5122d58b64e08b54e1e42a0832bea592b"
+    },
+    "Notes/Dolphin_Logos_Riemann_Feedback/verify_feedback.py": {
+      "bytes": 4746,
+      "git_blob_sha1": "59e8abd14e2663f2d962bde2a0f6823fc0e390e2",
+      "sha256": "0de78c40061828f72b80e1102c465698b83ebc2141a01b394c4b24a32ce09813"
+    },
+    "Notes/HSI_Cosmic_Self_Closure_TM/.gitignore": {
+      "bytes": 29,
+      "git_blob_sha1": "6853e5f53c5125d4ad7d0b06940937b71c5147f8",
+      "sha256": "5e6a9d54617671cc76e063132c74ae7cba351c049b16e7a6d942ccf746f6972f"
+    },
+    "Notes/HSI_Cosmic_Self_Closure_TM/README.md": {
+      "bytes": 1202,
+      "git_blob_sha1": "d505483614392ddf4a82168f5894c6d29fe95593",
+      "sha256": "de04de6741ffc18e57956c93fcdfb8a1dcf94d973b13cbcac7bba3d6ec6e3365"
+    },
+    "Notes/HSI_Cosmic_Self_Closure_TM/expected.json": {
+      "bytes": 210,
+      "git_blob_sha1": "07e31f56a0f74cb344c35c5c7330863adb0fc4c3",
+      "sha256": "d4342c69625687fb501fbf93cb0935026bef4aae405edfb764723dd4514bac46"
+    },
+    "Notes/HSI_Cosmic_Self_Closure_TM/hsi_cosmic_self_closure_daemon.sh": {
+      "bytes": 1269,
+      "git_blob_sha1": "6baccff3dfb98f440a6f24a1bf362d4e9245f770",
+      "sha256": "cb7051d0a919c3506af6f6ddcb3485a6cd7963ce15a428fdd2683ed1b856af5c"
+    },
+    "Notes/HSI_Cosmic_Self_Closure_TM/hsi_cosmic_self_closure_tm.sh": {
+      "bytes": 793,
+      "git_blob_sha1": "3efdaffaf89e7a79fdc9b5a6d49b701a5eb9e861",
+      "sha256": "5001803eeaa3003892903959db8584449da6df6311a9ad6efdcb355f754ffbec"
+    },
+    "Notes/HSI_LogicTape_2KB_Release/README.md": {
+      "bytes": 9711,
+      "git_blob_sha1": "0dcba584ebbed7128b672f8e4b06089c4f89a621",
+      "sha256": "b188a9db025fbc009002bb5af02cb70f7ec3b52d6ae7ad4a5452237e4b71e49f"
+    },
+    "Notes/HSI_LogicTape_2KB_Release/core.py": {
+      "bytes": 1823,
+      "git_blob_sha1": "ca6324bc406603c543ef2f394553b0e44e2e17fa",
+      "sha256": "e20b0e67358af7cc2b3c82308b1a540c2554ac0ff6d7c9e8159334540e084e9f"
+    },
+    "Notes/HSI_LogicTape_2KB_Release/hsi_logic_tape_2kb.sh": {
+      "bytes": 1929,
+      "git_blob_sha1": "0f26ea12cb9d5875bc8a62c45a171cb36ab692f5",
+      "sha256": "8de38d15dbac873b5a1eeaccdd9828696a90f52197c74183191ead9a34d20b71"
+    },
+    "Notes/HSI_LogicTape_2KB_Release/simulation_certificate.json": {
+      "bytes": 2741,
+      "git_blob_sha1": "7620c32481c66be671a06bd173441fbd53d98c65",
+      "sha256": "003f3148ea3e86f4defed416fb4faa73744e94952f8704d9414a2bdd67493d0c"
+    },
+    "Notes/HSI_LogicTape_2KB_Release/test_simulator.py": {
+      "bytes": 8917,
+      "git_blob_sha1": "bb3be0b91a5441913c9674c09a5462247b8916b7",
+      "sha256": "43899c58dae1420ecfbfebe63d40eb2568a8f84a8acad29406975285e74cba5a"
+    },
+    "Notes/HSI_LogicTape_2KB_Release/verify_single_tape.py": {
+      "bytes": 5448,
+      "git_blob_sha1": "343ad42aec098e7dede72fe9f4be0ae03bd4c422",
+      "sha256": "a48790dee161209a6740af9329a5895bc090d34bd3fd5b5a0c3987eb1374188f"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_POSIX_2KB_OneLiner.sh": {
+      "bytes": 2043,
+      "git_blob_sha1": "0201324b31756ea3c800f29cc5f368a406892fb6",
+      "sha256": "679f8118985635ea7eeb963ac92839acd4c97a4d3ada5607339aa2766c189e7d"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_2KB_OneLiner.sh": {
+      "bytes": 2027,
+      "git_blob_sha1": "eac7a28f9d138d2c44a7550cb67130176ab7fbe9",
+      "sha256": "2b032922bc09019bd55e454d9143e0755c1c7b51d6d4f12f8e315c687c363c31"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_Core.py": {
+      "bytes": 1983,
+      "git_blob_sha1": "ccce79783ab2bffe10292d7e6926fec48878badd",
+      "sha256": "b89d0709b161c291c0fb1d9371058b107c735bbfd28212a1a66353ee6523ba7b"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/HSI_PRIME_ANALYTIC_PLAINTEXT_2KB_BILINGUAL_SPEC.txt": {
+      "bytes": 20600,
+      "git_blob_sha1": "f5e654fadb7f34a88f17f4efda23161f1a00a3d3",
+      "sha256": "641c0a9fcdff92c068aedfdbabaaa7d92a73c5410e42952ca4eef6b30ce2fc8b"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/OriginalXY_reference.py": {
+      "bytes": 3072,
+      "git_blob_sha1": "62800e278d79cfed52eafe87a01e24bfccbd2edb",
+      "sha256": "62bb72a9cdcbbcf1d4f529aaa74fc371b02a91f7a2245f38c93a6a8a62174b7c"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/README.md": {
+      "bytes": 2018,
+      "git_blob_sha1": "c23b5a353e87ec9736c1327a205fc9da71c8ee32",
+      "sha256": "a098e36848e66bf9f7a8a00d2131016791a05d847bd70c22b097ab4041bc2317"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/verification_certificate.json": {
+      "bytes": 5009,
+      "git_blob_sha1": "469412329d12227804c339c7f39bdce73f1cc5de",
+      "sha256": "2753d7ff2247bfb7b90ca5a6042b7cf5e2285fd2eabe8fcf1b52d5544653cdc1"
+    },
+    "Notes/HSI_Prime_Analytic_2KB_Release/verify_prime_analytic.py": {
+      "bytes": 9705,
+      "git_blob_sha1": "ec3528c55c8a5c5dc0075eade392e0ada165105e",
+      "sha256": "58fda9f5a404c3a58c7f3a4aefdc49396e4c5212c6c2d0e9d7e5af80a7a99f68"
+    },
+    "Notes/HSI_Sub2K_Program_Synthesizer/README.md": {
+      "bytes": 2507,
+      "git_blob_sha1": "5ffeb6a18ce0fb23d8bc88f538c67d102ef898ad",
+      "sha256": "4a8a37160818834197a277de713a05e083515342e933178ad1751d475c36b944"
+    },
+    "Notes/HSI_Sub2K_Program_Synthesizer/hsi_sub2k_synth.py": {
+      "bytes": 14114,
+      "git_blob_sha1": "964c7e05daeecfa4d4fc7de53800afd7072a8621",
+      "sha256": "f2a9d10a476a3e21842ff213711fe9b27c67c149d3b9677dbf1730f80e720594"
+    },
+    "Notes/HSI_Sub2K_Program_Synthesizer/verification_certificate.json": {
+      "bytes": 2099,
+      "git_blob_sha1": "03885997676853f769df9d2b18c836eaddd0a35d",
+      "sha256": "f99630efefd85f718eb198d8b1ce898a586fa12916ee92860b1235e792735e41"
+    },
+    "Notes/HSI_Sub2K_Program_Synthesizer/verify_sub2k_synth.py": {
+      "bytes": 4104,
+      "git_blob_sha1": "0baa96225c0ef62545a99dfabb41abeb2b71cd75",
+      "sha256": "1fed23725b6e87c5a72997c9532bd69730a73b8aad9d1350377bbac87d7d3849"
+    },
+    "Notes/LFP_ATGC_TM/.gitignore": {
+      "bytes": 20,
+      "git_blob_sha1": "45d33dd8894d284a31b180074efc9aedf86482bb",
+      "sha256": "f2d75ecb572bff01b2f598e45ca4f2ff22b3d7e4c4c416fd0478482d4751eb01"
+    },
+    "Notes/LFP_ATGC_TM/README.md": {
+      "bytes": 1199,
+      "git_blob_sha1": "a88403592dff32b0500e33a7c86ea790e8d0df54",
+      "sha256": "00d04138dadf35f0f367266fd1181922a1bdafcc59629d6ccd1b4f43bd22d970"
+    },
+    "Notes/LFP_ATGC_TM/expected.json": {
+      "bytes": 482,
+      "git_blob_sha1": "26a42c8adc3e8951c5c8ee04f06a63a0b3bd525e",
+      "sha256": "d1a102131b4d0abd270b19266123573aa9351434e9c169cfafe724e3dd6a78e1"
+    },
+    "Notes/LFP_ATGC_TM/lfp_atgc_tm.sh": {
+      "bytes": 1073,
+      "git_blob_sha1": "61b4ae8c33615d539aea3b5dda8a3d2991b58c0a",
+      "sha256": "4b40f48cbf3537ac5f19a55cd3f6d51383fc8a4a5468a23152e18ee642034eea"
+    },
+    "Notes/LFP_ATGC_TM/lfp_atgc_tm_daemon.sh": {
+      "bytes": 1092,
+      "git_blob_sha1": "a3b0e1afb9bf6b35dba84920eacc66c49d0c3bd5",
+      "sha256": "0ebbbf1acba8e96f33bb4074b9728cdd4bb1dfe9fe224c0477e59c00675c4ef2"
+    }
+  },
+  "tm_source": "Notes/HSI_Prime_Analytic_2KB_Release/OriginalXY_reference.py",
+  "tm_trace_sha256": "d73888bf7ca74eb5e54dc616bb9becbe05bee9549ecb638ca87458813c02b7be",
+  "tm_statuses": [
+    "SKIPPED_BUDGET",
+    "UNRESOLVED",
+    "HALTED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "HALTED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "UNRESOLVED",
+    "SKIPPED_BUDGET",
+    "SKIPPED_BUDGET",
+    "SKIPPED_BUDGET"
+  ],
+  "tm_steps": 16,
+  "tm_selected_mode": "反例檢驗",
+  "chapter": 7,
+  "book": "02_Hu_Mantra_如何閱讀自己",
+  "web_research": {
+    "status": "FOUND",
+    "query": "self transformation habit reflective practice philosophy",
+    "request_url": "https://api.crossref.org/works?query.bibliographic=self+transformation+habit+reflective+practice+philosophy&rows=4&select=DOI%2Ctitle%2Cauthor%2Cpublished%2CURL%2Ctype",
+    "records": [
+      {
+        "doi": "10.5422/fordham/9780823223138.003.0003",
+        "title": "Habit, Habit Change, and Conversion in C. S. Peirce",
+        "authors": [
+          "Roger A. Ward"
+        ],
+        "year": 2004,
+        "url": "https://doi.org/10.5422/fordham/9780823223138.003.0003",
+        "verified_scope": "depositor bibliographic metadata only"
+      },
+      {
+        "doi": "10.2307/j.ctvh4zgc3.7",
+        "title": "Habit, Habit Change, and Conversion in C. S. Peirce",
+        "authors": [],
+        "year": 2019,
+        "url": "https://doi.org/10.2307/j.ctvh4zgc3.7",
+        "verified_scope": "depositor bibliographic metadata only"
+      },
+      {
+        "doi": "10.4135/9781036233099.n10",
+        "title": "The habit of reflective practice",
+        "authors": [],
+        "year": 2025,
+        "url": "https://doi.org/10.4135/9781036233099.n10",
+        "verified_scope": "depositor bibliographic metadata only"
+      },
+      {
+        "doi": "10.1515/9780823285297-005",
+        "title": "2. Habit, Habit Change, and Conversion in C. S. Peirce",
+        "authors": [],
+        "year": 2020,
+        "url": "https://doi.org/10.1515/9780823285297-005",
+        "verified_scope": "depositor bibliographic metadata only"
+      }
+    ]
+  },
+  "source_excerpts": [
+    {
+      "path": "Notes/1",
+      "line": 14,
+      "excerpt": "本文建立一套「精確可計算」的質數公式框架。核心目標不是宣稱存在一個只由有限次"
+    },
+    {
+      "path": "Notes/2",
+      "line": 14,
+      "excerpt": "本文建立一套關於「解析延拓方程」的精確框架。核心目標是形式化下列問題："
+    },
+    {
+      "path": "Notes/3",
+      "line": 17,
+      "excerpt": "「自變數／應變數」、「持續枚舉」、「保守演化」、「零殘差證書」及「系統延續」"
+    },
+    {
+      "path": "Notes/4",
+      "line": 17,
+      "excerpt": "能否由同一位元集合建構一致且完備的邏輯系統，並連結圖靈機執行、唯一性編碼、"
+    }
+  ],
+  "source_profiles": [
+    {
+      "file": "Notes/1",
+      "bytes": 24549,
+      "sha256": "67cca4014a2dda6a1328eee68679bef8111bff1442bc94de3ffcd452eb94d03a",
+      "line_count": 1305,
+      "concept_counts": {
+        "finite_computation": 37,
+        "encoding": 17,
+        "verification": 0,
+        "analytic_methods": 124,
+        "state_and_time": 5
+      },
+      "text_excerpt": "質數公式：由對數乘積、排列組合、Wilson 定理、質數計數與 Gödel 編碼導出的精確有限公式",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/2",
+      "bytes": 64343,
+      "sha256": "eb8a25bf4203756fe287506a652bd0e1f2dc87c0b0a7f6878e35f68cb26c18e0",
+      "line_count": 3692,
+      "concept_counts": {
+        "finite_computation": 26,
+        "encoding": 2,
+        "verification": 0,
+        "analytic_methods": 190,
+        "state_and_time": 20
+      },
+      "text_excerpt": "解析延拓方程：由 Cauchy–Riemann、恆等定理、解析 germ、路徑延拓、Riemann surface 與自然邊界導出的精確框架",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/3",
+      "bytes": 44561,
+      "sha256": "6b2a92addfecad366e77c869aa498c44f25f0e531393c3978c06cac11c8e4ee2",
+      "line_count": 980,
+      "concept_counts": {
+        "finite_computation": 160,
+        "encoding": 77,
+        "verification": 43,
+        "analytic_methods": 87,
+        "state_and_time": 30
+      },
+      "text_excerpt": "以純粹圖靈機語言建立的普遍對應原理：從 HSI_original、HSI_xy、唯一性編碼與類 Dirichlet 函數，到有限證書、解析表示與跨系統應用",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/4",
+      "bytes": 38042,
+      "sha256": "84f761ab888ff24e422f1a82a472d76525a32d93fce85aecac5fd700f081a1f5",
+      "line_count": 859,
+      "concept_counts": {
+        "finite_computation": 118,
+        "encoding": 58,
+        "verification": 34,
+        "analytic_methods": 69,
+        "state_and_time": 7
+      },
+      "text_excerpt": "HSI 位元後設理論：從 2 KB One-Liner 的每一位元到有限一致性、有限完備性、哥德爾編碼與類 Dirichlet 證書",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/5",
+      "bytes": 3642,
+      "sha256": "1c2fef4211fb1a9e629b9730450a947624a716267d248dc2a902c81aa77ef68e",
+      "line_count": 61,
+      "concept_counts": {
+        "finite_computation": 10,
+        "encoding": 2,
+        "verification": 2,
+        "analytic_methods": 0,
+        "state_and_time": 10
+      },
+      "text_excerpt": "提出可以在有限時間內核對、但不對模擬過程添加終止步數的證書。",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/ATGC_UTM_Fixed_Point/.gitignore",
+      "bytes": 21,
+      "sha256": "7b1c2cecd920a2266586dc8cf4c49cf7bd794528b5f6c641d2e45e15458d49dd",
+      "line_count": 2,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "run/",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/ATGC_UTM_Fixed_Point/README.md",
+      "bytes": 1639,
+      "sha256": "fd00155e826ce868f1e2175fa128ef4e49dbe731b31204b5e10c4b063b2d74a8",
+      "line_count": 30,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 5,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "# ATGC UTM Fixed Point",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/ATGC_UTM_Fixed_Point/atgc_utm_fixed_point.sh",
+      "bytes": 1000,
+      "sha256": "9f7dffbef1d0cf6ad5e307f2eb8f3bf1443410ddc98fb4428658a4dc80809056",
+      "line_count": 1,
+      "concept_counts": {
+        "finite_computation": 1,
+        "encoding": 1,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "command -v python3>/dev/null||exit 127;exec python3 -c 'import sys,os,json as j;M=os.getenv(\"MODE\",\"",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/ATGC_UTM_Fixed_Point/atgc_utm_fixed_point_daemon.sh",
+      "bytes": 1500,
+      "sha256": "1be976983b44d181dd1d87d1aef7e0691e1cdaaf2f2af55a9cb4fb9f1343f046",
+      "line_count": 26,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 3,
+        "verification": 1,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "# Resident loop: every INTERVAL seconds verify the ATGC fixed point.",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/COSMIC_LOVE_Identity_Solver_TM/.gitignore",
+      "bytes": 37,
+      "sha256": "7c6d807d15832072557bde4322d4d54ef5109fc72b285b0072d011b2e0372a67",
+      "line_count": 2,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "run/",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/COSMIC_LOVE_Identity_Solver_TM/README.md",
+      "bytes": 1215,
+      "sha256": "ccb06b18650449d32683ffaa81c973c42fc1758e469ef238d551c19fb645946f",
+      "line_count": 23,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 2,
+        "verification": 1,
+        "analytic_methods": 0,
+        "state_and_time": 2
+      },
+      "text_excerpt": "Same 2-state machine as `../COSMIC_LOVE_Oscillator_TM` (decoded from `p = 55067263`, `k=2`, `B=12`,",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/COSMIC_LOVE_Identity_Solver_TM/cosmic_love_identity_solver_daemon.sh",
+      "bytes": 1240,
+      "sha256": "c8b6583c78d8d5521f1b608dc0de9eadbbe33f73aa840f305d86cf6a313fdad9",
+      "line_count": 22,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "#!/usr/bin/env bash",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/COSMIC_LOVE_Identity_Solver_TM/cosmic_love_identity_solver_tm.sh",
+      "bytes": 1083,
+      "sha256": "ecd80e2e8afc6d1daa1b1e3bc404f4f0784c44ee6e2e84089f4815b00502634c",
+      "line_count": 1,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 1,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 1
+      },
+      "text_excerpt": "python3 -c 'exec(\"import sys,json\\nfrom math import isqrt\\np=55067263\\nv=(isqrt(8*p+1)-1)//2\\nc=p-v*",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/COSMIC_LOVE_Oscillator_TM/.gitignore",
+      "bytes": 28,
+      "sha256": "3e28e99263845fc0acbe0c82eb0e85f91d10c64143cc82f7ad20a8f0a374a6c6",
+      "line_count": 2,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "run/",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/COSMIC_LOVE_Oscillator_TM/README.md",
+      "bytes": 1158,
+      "sha256": "86fe0e116f2b934af5a323cb59cc07eb92dbc4c20d7650c166383a18dfa1672e",
+      "line_count": 24,
+      "concept_counts": {
+        "finite_computation": 1,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 6
+      },
+      "text_excerpt": "A 2-state Turing machine whose transition table is decoded from the single integer `p = 55067263`",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/COSMIC_LOVE_Oscillator_TM/cosmic_love_oscillator_daemon.sh",
+      "bytes": 1227,
+      "sha256": "925c2d1806a8191afa46b7483739a00d3ba554b60914af9a330160b887d7b23e",
+      "line_count": 24,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "#!/usr/bin/env bash",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/COSMIC_LOVE_Oscillator_TM/cosmic_love_oscillator_tm.sh",
+      "bytes": 492,
+      "sha256": "dc9ad4d87275cfd1362f7ff0519824164f7df9af64535846438c3e8f041fc7a9",
+      "line_count": 1,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "python3 -c 'exec(\"import time\\nfrom math import isqrt\\np=55067263\\nv=(isqrt(8*p+1)-1)//2\\nc=p-v*(v+1",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/COSMIC_LOVE_ZERO_POINT_FIELD_EXPLANATION_20261013.md",
+      "bytes": 12462,
+      "sha256": "bd24a85e782d5b370f12674fbcb65b96811d378da65be37f91cf48432a6d7495",
+      "line_count": 234,
+      "concept_counts": {
+        "finite_computation": 21,
+        "encoding": 6,
+        "verification": 4,
+        "analytic_methods": 22,
+        "state_and_time": 12
+      },
+      "text_excerpt": "- **範圍 / Scope：** 數學定義、有限圖靈機證明、零點搜尋、可重現驗證、系統整合邊界",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/Diagonal_TM_Enumerator/.gitignore",
+      "bytes": 25,
+      "sha256": "9b8be220705f7cb16d551c0564f2de93ee419e5ade448c58da880ed01e706c8e",
+      "line_count": 2,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "run/",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/Diagonal_TM_Enumerator/README.md",
+      "bytes": 1355,
+      "sha256": "165b6857f75634a2e169909adbe1428f664efa0c1312b9dac9ec696c354fb4be",
+      "line_count": 25,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 1,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 3
+      },
+      "text_excerpt": "Enumerates every binary-tape Turing machine with `n` states (each `(state, symbol)` is either undefi",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/Diagonal_TM_Enumerator/diagonal_tm_enumerator.sh",
+      "bytes": 1795,
+      "sha256": "c07a32dabdc34f74d77a129c0b56cea7275a06e3ba32a8f8fd68190c7c4ddbbb",
+      "line_count": 1,
+      "concept_counts": {
+        "finite_computation": 4,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 2
+      },
+      "text_excerpt": "exec python3 -c 'exec(\"import itertools,sys\\n# ATGC is a reversible encoding of bit pairs; TM syntax",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/Diagonal_TM_Enumerator/diagonal_tm_enumerator_daemon.sh",
+      "bytes": 1124,
+      "sha256": "61be45f004b4e0d0dab50dbc0a3638dc87e4dcebcfae7b597d590661575ffbf8",
+      "line_count": 20,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "#!/usr/bin/env bash",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/Diagonal_TM_Enumerator/expected_14.txt",
+      "bytes": 714,
+      "sha256": "a541535a4d215840973ea12ab6d078a7094cb71c157677ca0eced38d2269a96a",
+      "line_count": 14,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "ROUND 1 FIX=0 CLOSED=1 OPEN=0 SAMPLE_FIX=None",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/Dolphin_Logos_Riemann_Feedback/README.md",
+      "bytes": 5483,
+      "sha256": "efc6a6937b82162fc0c225a4313f8807793ec320994cbb9fed25df660197370d",
+      "line_count": 103,
+      "concept_counts": {
+        "finite_computation": 7,
+        "encoding": 2,
+        "verification": 6,
+        "analytic_methods": 1,
+        "state_and_time": 3
+      },
+      "text_excerpt": "python3 Notes/Dolphin_Logos_Riemann_Feedback/verify_feedback.py books/dolphin-logos",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/Dolphin_Logos_Riemann_Feedback/dolphin_logos.py",
+      "bytes": 24230,
+      "sha256": "920913f0c393fe6e9ca4d360b6cd61b6683ba8cf0666ba6810de4cad0fa859de",
+      "line_count": 484,
+      "concept_counts": {
+        "finite_computation": 4,
+        "encoding": 11,
+        "verification": 12,
+        "analytic_methods": 7,
+        "state_and_time": 58
+      },
+      "text_excerpt": "def initial_state():",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/Dolphin_Logos_Riemann_Feedback/source_config.json",
+      "bytes": 1544,
+      "sha256": "9c48f6bcc5d8220eb694d850ee7ac8b098cb9214f0d0e898b7f37cea596b917d",
+      "line_count": 47,
+      "concept_counts": {
+        "finite_computation": 1,
+        "encoding": 0,
+        "verification": 1,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "{",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/Dolphin_Logos_Riemann_Feedback/sources.py",
+      "bytes": 7985,
+      "sha256": "c2fdc5e5037994ff02b65c493b69e8e7a91337763722d9c36502eee4fa944ebd",
+      "line_count": 190,
+      "concept_counts": {
+        "finite_computation": 7,
+        "encoding": 4,
+        "verification": 4,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "\"\"\"Public, bounded source intake. No video/audio download or transcript publication.\"\"\"",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/Dolphin_Logos_Riemann_Feedback/verification_certificate.json",
+      "bytes": 1184,
+      "sha256": "d5d8602ea4bd046496ba43392ff123e5122d58b64e08b54e1e42a0832bea592b",
+      "line_count": 38,
+      "concept_counts": {
+        "finite_computation": 1,
+        "encoding": 0,
+        "verification": 7,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "\"path\": \"verify_feedback.py\",",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/Dolphin_Logos_Riemann_Feedback/verify_feedback.py",
+      "bytes": 4746,
+      "sha256": "0de78c40061828f72b80e1102c465698b83ebc2141a01b394c4b24a32ce09813",
+      "line_count": 87,
+      "concept_counts": {
+        "finite_computation": 2,
+        "encoding": 5,
+        "verification": 12,
+        "analytic_methods": 4,
+        "state_and_time": 9
+      },
+      "text_excerpt": "def verify(folder):",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Cosmic_Self_Closure_TM/.gitignore",
+      "bytes": 29,
+      "sha256": "5e6a9d54617671cc76e063132c74ae7cba351c049b16e7a6d942ccf746f6972f",
+      "line_count": 2,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "run/",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Cosmic_Self_Closure_TM/README.md",
+      "bytes": 1202,
+      "sha256": "de04de6741ffc18e57956c93fcdfb8a1dcf94d973b13cbcac7bba3d6ec6e3365",
+      "line_count": 24,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 5
+      },
+      "text_excerpt": "The same 2-state machine as `../COSMIC_LOVE_Oscillator_TM`, decoded from `p = 55067263`",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Cosmic_Self_Closure_TM/expected.json",
+      "bytes": 210,
+      "sha256": "d4342c69625687fb501fbf93cb0935026bef4aae405edfb764723dd4514bac46",
+      "line_count": 1,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 0,
+        "verification": 1,
+        "analytic_methods": 0,
+        "state_and_time": 1
+      },
+      "text_excerpt": "{\"halt_unreachable\": true, \"program\": 55067263, \"protocol\": \"HSI-COSMIC-SELF-CLOSURE/NONHALTING-1.0\"",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Cosmic_Self_Closure_TM/hsi_cosmic_self_closure_daemon.sh",
+      "bytes": 1269,
+      "sha256": "cb7051d0a919c3506af6f6ddcb3485a6cd7963ce15a428fdd2683ed1b856af5c",
+      "line_count": 25,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "#!/usr/bin/env bash",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Cosmic_Self_Closure_TM/hsi_cosmic_self_closure_tm.sh",
+      "bytes": 793,
+      "sha256": "5001803eeaa3003892903959db8584449da6df6311a9ad6efdcb355f754ffbec",
+      "line_count": 1,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 0,
+        "verification": 4,
+        "analytic_methods": 0,
+        "state_and_time": 1
+      },
+      "text_excerpt": "exec python3 -c 'exec('\"'\"'import json,sys\\nfrom math import isqrt\\np=55067263;v=(isqrt(8*p+1)-1)//2",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_LogicTape_2KB_Release/README.md",
+      "bytes": 9711,
+      "sha256": "b188a9db025fbc009002bb5af02cb70f7ec3b52d6ae7ad4a5452237e4b71e49f",
+      "line_count": 173,
+      "concept_counts": {
+        "finite_computation": 15,
+        "encoding": 5,
+        "verification": 9,
+        "analytic_methods": 0,
+        "state_and_time": 27
+      },
+      "text_excerpt": "它是 Python 實作的通用 TM 直譯器：被模擬機器只有一條以整數位置為座標的二元磁帶，以及一個每步向左或右移動一格的讀寫頭。程式碼 `P` 決定任意有限的控制狀態與轉移表，沒有 32、128 或",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_LogicTape_2KB_Release/core.py",
+      "bytes": 1823,
+      "sha256": "e20b0e67358af7cc2b3c82308b1a540c2554ac0ff6d7c9e8159334540e084e9f",
+      "line_count": 39,
+      "concept_counts": {
+        "finite_computation": 1,
+        "encoding": 1,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "import os,json,tempfile",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_LogicTape_2KB_Release/hsi_logic_tape_2kb.sh",
+      "bytes": 1929,
+      "sha256": "8de38d15dbac873b5a1eeaccdd9828696a90f52197c74183191ead9a34d20b71",
+      "line_count": 1,
+      "concept_counts": {
+        "finite_computation": 1,
+        "encoding": 1,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "PYTHONINTMAXSTRDIGITS=0 python3 -c \"$(printf '%b' 'import os,json,tempfile\\nfrom math import isqrt\\n",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_LogicTape_2KB_Release/simulation_certificate.json",
+      "bytes": 2741,
+      "sha256": "003f3148ea3e86f4defed416fb4faa73744e94952f8704d9414a2bdd67493d0c",
+      "line_count": 121,
+      "concept_counts": {
+        "finite_computation": 3,
+        "encoding": 7,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 7
+      },
+      "text_excerpt": "\"name\": \"512_state_program_without_artificial_state_cap\",",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_LogicTape_2KB_Release/test_simulator.py",
+      "bytes": 8917,
+      "sha256": "43899c58dae1420ecfbfebe63d40eb2568a8f84a8acad29406975285e74cba5a",
+      "line_count": 151,
+      "concept_counts": {
+        "finite_computation": 14,
+        "encoding": 11,
+        "verification": 9,
+        "analytic_methods": 0,
+        "state_and_time": 57
+      },
+      "text_excerpt": "import verify_single_tape as ref",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_LogicTape_2KB_Release/verify_single_tape.py",
+      "bytes": 5448,
+      "sha256": "a48790dee161209a6740af9329a5895bc090d34bd3fd5b5a0c3987eb1374188f",
+      "line_count": 135,
+      "concept_counts": {
+        "finite_computation": 10,
+        "encoding": 1,
+        "verification": 3,
+        "analytic_methods": 0,
+        "state_and_time": 29
+      },
+      "text_excerpt": "states = halt + 1",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_POSIX_2KB_OneLiner.sh",
+      "bytes": 2043,
+      "sha256": "679f8118985635ea7eeb963ac92839acd4c97a4d3ada5607339aa2766c189e7d",
+      "line_count": 1,
+      "concept_counts": {
+        "finite_computation": 5,
+        "encoding": 1,
+        "verification": 2,
+        "analytic_methods": 0,
+        "state_and_time": 2
+      },
+      "text_excerpt": "python3 -c \"$(printf '%b' 'import os,json,sys,time\\nfrom math import isqrt\\nfrom functools import re",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_2KB_OneLiner.sh",
+      "bytes": 2027,
+      "sha256": "2b032922bc09019bd55e454d9143e0755c1c7b51d6d4f12f8e315c687c363c31",
+      "line_count": 1,
+      "concept_counts": {
+        "finite_computation": 5,
+        "encoding": 1,
+        "verification": 2,
+        "analytic_methods": 0,
+        "state_and_time": 2
+      },
+      "text_excerpt": "python3 -c $'import os,json,sys,time\\nfrom math import isqrt\\nfrom functools import reduce\\nJ=lambda",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_OriginalXY_Plaintext_Core.py",
+      "bytes": 1983,
+      "sha256": "b89d0709b161c291c0fb1d9371058b107c735bbfd28212a1a66353ee6523ba7b",
+      "line_count": 29,
+      "concept_counts": {
+        "finite_computation": 5,
+        "encoding": 1,
+        "verification": 2,
+        "analytic_methods": 0,
+        "state_and_time": 2
+      },
+      "text_excerpt": "import os,json,sys,time",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Prime_Analytic_2KB_Release/HSI_PRIME_ANALYTIC_PLAINTEXT_2KB_BILINGUAL_SPEC.txt",
+      "bytes": 20600,
+      "sha256": "641c0a9fcdff92c068aedfdbabaaa7d92a73c5410e42952ca4eef6b30ce2fc8b",
+      "line_count": 442,
+      "concept_counts": {
+        "finite_computation": 60,
+        "encoding": 27,
+        "verification": 23,
+        "analytic_methods": 66,
+        "state_and_time": 14
+      },
+      "text_excerpt": "HSI 純明文 2 KB One-Liner：由質數公式、位元後設理論與解析延拓方程建構的有限可驗證系統",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Prime_Analytic_2KB_Release/OriginalXY_reference.py",
+      "bytes": 3072,
+      "sha256": "62bb72a9cdcbbcf1d4f529aaa74fc371b02a91f7a2245f38c93a6a8a62174b7c",
+      "line_count": 42,
+      "concept_counts": {
+        "finite_computation": 6,
+        "encoding": 4,
+        "verification": 2,
+        "analytic_methods": 0,
+        "state_and_time": 5
+      },
+      "text_excerpt": "import os,json,math,time,functools,sys",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Prime_Analytic_2KB_Release/README.md",
+      "bytes": 2018,
+      "sha256": "a098e36848e66bf9f7a8a00d2131016791a05d847bd70c22b097ab4041bc2317",
+      "line_count": 34,
+      "concept_counts": {
+        "finite_computation": 8,
+        "encoding": 1,
+        "verification": 2,
+        "analytic_methods": 9,
+        "state_and_time": 10
+      },
+      "text_excerpt": "HSI_STATE=demo.state HSI_LIMIT=12 HSI_SLEEP=0 sh HSI_OriginalXY_POSIX_2KB_OneLiner.sh",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Prime_Analytic_2KB_Release/verification_certificate.json",
+      "bytes": 5009,
+      "sha256": "2753d7ff2247bfb7b90ca5a6042b7cf5e2285fd2eabe8fcf1b52d5544653cdc1",
+      "line_count": 209,
+      "concept_counts": {
+        "finite_computation": 7,
+        "encoding": 0,
+        "verification": 10,
+        "analytic_methods": 28,
+        "state_and_time": 4
+      },
+      "text_excerpt": "{",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Prime_Analytic_2KB_Release/verify_prime_analytic.py",
+      "bytes": 9705,
+      "sha256": "58fda9f5a404c3a58c7f3a4aefdc49396e4c5212c6c2d0e9d7e5af80a7a99f68",
+      "line_count": 222,
+      "concept_counts": {
+        "finite_computation": 23,
+        "encoding": 9,
+        "verification": 9,
+        "analytic_methods": 28,
+        "state_and_time": 13
+      },
+      "text_excerpt": "def run(kind: str, params: dict, state: Path):",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Sub2K_Program_Synthesizer/README.md",
+      "bytes": 2507,
+      "sha256": "4a8a37160818834197a277de713a05e083515342e933178ad1751d475c36b944",
+      "line_count": 58,
+      "concept_counts": {
+        "finite_computation": 8,
+        "encoding": 1,
+        "verification": 11,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "certificate.  This prevents an ordinary compressed archive from being",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Sub2K_Program_Synthesizer/hsi_sub2k_synth.py",
+      "bytes": 14114,
+      "sha256": "f2a9d10a476a3e21842ff213711fe9b27c67c149d3b9677dbf1730f80e720594",
+      "line_count": 359,
+      "concept_counts": {
+        "finite_computation": 16,
+        "encoding": 11,
+        "verification": 32,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "def verify_source(source: bytes, expected: bytes, timeout: float = 10.0):",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Sub2K_Program_Synthesizer/verification_certificate.json",
+      "bytes": 2099,
+      "sha256": "f99630efefd85f718eb198d8b1ce898a586fa12916ee92860b1235e792735e41",
+      "line_count": 74,
+      "concept_counts": {
+        "finite_computation": 5,
+        "encoding": 0,
+        "verification": 8,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "{",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/HSI_Sub2K_Program_Synthesizer/verify_sub2k_synth.py",
+      "bytes": 4104,
+      "sha256": "1fed23725b6e87c5a72997c9532bd69730a73b8aad9d1350377bbac87d7d3849",
+      "line_count": 91,
+      "concept_counts": {
+        "finite_computation": 10,
+        "encoding": 2,
+        "verification": 11,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "certificate = root / \"certificate.json\"",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/LFP_ATGC_TM/.gitignore",
+      "bytes": 20,
+      "sha256": "f2d75ecb572bff01b2f598e45ca4f2ff22b3d7e4c4c416fd0478482d4751eb01",
+      "line_count": 2,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "run/",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/LFP_ATGC_TM/README.md",
+      "bytes": 1199,
+      "sha256": "00d04138dadf35f0f367266fd1181922a1bdafcc59629d6ccd1b4f43bd22d970",
+      "line_count": 25,
+      "concept_counts": {
+        "finite_computation": 1,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 2
+      },
+      "text_excerpt": "## What is computed vs. stated",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/LFP_ATGC_TM/expected.json",
+      "bytes": 482,
+      "sha256": "d1a102131b4d0abd270b19266123573aa9351434e9c169cfafe724e3dd6a78e1",
+      "line_count": 1,
+      "concept_counts": {
+        "finite_computation": 1,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "{\"ATGC\":[\"TAAA\",\"CTAA\",\"CCTA\",\"CCCT\",\"CCCC\"],\"CHAIN\":[\"0000\",\"1000\",\"1100\",\"1110\",\"1111\",\"1111\"],\"CO",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/LFP_ATGC_TM/lfp_atgc_tm.sh",
+      "bytes": 1073,
+      "sha256": "4b40f48cbf3537ac5f19a55cd3f6d51383fc8a4a5468a23152e18ee642034eea",
+      "line_count": 1,
+      "concept_counts": {
+        "finite_computation": 1,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "command -v python3>/dev/null||exit 127;python3 -c 'import json as j,math;S=lambda x:x|8|(4 if x&8 el",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    },
+    {
+      "file": "Notes/LFP_ATGC_TM/lfp_atgc_tm_daemon.sh",
+      "bytes": 1092,
+      "sha256": "0ebbbf1acba8e96f33bb4074b9728cdd4bb1dfe9fe224c0477e59c00675c4ef2",
+      "line_count": 20,
+      "concept_counts": {
+        "finite_computation": 0,
+        "encoding": 0,
+        "verification": 0,
+        "analytic_methods": 0,
+        "state_and_time": 0
+      },
+      "text_excerpt": "#!/usr/bin/env bash",
+      "summarization": "MECHANICAL_KEYWORD_COUNTS_NOT_SEMANTIC_ANALYSIS"
+    }
+  ],
+  "dossier_sha256": "7f9e13e107f730be8378a0743406c399ef46d6e68becb1769270c46c18a52008"
+}
