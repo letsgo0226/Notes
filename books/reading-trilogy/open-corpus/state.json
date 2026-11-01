@@ -110,6 +110,11 @@
       "book": "02_Hu_Mantra_如何閱讀自己",
       "chapter": 4,
       "folder": "02_Hu_Mantra_如何閱讀自己/04_練習與修正"
+    },
+    {
+      "book": "02_Hu_Mantra_如何閱讀自己",
+      "chapter": 5,
+      "folder": "02_Hu_Mantra_如何閱讀自己/05_思想實驗"
     }
   ],
   "source_epochs": [
@@ -153,7 +158,7 @@
   ],
   "tm_word": "1101000011010100",
   "tm_checkpoint": {
-    "n": 272,
+    "n": 288,
     "t": 0,
     "w": "1101000011010100",
     "v": 2
