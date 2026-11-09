@@ -1,0 +1,46 @@
+{
+  "protocol": "HSI-PEACE-AV-ARCHIVE/1.0",
+  "run_id": "42585452220",
+  "video_duration_seconds": 953.655,
+  "video_language": "English",
+  "speaker_performance": "STATIC_VISUAL_FALLBACK__NO_LIP_SYNC",
+  "real_world_peace_claim": "NOT_ASSESSED",
+  "scene_count": 18,
+  "outputs": [
+    {
+      "file": "peace_address_english.mp4",
+      "bytes": 15664110,
+      "sha256": "e6a4adf8a52c219887f0dad69da0be84ffce7b565422c800d40d313b7d180aed"
+    },
+    {
+      "file": "voiceover.en.mp3",
+      "bytes": 6718796,
+      "sha256": "b193f18f34ee779503a6d8ba3aea4cf8caa2db271f85f2b95672faff93625470"
+    },
+    {
+      "file": "captions.en.srt",
+      "bytes": 20262,
+      "sha256": "17d915fe83a00fd2abb250e347b0fc2119f00b97cbbdb3b71c3e51a693504e13"
+    },
+    {
+      "file": "transcript.en.md",
+      "bytes": 14610,
+      "sha256": "89b5e25fe8560ffaefd669f78c002d0f2693b7dad8e4b1a8459f7495e3fcf77d"
+    },
+    {
+      "file": "correspondence.json",
+      "bytes": 29311,
+      "sha256": "91ba68ef5d987df0e6e5782ae7c410e66151a69e66971ebc5f6d53e4b6c83b9d"
+    },
+    {
+      "file": "frame_correspondence.jsonl",
+      "bytes": 2544118,
+      "sha256": "64fc91cf485669b9c88d30bc97b8689d8ef145e2b6d9c461fbf744a40ed842e4"
+    },
+    {
+      "file": "SHA256SUMS",
+      "bytes": 519,
+      "sha256": "a24c374bef337d197a619b78e8366710796fa47260ae72af5e0d324a87097c48"
+    }
+  ]
+}
