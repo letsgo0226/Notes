@@ -1,0 +1,42 @@
+name: CLTP offline research validation
+
+on:
+  pull_request:
+    paths:
+      - 'research/cltp/**'
+      - 'tests/test_cltp_offline.py'
+      - '.github/workflows/cltp_offline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  research-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Local-only synthetic regression
+        run: |
+          python3 -m py_compile research/cltp/cltp.py
+          python3 -m unittest discover -s tests -p 'test_cltp_offline.py' -v
+      - name: CLI smoke test with artificial data; assert no order authority
+        run: |
+          python3 research/cltp/cltp.py --csv research/cltp/examples/synthetic_btcusdt_candles.csv > /tmp/cltp-offline.json
+          python3 - <<'PY'
+          import json
+          p = json.load(open('/tmp/cltp-offline.json'))
+          assert p['machine_program'] == 55067263
+          assert p['live_order_permission'] == 'DENIED'
+          assert p['broker_calls'] == 0 and p['real_orders'] == 0
+          assert p['asset'] == 'BTCUSDT'
+          assert p['trade_count'] == len(p['simulated_trades'])
+          assert all(t['execution_bar'] > t['decision_bar'] for t in p['simulated_trades'])
+          print('CLTP_OFFLINE_ONLY_VERIFIED')
+          PY
